@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Script" path="res://core/data/unit_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="2_17fcd"]
+[ext_resource type="Texture2D" path="res://assets/sprites/units/goblin_archer.png" id="2_goblin_archer"]
+[ext_resource type="Resource" path="res://content/skills/enemies/enemy_arrow.tres" id="3_enemy_arrow"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"goblin_archer"
+display_name = "Goblin arquero"
+short_name = "GBA"
+race = "Goblin"
+unit_class = "Tirador"
+sprite = ExtResource("2_goblin_archer")
+max_hp = 45
+defense = 1
+evasion = 10
+hp_per_level = 5
+skills = Array[ExtResource("2_17fcd")]([ExtResource("3_enemy_arrow")])
+xp_reward = 8

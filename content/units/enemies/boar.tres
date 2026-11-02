@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Script" path="res://core/data/unit_data.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/sprites/units/boar.png" id="2_boar"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="2_cg11x"]
+[ext_resource type="Resource" path="res://content/skills/enemies/bite.tres" id="3_bite"]
+[ext_resource type="Resource" path="res://content/skills/enemies/gore_charge.tres" id="4_gore_charge"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"boar"
+display_name = "Jabalí"
+short_name = "JAB"
+race = "Bestia"
+unit_class = "Embestidor"
+sprite = ExtResource("2_boar")
+max_hp = 70
+speed = 9
+attack = 12
+defense = 4
+skills = Array[ExtResource("2_cg11x")]([ExtResource("3_bite"), ExtResource("4_gore_charge")])
+xp_reward = 9

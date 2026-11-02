@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"knife_throw"
+display_name = "Cuchillo"
+description = "Cuchillo a 2-3 casillas. Enfriamiento 1."
+skill_type = 1
+tags = Array[StringName]([&"lanzamiento", &"proyectil"])
+cooldown = 1
+range_min = 2
+range_max = 3
+vertical_reach = 2

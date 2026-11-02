@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+[ext_resource type="Resource" path="res://content/skills/warrior/unstoppable_charge.tres" id="2_unstoppable_charge"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"charge"
+display_name = "Carga"
+description = "Corre en línea recta hacia un enemigo (2-4) y lo golpea. Genera ira."
+skill_type = 3
+tags = Array[StringName]([&"movimiento", &"melee"])
+cooldown = 2
+target_rule = 1
+range_min = 2
+range_max = 4
+requires_straight_line = true
+power = 8
+motion = 2
+empowered_variant = ExtResource("2_unstoppable_charge")

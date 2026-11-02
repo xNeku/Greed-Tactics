@@ -14,6 +14,10 @@ func _ready() -> void:
 	_restart_button.pressed.connect(restart_requested.emit)
 
 
+func set_button_text(text: String) -> void:
+	_restart_button.text = text
+
+
 func show_result(victory: bool) -> void:
 	_title_label.text = "¡Victoria!" if victory else "Derrota"
 	_subtitle_label.text = "Todos los enemigos han caído." if victory else "Tu grupo ha caído."

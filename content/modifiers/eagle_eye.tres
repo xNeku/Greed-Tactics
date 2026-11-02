@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ModifierData" format=3]
+
+[ext_resource type="Script" path="res://core/data/modifier_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"eagle_eye"
+display_name = "Vista de águila"
+description = "+1 de alcance a las habilidades de proyectil."
+target_tag = &"proyectil"
+effect = 0

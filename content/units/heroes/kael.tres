@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Script" path="res://core/data/unit_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="2_gymct"]
+[ext_resource type="Texture2D" path="res://assets/sprites/units/kael.png" id="2_kael"]
+[ext_resource type="Resource" path="res://content/skills/warrior/strike.tres" id="3_strike"]
+[ext_resource type="Resource" path="res://content/skills/warrior/axe_throw.tres" id="4_axe_throw"]
+[ext_resource type="Resource" path="res://content/skills/warrior/whirlwind.tres" id="5_whirlwind"]
+[ext_resource type="Resource" path="res://content/skills/warrior/charge.tres" id="6_charge"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"kael"
+display_name = "Kael"
+short_name = "KAE"
+race = "Humano"
+unit_class = "Guerrero"
+sprite = ExtResource("2_kael")
+description = "Guerrero de primera línea. Usa ira: la gana pegando y recibiendo golpes, pega más cuanta más tiene y sus habilidades mutan al superar cierto umbral."
+resource_kind = 2
+max_hp = 130
+speed = 9
+attack = 15
+defense = 7
+hp_per_level = 12
+attack_per_level = 3
+defense_per_level = 2
+skills = Array[ExtResource("2_gymct")]([ExtResource("3_strike"), ExtResource("4_axe_throw"), ExtResource("5_whirlwind"), ExtResource("6_charge")])

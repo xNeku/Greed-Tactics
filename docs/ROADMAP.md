@@ -7,52 +7,46 @@ Leyenda: ✅ hecho · 🟡 en curso · ⬜ pendiente · 🔍 pendiente de valida
 
 | Hito | Estado | Resumen |
 |---|---|---|
-| M0. Prototipo de grid | 🔍 | Implementado y testeado. Falta tu validación jugándolo. |
-| M1. Combate completo | 🟡 | Turnos, PM/PA/MP y HUD ya hechos. Faltan slots, modificadores y pipeline. |
-| M2. Run jugable | ⬜ | |
+| M0. Prototipo de grid | ✅ | Validado por Neku ("me gusta"). |
+| M1. Combate completo | 🔍 | 4 clases con kit completo, ira/maná/enfriamientos, pipeline y 22 modificadores. Falta validarlo jugando. |
+| M2. Run jugable | 🟡 | Prototipo de run de 2 etapas × 4 fases con generador de mapas, recompensas y XP. Faltan compañeros, bendiciones y pulido. |
 | M3. Meta y persistencia | ⬜ | |
-| M4. Contenido | ⬜ | |
+| M4. Contenido | 🟡 | Adelantado: 3 zonas, 12 enemigos, 3 minibosses, 22 modificadores. |
 | M5. Pulido y balance | ⬜ | |
 
 ---
 
-## M0. Prototipo de grid (1-2 semanas) — 🔍
+## M0. Prototipo de grid — ✅
 
-**Criterio de salida:** mover y atacar en el grid con previsión. Tests de movimiento y orientación en verde.
+Criterio de salida cumplido: mover y atacar en el grid con previsión; tests de movimiento y orientación en verde; validado por @Neku.
 
-- ✅ Mapa 3D isométrico con alturas, agua animada y bloques (`BattleMapView`, datos en `MapData`).
-- ✅ Movimiento ortogonal con coste de PM, coste de subida y límite de salto (`Pathfinder`, `GridRules`).
-- ✅ Previsualización de movimiento (azul) y camino (azul claro), casilla bajo el ratón (verde).
-- ✅ Ataque con rango (naranja), área (amarillo) y ficha de previsión (lado, daño, golpe, crítico).
-- ✅ Orientación y regla de espalda (`GridRules.get_attack_side`).
-- ✅ Tests de movimiento y orientación en verde (`tests/unit/test_movement.gd`, `test_orientation.gd`).
-- ✅ Extra adelantado de M1: cola de turnos por velocidad, varias unidades por bando, IA enemiga básica, victoria/derrota.
-- 🔍 Validación de @Neku jugando en Godot 4.7.2.
-
-## M1. Combate completo (vertical slice de combate) — 🟡
+## M1. Combate completo (vertical slice de combate) — 🔍
 
 **Criterio de salida:** un combate de 4-6 minutos contra 3 enemigos, jugable de principio a fin **sin tocar código para añadir contenido**.
 
 - ✅ Cola de turnos por velocidad (CT) siempre visible.
-- ✅ PM / PA / MP por turno.
-- ✅ HUD: cola, ficha, comandos, mensaje, previsión, resultado.
-- ✅ Combate contra 3 enemigos con victoria/derrota.
-- ⬜ Plantilla de 4 slots (Básica, Lanzamiento, Área, Movimiento) por personaje — GT-010.
-- ⬜ Habilidades de tipo Movimiento (salto, carga, intercambio) — GT-011.
-- ⬜ 3-4 habilidades base por personaje — GT-012.
-- ⬜ `ModifierData` + `ResolutionPipeline` con el orden fijo del GDD §5 — GT-013, GT-014.
-- ⬜ 5 modificadores (2 de comportamiento, 3 numéricos) con tests — GT-015.
-- ⬜ Medir duración real del combate (objetivo 4-6 min) — GT-016.
+- ✅ PM / PA / MP por turno + **ira** y **enfriamientos** (v0.3).
+- ✅ HUD: cola, ficha (con barra de maná o ira), comandos con coste y mutación ★, mensaje, previsión, resultado.
+- ✅ Plantilla de 4 slots (Básica, Lanzamiento, Área, Movimiento) en las 4 clases — GT-010.
+- ✅ Habilidades de Movimiento: teletransporte, carga y aparecer a la espalda — GT-011.
+- ✅ 4 habilidades por clase (+ 8 mutaciones por ira) — GT-012.
+- ✅ `ModifierData` + `ResolutionPipeline` con el orden fijo del GDD §5 — GT-013, GT-014.
+- ✅ 22 modificadores (numéricos y de comportamiento) con tests del pipeline — GT-015.
+- ✅ Tabla de incompatibilidades — GT-040.
+- 🔍 Medir duración real del combate con jugador humano (objetivo 4-6 min) — GT-016.
 
-## M2. Run jugable — ⬜
+## M2. Run jugable — 🟡
 
 **Criterio de salida:** una run completa en 20-30 minutos sin bugs bloqueantes.
 
-- ⬜ `RunState` y escena de mapa de run: 1 zona, 3 pisos, 2-4 combates + boss.
-- ⬜ Generador procedural de `MapData` por zona.
-- ⬜ Bendiciones: elegir 1 de 3, reroll con moneda de run.
-- ⬜ Compañeros: 1 inicial + 1 por piso, IA por rol.
-- ⬜ Pantallas de inicio, muerte y victoria de run.
+- ✅ `RunState` y mapa de run: 2 etapas × 4 fases, miniboss en la fase 4 — GT-042.
+- ✅ Generador procedural de `MapData` para Cueva, Bosque y Desierto — GT-043.
+- ✅ Recompensas: modificador 1 de 3 con reroll (fases pares), oro (impares), XP y nivel.
+- ✅ Vida persistente, revivir tras victoria, curar con oro.
+- ✅ Pantallas de menú, mapa de run, recompensa y fin de run — GT-041.
+- ⬜ Bendiciones (GDD §2) separadas de los modificadores — GT-050.
+- ⬜ Compañeros: 1 inicial + 1 por piso, IA por rol — GT-051.
+- ⬜ Validar duración de run (20-30 min) jugando — GT-052.
 
 ## M3. Meta y persistencia — ⬜
 
@@ -64,11 +58,12 @@ Leyenda: ✅ hecho · 🟡 en curso · ⬜ pendiente · 🔍 pendiente de valida
 - ⬜ Maestría por personaje y arma.
 - ⬜ Desbloqueo de raza/clase en minibosses.
 
-## M4. Contenido — ⬜
+## M4. Contenido — 🟡
 
 **Criterio de salida:** tres runs seguidas dan experiencias distintas.
 
-- ⬜ 2-3 zonas, 10 personajes con kit completo, pool de compañeros, 15-20 modificadores, 5 armas.
+- ✅ 3 zonas con generador propio, 12 enemigos, 3 minibosses, 22 modificadores.
+- ⬜ 10 personajes con kit completo, pool de compañeros, 5 armas.
 
 ## M5. Pulido y balance — ⬜
 

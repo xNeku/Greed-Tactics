@@ -48,3 +48,5 @@ multimesh = SubResource("MultiMesh_solid")
 
 [node name="LiquidTerrain" type="MultiMeshInstance3D" parent="."]
 multimesh = SubResource("MultiMesh_liquid")
+
+[node name="Props" type="Node3D" parent="."]

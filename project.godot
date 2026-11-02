@@ -12,10 +12,14 @@ config_version=5
 
 config/name="Greed Tactics"
 config/description="Roguelike táctico isométrico 2.5D por turnos."
-config/version="0.1.0"
-run/main_scene="res://scenes/battle/battle.tscn"
+config/version="0.3.0"
+run/main_scene="res://scenes/menu/main_menu.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
+
+[autoload]
+
+Game="*res://scenes/app/game.tscn"
 
 [display]
 

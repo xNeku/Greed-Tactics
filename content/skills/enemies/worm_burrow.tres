@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"worm_burrow"
+display_name = "Emboscada subterránea"
+description = "Se hunde y emerge a la espalda de un enemigo (2-6). Enfriamiento 3."
+skill_type = 3
+tags = Array[StringName]([&"movimiento", &"melee"])
+cooldown = 3
+target_rule = 1
+range_min = 2
+range_max = 6
+vertical_reach = 9
+power = 12
+motion = 3

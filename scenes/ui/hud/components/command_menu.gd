@@ -7,6 +7,8 @@ signal move_selected
 signal skill_selected(skill: SkillData)
 signal wait_selected
 
+const EMPOWERED_COLOR := Color(1.0, 0.55, 0.4)
+
 const HOTKEY_ACTIONS: Array[StringName] = [
 	&"command_1", &"command_2", &"command_3", &"command_4", &"command_5", &"command_6",
 ]
@@ -18,19 +20,26 @@ var _wait_button: Button
 var _skill_buttons: Dictionary[SkillData, Button] = {}
 
 
-## [param usable_skills] maps each skill to whether it can be used right now.
-func show_for(can_move: bool, usable_skills: Dictionary[SkillData, bool]) -> void:
+## [param usable_skills] maps each equipped skill to whether it can be used
+## right now. Names and costs shown are the effective ones (rage mutation and
+## modifiers included); mutated skills are marked with a star.
+func show_for(unit: UnitState, can_move: bool, usable_skills: Dictionary[SkillData, bool]) -> void:
 	for child in _buttons.get_children():
+		_buttons.remove_child(child)
 		child.queue_free()
 	_skill_buttons.clear()
 
 	_move_button = _add_button("Mover", "", can_move, move_selected.emit)
 	for skill in usable_skills:
-		var cost := "%d PA" % skill.ap_cost
-		if skill.mp_cost > 0:
-			cost += " · %d MP" % skill.mp_cost
-		var button := _add_button(skill.display_name, cost, usable_skills[skill], skill_selected.emit.bind(skill))
-		button.tooltip_text = skill.description
+		var effective := unit.get_effective(skill)
+		var cost := effective.get_cost_text()
+		var cooldown := unit.get_cooldown(skill)
+		if cooldown > 0:
+			cost = "espera %d" % cooldown
+		var button := _add_button(effective.display_name, cost, usable_skills[skill], skill_selected.emit.bind(skill))
+		button.tooltip_text = _build_tooltip(effective, skill)
+		if effective.empowered:
+			button.add_theme_color_override(&"font_color", EMPOWERED_COLOR)
 		_skill_buttons[skill] = button
 	_wait_button = _add_button("Esperar", "", true, wait_selected.emit)
 	visible = true
@@ -85,3 +94,12 @@ func _add_button(label: String, cost: String, enabled: bool, on_pressed: Callabl
 	button.pressed.connect(on_pressed)
 	_buttons.add_child(button)
 	return button
+
+
+func _build_tooltip(effective: EffectiveSkill, base: SkillData) -> String:
+	var lines := PackedStringArray([effective.source.description])
+	if base.empowered_variant != null and not effective.empowered:
+		lines.append("Con %d+ de ira muta en: %s" % [base.empowered_rage_threshold, base.empowered_variant.display_name])
+	for modifier in effective.applied:
+		lines.append("◆ %s: %s" % [modifier.display_name, modifier.description])
+	return "\n".join(lines)

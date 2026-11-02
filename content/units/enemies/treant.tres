@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Script" path="res://core/data/unit_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="2_icnb2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/units/treant.png" id="2_treant"]
+[ext_resource type="Resource" path="res://content/skills/enemies/ent_branch.tres" id="3_ent_branch"]
+[ext_resource type="Resource" path="res://content/skills/enemies/ent_roots.tres" id="4_ent_roots"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"treant"
+display_name = "Ent anciano"
+short_name = "ENT"
+race = "Ent"
+unit_class = "Miniboss"
+sprite = ExtResource("2_treant")
+sprite_scale = 1.55
+max_hp = 280
+speed = 7
+move_points = 3
+attack = 16
+defense = 8
+evasion = 0
+hp_per_level = 26
+attack_per_level = 3
+skills = Array[ExtResource("2_icnb2")]([ExtResource("3_ent_branch"), ExtResource("4_ent_roots")])
+xp_reward = 60
+gold_reward = 25

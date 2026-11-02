@@ -3,10 +3,10 @@
 [ext_resource type="Script" path="res://core/data/unit_data.gd" id="1_ku254"]
 [ext_resource type="Script" path="res://core/data/battle_setup.gd" id="1_script"]
 [ext_resource type="Resource" path="res://content/maps/test_arena.tres" id="2_test_arena"]
-[ext_resource type="Resource" path="res://content/units/kael.tres" id="3_kael"]
-[ext_resource type="Resource" path="res://content/units/pablo.tres" id="4_pablo"]
-[ext_resource type="Resource" path="res://content/units/goblin.tres" id="5_goblin"]
-[ext_resource type="Resource" path="res://content/units/slime.tres" id="6_slime"]
+[ext_resource type="Resource" path="res://content/units/heroes/kael.tres" id="3_kael"]
+[ext_resource type="Resource" path="res://content/units/heroes/pablo.tres" id="4_pablo"]
+[ext_resource type="Resource" path="res://content/units/enemies/goblin.tres" id="5_goblin"]
+[ext_resource type="Resource" path="res://content/units/enemies/slime.tres" id="6_slime"]
 
 [resource]
 script = ExtResource("1_script")
@@ -14,3 +14,5 @@ title = "Arena de pruebas: vs Goblins"
 map = ExtResource("2_test_arena")
 player_units = Array[ExtResource("1_ku254")]([ExtResource("3_kael"), ExtResource("4_pablo")])
 enemy_units = Array[ExtResource("1_ku254")]([ExtResource("5_goblin"), ExtResource("5_goblin"), ExtResource("6_slime")])
+player_level = 2
+enemy_level = 2

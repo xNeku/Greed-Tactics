@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ModifierData" format=3]
+
+[ext_resource type="Script" path="res://core/data/modifier_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"burning_rage"
+display_name = "Ira ardiente"
+description = "+6 de ira extra por cada golpe cuerpo a cuerpo."
+target_tag = &"melee"
+effect = 7
+value = 6

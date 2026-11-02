@@ -1,0 +1,32 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="rock"]
+albedo_color = Color(0.42, 0.42, 0.5, 1)
+roughness = 0.9
+
+[sub_resource type="CylinderMesh" id="tall"]
+material = SubResource("rock")
+top_radius = 0.0
+bottom_radius = 0.26
+height = 1.1
+radial_segments = 6
+rings = 1
+
+[sub_resource type="CylinderMesh" id="short"]
+material = SubResource("rock")
+top_radius = 0.0
+bottom_radius = 0.16
+height = 0.55
+radial_segments = 6
+rings = 1
+
+[node name="Stalagmite" type="Node3D"]
+editor_description = "Cave obstacle."
+
+[node name="Tall" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)
+mesh = SubResource("tall")
+
+[node name="Short" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.22, 0.27, 0.15)
+mesh = SubResource("short")

@@ -58,8 +58,8 @@ func show_tile(terrain: TerrainData, height: int) -> void:
 		_tile_info_label.text = "%s · Elev. %d" % [terrain.display_name, height]
 
 
-func show_commands(can_move: bool, usable_skills: Dictionary[SkillData, bool]) -> void:
-	_command_menu.show_for(can_move, usable_skills)
+func show_commands(unit: UnitState, can_move: bool, usable_skills: Dictionary[SkillData, bool]) -> void:
+	_command_menu.show_for(unit, can_move, usable_skills)
 
 
 func hide_commands() -> void:
@@ -76,6 +76,10 @@ func show_previews(previews: Array[AttackPreview], anchors: Array[Vector3]) -> v
 
 func clear_previews() -> void:
 	_previews.clear()
+
+
+func set_result_button_text(text: String) -> void:
+	_result.set_button_text(text)
 
 
 func show_result(victory: bool) -> void:

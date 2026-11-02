@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="TerrainData" format=3]
+
+[ext_resource type="Script" path="res://core/data/terrain_data.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/battle/props/crystal.tscn" id="2_crystal"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"crystal"
+display_name = "Cristal"
+symbol = "*"
+walkable = false
+top_color = Color(0.56, 0.56, 0.66, 1)
+side_color = Color(0.4, 0.4, 0.5, 1)
+prop_scene = ExtResource("2_crystal")

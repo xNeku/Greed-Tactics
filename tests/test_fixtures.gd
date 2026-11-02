@@ -68,3 +68,59 @@ static func unit_data(name: String = "Unit", speed: int = 10) -> UnitData:
 	data.crit_chance = 0
 	data.skills = [skill()]
 	return data
+
+
+static func modifier(effect: ModifierData.Effect, value: int, tag: StringName = &"",
+		limit: int = 1, trigger := ModifierData.Trigger.ALWAYS, id: StringName = &"") -> ModifierData:
+	var m := ModifierData.new()
+	m.id = id if id != &"" else StringName("mod_%d_%d" % [effect, value])
+	m.effect = effect
+	m.value = value
+	m.limit = limit
+	m.target_tag = tag
+	m.trigger = trigger
+	return m
+
+
+static func rage_unit_data(name: String = "Berserker") -> UnitData:
+	var data := unit_data(name)
+	data.resource_kind = UnitData.ResourceKind.RAGE
+	var strike := skill(10)
+	var empowered := skill(30)
+	empowered.id = &"strike_empowered"
+	empowered.display_name = "Golpe brutal"
+	strike.empowered_variant = empowered
+	strike.empowered_rage_threshold = 50
+	var spender := skill(15)
+	spender.id = &"spender"
+	spender.rage_cost = 30
+	spender.skill_type = SkillData.SkillType.AREA
+	data.skills = [strike, spender]
+	return data
+
+
+static func zone(layout: ZoneData.Layout) -> ZoneData:
+	var z := ZoneData.new()
+	z.id = StringName(ZoneData.Layout.keys()[layout].to_lower())
+	z.display_name = z.id
+	z.layout = layout
+	var floor_t := grass()
+	var alt := TerrainData.new()
+	alt.symbol = "d"
+	var high := TerrainData.new()
+	high.symbol = "s"
+	var obstacle := wall()
+	obstacle.symbol = "T"
+	var rock := wall()
+	rock.symbol = "#"
+	z.floor_terrain = floor_t
+	z.alt_floor_terrain = alt
+	z.high_terrain = high
+	z.liquid_terrain = water()
+	z.shore_terrain = floor_t
+	z.obstacle_terrains = [obstacle]
+	z.wall_terrain = rock if layout == ZoneData.Layout.CAVE else null
+	z.max_height = 5 if layout == ZoneData.Layout.DESERT else 4
+	z.obstacle_density = 0.12
+	z.liquid_amount = 0.08
+	return z

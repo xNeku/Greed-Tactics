@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ModifierData" format=3]
+
+[ext_resource type="Script" path="res://core/data/modifier_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"arcane_focus"
+display_name = "Foco arcano"
+description = "+5 de daño a las habilidades arcanas."
+target_tag = &"arcano"
+value = 5

@@ -36,3 +36,12 @@ jobs:
 
       - name: Autoplay battle
         run: ~/godot/godot --headless --script res://tests/integration/autoplay_battle.gd
+
+      - name: Simulated runs
+        run: ~/godot/godot --headless --script res://tests/integration/autoplay_run.gd -- 3
+
+      - name: Player input smoke test
+        run: ~/godot/godot --headless --script res://tests/integration/player_input_smoke.gd
+
+      - name: Screens end-to-end
+        run: ~/godot/godot --headless --script res://tests/integration/autoplay_ui_run.gd

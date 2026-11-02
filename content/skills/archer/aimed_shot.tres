@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"aimed_shot"
+display_name = "Tiro certero"
+description = "Disparo a 3-7 casillas con más crítico. Enfriamiento 2."
+skill_type = 1
+tags = Array[StringName]([&"lanzamiento", &"proyectil", &"flecha"])
+cooldown = 2
+range_min = 3
+range_max = 7
+vertical_reach = 5
+power = 20
+crit_bonus = 15

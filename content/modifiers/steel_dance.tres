@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ModifierData" format=3]
+
+[ext_resource type="Script" path="res://core/data/modifier_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"steel_dance"
+display_name = "Danza de acero"
+description = "+1 de tamaño de área a las habilidades de daga."
+target_tag = &"daga"
+effect = 1
+weight = 7

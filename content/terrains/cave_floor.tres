@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="TerrainData" format=3]
+
+[ext_resource type="Script" path="res://core/data/terrain_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"cave_floor"
+display_name = "Suelo de cueva"
+symbol = "f"
+top_color = Color(0.56, 0.56, 0.66, 1)
+side_color = Color(0.4, 0.4, 0.5, 1)

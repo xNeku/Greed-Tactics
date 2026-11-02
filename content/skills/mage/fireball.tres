@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"fireball"
+display_name = "Bola de fuego"
+description = "Explosión en rombo a 2-5 casillas."
+skill_type = 2
+tags = Array[StringName]([&"area", &"fuego"])
+mp_cost = 14
+range_min = 2
+range_max = 5
+vertical_reach = 4
+area_shape = 1
+area_size = 1
+power = 16

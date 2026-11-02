@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"spinning_axe"
+display_name = "Hacha giratoria ★"
+description = "Mutación con 60+ de ira: el hacha estalla y alcanza a los adyacentes al objetivo."
+skill_type = 1
+tags = Array[StringName]([&"lanzamiento", &"proyectil", &"hacha"])
+rage_cost = 15
+range_min = 2
+range_max = 4
+vertical_reach = 2
+area_shape = 1
+area_size = 1
+power = 15

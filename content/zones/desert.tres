@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="ZoneData" format=3]
+
+[ext_resource type="Script" path="res://core/data/zone_data.gd" id="1_script"]
+[ext_resource type="Resource" path="res://content/terrains/cactus.tres" id="2_cactus"]
+[ext_resource type="Script" path="res://core/data/unit_data.gd" id="2_qoq3g"]
+[ext_resource type="Resource" path="res://content/terrains/desert_rock.tres" id="3_desert_rock"]
+[ext_resource type="Resource" path="res://content/terrains/hard_sand.tres" id="4_hard_sand"]
+[ext_resource type="Resource" path="res://content/terrains/oasis_grass.tres" id="5_oasis_grass"]
+[ext_resource type="Resource" path="res://content/terrains/sand.tres" id="6_sand"]
+[ext_resource type="Resource" path="res://content/terrains/sandstone.tres" id="7_sandstone"]
+[ext_resource type="Resource" path="res://content/terrains/water.tres" id="8_water"]
+[ext_resource type="Resource" path="res://content/units/enemies/scorpion.tres" id="9_scorpion"]
+[ext_resource type="Resource" path="res://content/units/enemies/bandit.tres" id="10_bandit"]
+[ext_resource type="Script" path="res://core/data/terrain_data.gd" id="10_v0n4p"]
+[ext_resource type="Resource" path="res://content/units/enemies/mummy.tres" id="11_mummy"]
+[ext_resource type="Resource" path="res://content/units/enemies/sandworm.tres" id="12_sandworm"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"desert"
+display_name = "Desierto"
+layout = 1
+floor_terrain = ExtResource("6_sand")
+alt_floor_terrain = ExtResource("4_hard_sand")
+high_terrain = ExtResource("7_sandstone")
+liquid_terrain = ExtResource("8_water")
+shore_terrain = ExtResource("5_oasis_grass")
+obstacle_terrains = Array[ExtResource("10_v0n4p")]([ExtResource("2_cactus"), ExtResource("2_cactus"), ExtResource("3_desert_rock")])
+min_size = Vector2i(19, 14)
+max_height = 6
+height_frequency = 0.07
+obstacle_density = 0.06
+liquid_amount = 0.05
+background_color = Color(0.14, 0.11, 0.1, 1)
+ambient_color = Color(1, 0.93, 0.82, 1)
+ambient_energy = 0.55
+sun_color = Color(1, 0.92, 0.76, 1)
+sun_energy = 1.0
+enemy_pool = Array[ExtResource("2_qoq3g")]([ExtResource("9_scorpion"), ExtResource("10_bandit"), ExtResource("11_mummy")])
+miniboss_pool = Array[ExtResource("2_qoq3g")]([ExtResource("12_sandworm")])

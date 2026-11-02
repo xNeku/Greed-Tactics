@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"ogre_club"
+display_name = "Garrotazo"
+description = "Golpe brutal con garrote."
+tags = Array[StringName]([&"basico", &"melee"])
+power = 16

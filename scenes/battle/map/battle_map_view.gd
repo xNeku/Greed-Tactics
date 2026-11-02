@@ -15,6 +15,7 @@ const LIQUID_DROP := 0.15
 
 @onready var _solid: MultiMeshInstance3D = $SolidTerrain
 @onready var _liquid: MultiMeshInstance3D = $LiquidTerrain
+@onready var _props: Node3D = $Props
 
 var _grid: BattleGrid
 
@@ -31,6 +32,7 @@ func build(grid: BattleGrid) -> void:
 			solid_cells.append(cell)
 	_fill(_solid.multimesh, solid_cells)
 	_fill(_liquid.multimesh, liquid_cells)
+	_place_props()
 
 
 func get_grid() -> BattleGrid:
@@ -99,3 +101,21 @@ func _fill(multimesh: MultiMesh, cells: Array[Vector2i]) -> void:
 			multimesh.set_instance_color(i, terrain.side_color.srgb_to_linear())
 		if multimesh.use_custom_data:
 			multimesh.set_instance_custom_data(i, terrain.top_color.srgb_to_linear())
+
+
+## Instances TerrainData.prop_scene on every cell that has one, with a
+## rotation and scale derived from the cell so the result is stable.
+func _place_props() -> void:
+	for child in _props.get_children():
+		child.queue_free()
+	for cell in _grid.get_cells():
+		var terrain := _grid.get_terrain(cell)
+		if terrain == null or terrain.prop_scene == null:
+			continue
+		var rng := RandomNumberGenerator.new()
+		rng.seed = hash(cell)
+		var prop: Node3D = terrain.prop_scene.instantiate()
+		_props.add_child(prop)
+		prop.position = Vector3(cell.x * TILE_SIZE, get_surface_height(cell), cell.y * TILE_SIZE)
+		prop.rotation.y = rng.randf() * TAU
+		prop.scale = Vector3.ONE * rng.randf_range(terrain.prop_min_scale, terrain.prop_max_scale)

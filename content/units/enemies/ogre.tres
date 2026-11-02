@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Script" path="res://core/data/unit_data.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/sprites/units/ogre.png" id="2_ogre"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="2_xjg1h"]
+[ext_resource type="Resource" path="res://content/skills/enemies/ogre_club.tres" id="3_ogre_club"]
+[ext_resource type="Resource" path="res://content/skills/enemies/ogre_slam.tres" id="4_ogre_slam"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"ogre"
+display_name = "Ogro de las cavernas"
+short_name = "OGR"
+race = "Ogro"
+unit_class = "Miniboss"
+sprite = ExtResource("2_ogre")
+sprite_scale = 1.45
+max_hp = 260
+speed = 8
+move_points = 3
+attack = 17
+defense = 6
+evasion = 0
+hp_per_level = 25
+attack_per_level = 3
+skills = Array[ExtResource("2_xjg1h")]([ExtResource("3_ogre_club"), ExtResource("4_ogre_slam")])
+xp_reward = 60
+gold_reward = 25

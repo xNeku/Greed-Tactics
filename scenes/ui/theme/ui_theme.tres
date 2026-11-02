@@ -140,6 +140,13 @@ border_color = Color(1, 0.8, 0.25, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rage_fill"]
+bg_color = Color(0.95, 0.36, 0.3, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_top_bar"]
 content_margin_left = 28.0
 content_margin_top = 10.0
@@ -194,6 +201,9 @@ QueueEntryActive/styles/panel = SubResource("StyleBoxFlat_queue_active")
 QueueLabel/base_type = &"Label"
 QueueLabel/font_sizes/font_size = 15
 QueueLabel/fonts/font = ExtResource("2_xbold")
+RageBar/base_type = &"ProgressBar"
+RageBar/styles/background = SubResource("StyleBoxFlat_bar_background")
+RageBar/styles/fill = SubResource("StyleBoxFlat_rage_fill")
 ResultTitle/base_type = &"Label"
 ResultTitle/colors/font_color = Color(1, 0.8, 0.3, 1)
 ResultTitle/font_sizes/font_size = 48

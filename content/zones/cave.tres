@@ -1,0 +1,42 @@
+[gd_resource type="Resource" script_class="ZoneData" format=3]
+
+[ext_resource type="Script" path="res://core/data/zone_data.gd" id="1_script"]
+[ext_resource type="Resource" path="res://content/terrains/cave_floor.tres" id="2_cave_floor"]
+[ext_resource type="Script" path="res://core/data/unit_data.gd" id="2_dgpva"]
+[ext_resource type="Resource" path="res://content/terrains/cave_floor_dark.tres" id="3_cave_floor_dark"]
+[ext_resource type="Resource" path="res://content/terrains/cave_ledge.tres" id="4_cave_ledge"]
+[ext_resource type="Resource" path="res://content/terrains/cave_wall.tres" id="5_cave_wall"]
+[ext_resource type="Resource" path="res://content/terrains/crystal.tres" id="6_crystal"]
+[ext_resource type="Resource" path="res://content/terrains/stalagmite.tres" id="7_stalagmite"]
+[ext_resource type="Resource" path="res://content/terrains/water.tres" id="8_water"]
+[ext_resource type="Resource" path="res://content/units/enemies/goblin.tres" id="9_goblin"]
+[ext_resource type="Script" path="res://core/data/terrain_data.gd" id="10_0a6is"]
+[ext_resource type="Resource" path="res://content/units/enemies/bat.tres" id="10_bat"]
+[ext_resource type="Resource" path="res://content/units/enemies/slime.tres" id="11_slime"]
+[ext_resource type="Resource" path="res://content/units/enemies/ogre.tres" id="12_ogre"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"cave"
+display_name = "Cueva"
+layout = 2
+floor_terrain = ExtResource("2_cave_floor")
+alt_floor_terrain = ExtResource("3_cave_floor_dark")
+high_terrain = ExtResource("4_cave_ledge")
+liquid_terrain = ExtResource("8_water")
+shore_terrain = ExtResource("2_cave_floor")
+obstacle_terrains = Array[ExtResource("10_0a6is")]([ExtResource("7_stalagmite"), ExtResource("7_stalagmite"), ExtResource("6_crystal")])
+wall_terrain = ExtResource("5_cave_wall")
+min_size = Vector2i(19, 14)
+max_size = Vector2i(23, 17)
+max_height = 3
+height_frequency = 0.12
+obstacle_density = 0.07
+liquid_amount = 0.1
+background_color = Color(0.06, 0.06, 0.1, 1)
+ambient_color = Color(0.7, 0.75, 1, 1)
+ambient_energy = 0.9
+sun_color = Color(0.72, 0.8, 1, 1)
+sun_energy = 0.95
+enemy_pool = Array[ExtResource("2_dgpva")]([ExtResource("9_goblin"), ExtResource("10_bat"), ExtResource("11_slime")])
+miniboss_pool = Array[ExtResource("2_dgpva")]([ExtResource("12_ogre")])

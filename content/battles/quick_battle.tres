@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="BattleSetup" format=3]
+
+[ext_resource type="Script" path="res://core/data/unit_data.gd" id="1_8851h"]
+[ext_resource type="Script" path="res://core/data/battle_setup.gd" id="1_script"]
+[ext_resource type="Resource" path="res://content/zones/forest.tres" id="2_forest"]
+[ext_resource type="Resource" path="res://content/units/heroes/kael.tres" id="3_kael"]
+[ext_resource type="Resource" path="res://content/units/heroes/pablo.tres" id="4_pablo"]
+[ext_resource type="Resource" path="res://content/units/heroes/lyra.tres" id="5_lyra"]
+[ext_resource type="Resource" path="res://content/units/heroes/nyx.tres" id="6_nyx"]
+[ext_resource type="Resource" path="res://content/units/enemies/wolf.tres" id="7_wolf"]
+[ext_resource type="Resource" path="res://content/units/enemies/goblin_archer.tres" id="8_goblin_archer"]
+[ext_resource type="Resource" path="res://content/units/enemies/boar.tres" id="9_boar"]
+[ext_resource type="Resource" path="res://content/units/enemies/goblin.tres" id="10_goblin"]
+
+[resource]
+script = ExtResource("1_script")
+title = "Combate rápido: Bosque"
+zone = ExtResource("2_forest")
+player_units = Array[ExtResource("1_8851h")]([ExtResource("3_kael"), ExtResource("4_pablo"), ExtResource("5_lyra"), ExtResource("6_nyx")])
+enemy_units = Array[ExtResource("1_8851h")]([ExtResource("7_wolf"), ExtResource("8_goblin_archer"), ExtResource("9_boar"), ExtResource("10_goblin"), ExtResource("7_wolf")])
+player_level = 2
+enemy_level = 2

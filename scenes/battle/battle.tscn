@@ -1,7 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scenes/battle/battle_controller.gd" id="1_controller"]
-[ext_resource type="Resource" path="res://content/battles/test_arena.tres" id="2_setup"]
+[ext_resource type="Resource" path="res://content/battles/quick_battle.tres" id="2_setup"]
 [ext_resource type="Resource" path="res://content/rules/default_rules.tres" id="3_rules"]
 [ext_resource type="PackedScene" path="res://scenes/battle/units/unit_view.tscn" id="4_unit_view"]
 [ext_resource type="PackedScene" path="res://scenes/battle/map/battle_map.tscn" id="5_map"]
@@ -27,9 +27,11 @@ rules = ExtResource("3_rules")
 unit_view_scene = ExtResource("4_unit_view")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+unique_name_in_owner = true
 environment = SubResource("Environment_battle")
 
 [node name="Sun" type="DirectionalLight3D" parent="."]
+unique_name_in_owner = true
 transform = Transform3D(0.81915206, 0.43938506, -0.36868784, 0, 0.64278764, 0.76604444, 0.57357645, -0.62750685, 0.5265408, 0, 10, 0)
 light_energy = 0.8
 shadow_enabled = true

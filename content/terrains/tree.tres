@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="TerrainData" format=3]
+
+[ext_resource type="Script" path="res://core/data/terrain_data.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/battle/props/tree.tscn" id="2_tree"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"tree"
+display_name = "Árbol"
+symbol = "T"
+walkable = false
+top_color = Color(0.4, 0.72, 0.52, 1)
+side_color = Color(0.28, 0.52, 0.4, 1)
+prop_scene = ExtResource("2_tree")

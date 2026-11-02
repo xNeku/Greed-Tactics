@@ -12,7 +12,7 @@
 | Carpeta | Qué va | Qué NO va |
 |---|---|---|
 | `core/data/` | Scripts de definición de `Resource` (`class_name XxxData`) | Instancias `.tres` |
-| `core/grid/`, `core/combat/`, `core/ai/` | Reglas puras | Nodos, `get_tree()`, escenas |
+| `core/grid/`, `core/combat/`, `core/ai/`, `core/mapgen/`, `core/run/` | Reglas puras | Nodos, `get_tree()`, escenas |
 | `content/` | `.tres` de contenido | Scripts |
 | `scenes/` | `.tscn` + su `.gd` en la misma carpeta | Reglas de juego |
 | `assets/` | Fuentes, shaders, sprites, audio | Scripts de juego |
@@ -42,7 +42,10 @@
 
 - **Mapas:** `MapData` con `terrain_rows` (un carácter por casilla = `TerrainData.symbol`) y `height_rows` (`0-9`, luego `a-z`). Spawns en orden de la plantilla. `MapData.validate()` se ejecuta al cargar el combate.
 - **Unidades:** `UnitData`. Sprite pixel art mirando a la **derecha**, pies en el borde inferior.
-- **Habilidades:** `SkillData` con tipo de la plantilla y etiquetas en minúsculas sin tildes (`basico`, `lanzamiento`, `area`, `movimiento`, `proyectil`, `melee`...).
+- **Habilidades:** `SkillData` con tipo de la plantilla y etiquetas en minúsculas sin tildes (`basico`, `lanzamiento`, `area`, `movimiento`, `proyectil`, `melee`, `fuego`, `hielo`, `arcano`, `flecha`, `daga`, `hacha`, `sombra`...). Las mutaciones por ira llevan ★ en el nombre y el mismo tipo que la original.
+- **Modificadores:** `ModifierData` con id único en `snake_case`; las incompatibilidades se referencian por id.
+- **Zonas:** `ZoneData`; los símbolos de terreno deben ser únicos dentro de la zona (hay test).
+- **Sprites:** se regeneran con `python3 tools/generate_placeholder_sprites.py` (ASCII art, con intercambio de paleta `art_of` y espejo `flip`).
 
 ## Git
 
@@ -56,6 +59,9 @@
 godot --headless --import
 godot --headless --script res://tests/test_runner.gd
 godot --headless --script res://tests/integration/autoplay_battle.gd
+godot --headless --script res://tests/integration/autoplay_run.gd -- 5
+godot --headless --script res://tests/integration/autoplay_ui_run.gd
+godot --headless --script res://tests/integration/player_input_smoke.gd
 ```
 
 - `tests/unit/test_*.gd` extiende `TestCase`; cada `func test_*()` se ejecuta en una instancia nueva tras `before_each()`.

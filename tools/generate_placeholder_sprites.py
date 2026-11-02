@@ -156,9 +156,239 @@ SPRITES = {
     },
 }
 
+SPRITES.update({
+    "lyra": {
+        "palette": {
+            "h": (120, 70, 190), "H": (78, 44, 130), "y": (236, 226, 170),
+            "s": (246, 205, 170), "S": (214, 160, 128), "e": (30, 30, 50),
+            "r": (64, 104, 200), "R": (40, 66, 140), "g": (240, 196, 70),
+            "t": (130, 88, 52), "b": (70, 50, 80),
+        },
+        "art": [
+            "..........hh..........",
+            ".........hhhh.........",
+            "........hhhhh.........",
+            ".......hhhhhhh........",
+            "......hhhhhhhh........",
+            ".....hhhhhhhhhh.......",
+            "...HHHHHHHHHHHHHH.....",
+            "..HHHHHHHHHHHHHHHH.gg.",
+            ".....yyysssssyy...gggg",
+            ".....yyssssesss....gg.",
+            ".....yysssseSss....t..",
+            ".....yyyssssss.....t..",
+            "......yy.SSSS......t..",
+            ".....rrrrrrrrrr....t..",
+            "....rrRrrrrrrRrr..st..",
+            "....rrRrrggrrRrrsss...",
+            "....rrRrrrrrrrRr...t..",
+            "....rrRrrrrrrrRr...t..",
+            "...rrrRrrrrrrrRrr..t..",
+            "...rrRrrrrrrrrrRr..t..",
+            "...rrRrrrrrrrrrrRr.t..",
+            "..rrrRrrrrrrrrrrRrrt..",
+            "..rrRRRRRRRRRRRRRRrt..",
+            "......bbb...bbb....t..",
+            ".....bbbb...bbbb......",
+        ],
+    },
+    "nyx": {
+        "palette": {
+            "h": (70, 60, 96), "H": (44, 38, 64), "s": (236, 196, 166), "S": (200, 150, 120),
+            "e": (200, 60, 90), "m": (180, 40, 60), "c": (52, 46, 74), "C": (32, 28, 48),
+            "w": (220, 228, 240), "b": (96, 64, 44), "p": (40, 36, 56),
+        },
+        "art": [
+            "......................",
+            ".........hhhh.........",
+            ".......hhhhhhhh.......",
+            "......hhhhhhhhhh......",
+            ".....hhhhhhhhhhhh.....",
+            ".....hhhhHsssssHh.....",
+            "....hhhhHssssesSh.....",
+            "....hhhhHsssseSSh.....",
+            ".....hhhHmmmmmmmh.....",
+            ".....hhhhmmmmmmhh.....",
+            "......hhhhmmmmhh......",
+            "........cccccc...w....",
+            "......cccccccccc.w....",
+            ".....cCccccccccCsw....",
+            ".....cCcccccccCssS....",
+            ".....cCcbbbbbbbb......",
+            "....w.CcccccccC.......",
+            "...ws.CcccccccC.......",
+            "....s..pppppppp.......",
+            ".......pppp.pppp......",
+            ".......ppp...ppp......",
+            ".......ppp...ppp......",
+            ".......bbb...bbb......",
+            "......bbbb...bbbb.....",
+        ],
+    },
+    "bat": {
+        "palette": {"W": (92, 70, 120), "b": (60, 46, 82), "e": (250, 210, 80), "w": (240, 240, 250)},
+        "art": [
+            "..W..............W....",
+            "..WW....bb.bb...WW....",
+            "..WWW...bbbbb..WWW....",
+            "..WWWW.bbbbbbb.WWWW...",
+            "..WWWWWbbebbebbWWWW...",
+            "...WWWWWbbbbbbWWWWW...",
+            "...WWWWWWbwwbWWWWW....",
+            "....WWW.WbbbbW.WWW....",
+            ".....W...bbbb....W....",
+            "..........bb..........",
+            "......................",
+            "......................",
+            "......................",
+            "......................",
+            "......................",
+            "......................",
+        ],
+    },
+    "wolf": {
+        "palette": {"g": (150, 150, 160), "G": (100, 100, 112), "e": (250, 200, 60), "n": (30, 30, 36), "d": (80, 80, 90)},
+        "art": [
+            "....................gg....",
+            "...................gggg...",
+            "..................ggggggg.",
+            "..................ggggeggn",
+            "..gg.............ggggggggg",
+            ".ggg..ggggggggggggggggg...",
+            ".gg..gggggggggggggggggg...",
+            "....GggggggggggggggGGg....",
+            "....GGgggggggggggggGG.....",
+            "....GG.GG......GG..GG.....",
+            "....GG.GG......GG..GG.....",
+            "....dd.dd......dd..dd.....",
+        ],
+    },
+    "boar": {
+        "palette": {"b": (130, 84, 52), "B": (88, 56, 34), "e": (30, 20, 20), "p": (230, 150, 150), "W": (245, 240, 220), "h": (50, 36, 30)},
+        "art": [
+            "......bbbbbbbbbbbb........",
+            "....bbbbbbbbbbbbbbbbb.....",
+            "...bbbbbbbbbbbbbbbbbbbb...",
+            "..bbbbbbbbbbbbbbbbbbbebb..",
+            "..bbbbbbbbbbbbbbbbbbbbbbpp",
+            "..BbbbbbbbbbbbbbbbbbbbbWpp",
+            "..BBbbbbbbbbbbbbbbbbbbW...",
+            "...BBbbbbbbbbbbbbbbbB.....",
+            "....BB.BB......BB.BB......",
+            "....BB.BB......BB.BB......",
+            "....hh.hh......hh.hh......",
+        ],
+    },
+    "scorpion": {
+        "flip": True,
+        "palette": {"s": (214, 140, 60), "S": (160, 96, 40), "c": (190, 110, 50), "e": (30, 20, 20), "t": (230, 170, 80), "l": (120, 70, 30)},
+        "art": [
+            "..............ttt.....",
+            "................tt....",
+            ".................t....",
+            ".................tt...",
+            "..........ssssss.ts...",
+            "..cc....sssssssssss...",
+            ".ccc..sssssssssssss...",
+            ".cc.esssssssssssss....",
+            "..ccsssssSSSSSSSs.....",
+            "...l.l.l.l.l.l.l......",
+            "..l.l.l.l.l.l.l.l.....",
+        ],
+    },
+    "ogre": {
+        "palette": {
+            "s": (140, 160, 96), "S": (100, 118, 66), "e": (230, 60, 40), "m": (60, 30, 30), "W": (240, 236, 210),
+            "r": (120, 84, 56), "R": (86, 58, 38), "b": (70, 50, 36), "t": (150, 104, 60),
+        },
+        "art": [
+            "..........ssssssss..........",
+            ".........ssssssssss.........",
+            "........sssssssssssss.......",
+            "........sssseessseess.......",
+            "........ssssssssssssss......",
+            "........sssmmmmmmmsss.......",
+            ".........ssWsssssWss........",
+            "......SSSSSSSSSSSSSSSSS.....",
+            "....SSssssssssssssssssSSS...",
+            "...SSsssssssssssssssssssSS..",
+            "...Sssssrrrrrrrrrrrrsssssss.",
+            "..SSsssrrrrrrrrrrrrrrssssSSt",
+            "..Sssssrrrrrrrrrrrrrrssssttt",
+            "..ssss.rrrrrrrrrrrrrr..stttt",
+            "..sss..rRrrrrrrrrrrRr..tttt.",
+            "..sss..bbbbbbbbbbbbbb..ttt..",
+            ".......rRrrrrrrrrrRrr..tt...",
+            ".......rRrrrrr.rrrRrr.......",
+            ".......ssssss...ssssss......",
+            ".......SSsss.....sssSS......",
+            ".......SSsss.....sssSS......",
+            "......bbbbbb.....bbbbbb.....",
+        ],
+    },
+    "treant": {
+        "palette": {"g": (84, 168, 80), "G": (52, 118, 58), "b": (120, 84, 54), "B": (82, 56, 36), "y": (250, 230, 90)},
+        "art": [
+            "......gggggggggggg..........",
+            "....gggggGgggggggggg........",
+            "...ggggGggggggggGggggg......",
+            "..gggggggggGggggggggggg.....",
+            "..ggGgggggggggggggGgggg.....",
+            "...gggggggggggggggggggg.....",
+            "....ggggbbbbbbbbgggggg......",
+            "......bbbbbbbbbbbbb.........",
+            "......bbbybbbbbybbb.........",
+            "......bbbbbbbbbbbbb.........",
+            "...bb.bbBbbbbbbBbbb.bb......",
+            "..bb..bbbbbBBbbbbbb..bb.....",
+            ".bb...bbbbbbbbbbbbb...bb....",
+            ".gg...bbBbbbbbbBbbb....gg...",
+            "......bbbbbbbbbbbbb.........",
+            "......bbbBbbbbbbbbb.........",
+            ".....bbbbb.....bbbbb........",
+            "....bbbbb.......bbbbb.......",
+            "...BBBB...........BBBB......",
+        ],
+    },
+    "sandworm": {
+        "palette": {"p": (220, 130, 130), "W": (250, 246, 230), "m": (110, 30, 40), "s": (214, 176, 110), "S": (170, 132, 80), "a": (232, 204, 140)},
+        "art": [
+            "..........pppppp..........",
+            "........pppppppppp........",
+            ".......ppWppWppWppp.......",
+            "......ppmmmmmmmmmmpp......",
+            "......pmmmmmmmmmmmmp......",
+            "......ppmmmmmmmmmmpp......",
+            ".......ppWppWppWppp.......",
+            "........pppppppppp........",
+            "........sSssssssSs........",
+            ".......ssSsssssssSs.......",
+            ".......sssssssssssss......",
+            "......sSsssssssssSss......",
+            "......ssssssssssssss......",
+            ".....sSssssssssssssSs.....",
+            ".....ssssssssssssssss.....",
+            "....aaaaaaaaaaaaaaaaaa....",
+            "..aaaaaaaaaaaaaaaaaaaaaa..",
+        ],
+    },
+})
+
+# Palette swaps of existing silhouettes.
+SPRITES["bandit"] = {"art_of": "kael", "palette": dict(SPRITES["kael"]["palette"], **{
+    "h": (150, 40, 40), "H": (100, 26, 26), "a": (200, 170, 120), "A": (150, 120, 80),
+    "c": (90, 60, 40), "C": (60, 40, 26), "p": (110, 90, 60), "g": (200, 200, 210)})}
+SPRITES["mummy"] = {"art_of": "kael", "palette": dict(SPRITES["kael"]["palette"], **{
+    "h": (220, 214, 190), "H": (170, 164, 140), "s": (200, 194, 170), "S": (160, 152, 130), "e": (60, 220, 120),
+    "a": (226, 220, 196), "A": (176, 170, 146), "c": (150, 140, 110), "C": (110, 100, 80),
+    "p": (190, 184, 160), "b": (120, 110, 90), "w": (150, 140, 120), "g": (120, 110, 90)})}
+SPRITES["goblin_archer"] = {"art_of": "pablo", "palette": dict(SPRITES["pablo"]["palette"], **{
+    "h": (110, 80, 50), "H": (80, 56, 34), "s": (124, 186, 82), "S": (84, 136, 58), "e": (230, 60, 50),
+    "t": (90, 70, 50), "T": (64, 50, 34)})}
+
 
 def render(spec: dict) -> Image.Image:
-    rows = spec["art"]
+    rows = SPRITES[spec["art_of"]]["art"] if "art_of" in spec else spec["art"]
     width = max(len(r) for r in rows) + 2
     height = len(rows) + 2
     image = Image.new("RGBA", (width, height), (0, 0, 0, 0))
@@ -168,6 +398,8 @@ def render(spec: dict) -> Image.Image:
             if key != ".":
                 pixels[x + 1, y + 1] = spec["palette"][key] + (255,)
     _add_outline(image)
+    if spec.get("flip"):
+        image = image.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
     return image
 
 

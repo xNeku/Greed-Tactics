@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Script" path="res://core/data/unit_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="2_nhvev"]
+[ext_resource type="Texture2D" path="res://assets/sprites/units/pablo.png" id="2_pablo"]
+[ext_resource type="Resource" path="res://content/skills/archer/shot.tres" id="3_shot"]
+[ext_resource type="Resource" path="res://content/skills/archer/aimed_shot.tres" id="4_aimed_shot"]
+[ext_resource type="Resource" path="res://content/skills/archer/arrow_rain.tres" id="5_arrow_rain"]
+[ext_resource type="Resource" path="res://content/skills/archer/roll.tres" id="6_roll"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"pablo"
+display_name = "Pablo"
+short_name = "PAB"
+race = "Humano"
+unit_class = "Arquero"
+sprite = ExtResource("2_pablo")
+description = "Arquero. No usa maná ni ira: sus habilidades fuertes tienen enfriamiento."
+max_hp = 90
+speed = 11
+attack = 14
+defense = 3
+evasion = 15
+crit_chance = 10
+attack_per_level = 3
+skills = Array[ExtResource("2_nhvev")]([ExtResource("3_shot"), ExtResource("4_aimed_shot"), ExtResource("5_arrow_rain"), ExtResource("6_roll")])

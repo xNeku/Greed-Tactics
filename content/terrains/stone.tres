@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_script")
 id = &"stone"
-display_name = "Piedra"
+display_name = "Roca"
 symbol = "s"
-top_color = Color(0.76, 0.79, 0.85, 1)
-side_color = Color(0.6, 0.63, 0.71, 1)
+top_color = Color(0.72, 0.74, 0.78, 1)
+side_color = Color(0.52, 0.54, 0.6, 1)

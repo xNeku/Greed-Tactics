@@ -12,6 +12,9 @@ var crit_damage: int = 0
 var hit_chance: int = 100
 ## 0-100
 var crit_chance: int = 0
+## Extra hops after this hit (bounce modifier).
+var bounces: int = 0
+var knockback: int = 0
 
 
 func get_side_name() -> String:

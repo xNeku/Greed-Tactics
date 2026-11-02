@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="TerrainData" format=3]
+
+[ext_resource type="Script" path="res://core/data/terrain_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"sand"
+display_name = "Arena"
+symbol = "a"
+top_color = Color(0.93, 0.8, 0.55, 1)
+side_color = Color(0.78, 0.62, 0.4, 1)

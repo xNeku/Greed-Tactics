@@ -16,6 +16,9 @@ Responsable: @Neku (habla en español). Responde siempre en español.
 godot --headless --import
 godot --headless --script res://tests/test_runner.gd           # todos en verde
 godot --headless --script res://tests/integration/autoplay_battle.gd   # termina sin errores
+godot --headless --script res://tests/integration/autoplay_run.gd -- 5 # runs simuladas sin errores
+godot --headless --script res://tests/integration/autoplay_ui_run.gd   # recorrido de pantallas sin errores
+godot --headless --script res://tests/integration/player_input_smoke.gd # input del jugador sin errores
 godot --headless --quit-after 300                              # la escena principal arranca sin errores
 ```
 
@@ -28,4 +31,6 @@ Si se editan `.tscn`/`.tres` a mano: `godot --headless --script res://tools/resa
 - Tipado estático en todo. Código y comentarios en inglés; docs y textos de UI en español.
 - **Regla del GDD:** cada modificador nuevo se añade como dato y pasa por los tests del pipeline antes de tocar contenido.
 - Toda regla nueva en `core/` llega con tests en `tests/unit/`.
-- No metas números de reglas en código: `RulesConfig` o el `Resource` correspondiente.
+- No metas números de reglas en código: `RulesConfig`, `RunConfig` o el `Resource` correspondiente.
+- Solo `GameSession` (autoload `Game`, `scenes/app/`) cambia de escena.
+- En `--script` los autoloads también se cargan pero no están en el árbol hasta el primer frame: haz `await process_frame` antes de usarlos.

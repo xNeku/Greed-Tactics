@@ -10,6 +10,8 @@ const ACTIVE_COLOR := Color(1.0, 0.82, 0.2)
 const MISS_COLOR := Color(0.85, 0.9, 1.0)
 const DAMAGE_COLOR := Color(1.0, 1.0, 1.0)
 const CRIT_COLOR := Color(1.0, 0.75, 0.2)
+const HEAL_COLOR := Color(0.45, 1.0, 0.55)
+const RAGE_COLOR := Color(1.0, 0.45, 0.35)
 
 @export var step_duration := 0.14
 @export var hop_height := 0.3
@@ -35,6 +37,9 @@ func setup(p_unit: UnitState, map_view: BattleMapView, camera: Camera3D) -> void
 	_sprite.texture = unit.data.sprite
 	if _sprite.texture != null:
 		_sprite.offset.y = _sprite.texture.get_height() * 0.5
+	_sprite.pixel_size *= unit.data.sprite_scale
+	_info_label.position.y *= unit.data.sprite_scale
+	_ring.scale = Vector3.ONE * clampf(unit.data.sprite_scale, 1.0, 1.3)
 	set_active(false)
 	sync_to_state()
 
@@ -51,7 +56,12 @@ func sync_to_state() -> void:
 
 
 func refresh_info() -> void:
-	_info_label.text = "%s\nHP %d/%d" % [unit.display_name, unit.hp, unit.data.max_hp]
+	var resource := ""
+	if unit.uses_rage():
+		resource = " · Ira %d" % unit.rage
+	elif unit.uses_mana():
+		resource = " · MP %d" % unit.mp
+	_info_label.text = "%s\nHP %d/%d%s" % [unit.display_name, unit.hp, unit.max_hp, resource]
 	_info_label.modulate = get_team_color().lightened(0.35)
 
 
@@ -98,6 +108,42 @@ func play_move(from_cell: Vector2i, path: Array[Vector2i]) -> void:
 		last_position = target
 	await tween.finished
 	sync_to_state()
+
+
+## Skill motion (teleport, charge, appear behind): an arc jump to [param to_cell].
+func play_leap(to_cell: Vector2i) -> void:
+	var start := global_position
+	var target := _map.cell_to_world(to_cell)
+	var peak := maxf(start.y, target.y) + 1.2
+	var tween := create_tween()
+	tween.tween_method(_set_leap_progress.bind(start, target, peak), 0.0, 1.0, 0.32)
+	await tween.finished
+	sync_to_state()
+
+
+## Quadratic arc between [param start] and [param target] peaking at [param peak].
+func _set_leap_progress(t: float, start: Vector3, target: Vector3, peak: float) -> void:
+	var p := start.lerp(target, t)
+	p.y = lerpf(lerpf(start.y, peak, t), lerpf(peak, target.y, t), t)
+	global_position = p
+
+
+## Knockback: slide to the cell the target was pushed to.
+func play_push(to_cell: Vector2i) -> void:
+	var tween := create_tween()
+	tween.tween_property(self, "global_position", _map.cell_to_world(to_cell), 0.18) \
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	await tween.finished
+
+
+func play_heal(amount: int) -> void:
+	if amount > 0:
+		_spawn_popup("+%d" % amount, HEAL_COLOR)
+	refresh_info()
+
+
+func play_text(text: String, color: Color = RAGE_COLOR) -> void:
+	_spawn_popup(text, color)
 
 
 func play_attack(target_cell: Vector2i) -> void:

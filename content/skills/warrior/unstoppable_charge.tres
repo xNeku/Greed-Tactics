@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"unstoppable_charge"
+display_name = "Carga imparable ★"
+description = "Mutación con 50+ de ira: carga que golpea fuerte y empuja 2 casillas."
+skill_type = 3
+tags = Array[StringName]([&"movimiento", &"melee"])
+cooldown = 2
+target_rule = 1
+range_min = 2
+range_max = 5
+requires_straight_line = true
+power = 18
+motion = 2
+knockback = 2

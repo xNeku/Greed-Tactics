@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Script" path="res://core/data/unit_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="2_5ujem"]
+[ext_resource type="Texture2D" path="res://assets/sprites/units/scorpion.png" id="2_scorpion"]
+[ext_resource type="Resource" path="res://content/skills/enemies/sting.tres" id="3_sting"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"scorpion"
+display_name = "Escorpión"
+short_name = "ESC"
+race = "Bestia"
+unit_class = "Acechador"
+sprite = ExtResource("2_scorpion")
+max_hp = 60
+speed = 11
+attack = 12
+defense = 4
+evasion = 10
+crit_chance = 10
+hp_per_level = 7
+skills = Array[ExtResource("2_5ujem")]([ExtResource("3_sting")])
+xp_reward = 8

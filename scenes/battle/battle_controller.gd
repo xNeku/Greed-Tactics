@@ -6,11 +6,17 @@ extends Node3D
 ## runs the turn loop. Player turns are delegated to PlayerTurnInput and enemy
 ## turns to BasicAI. Both go through the same execute_* methods, which apply
 ## the command to the rules and then await the matching animation.
+##
+## Where the setup comes from:
+##   1. GameSession (autoload "Game") has a pending battle (runs, quick battles).
+##   2. Otherwise the exported [member setup] (F6 on this scene).
+## A setup without map but with a zone gets a procedural map.
 
 const QUEUE_PREVIEW_SIZE := 6
-const AI_THINK_TIME := 0.45
+const AI_THINK_TIME := 0.4
 const AI_STEP_TIME := 0.25
 const MAX_AI_STEPS := 8
+const RESULT_DELAY := 1.2
 
 @export var setup: BattleSetup
 @export var rules: RulesConfig
@@ -24,17 +30,27 @@ const MAX_AI_STEPS := 8
 @onready var _camera_rig: CameraRig = %CameraRig
 @onready var _player_input: PlayerTurnInput = %PlayerTurnInput
 @onready var _hud: BattleHud = %HUD
+@onready var _environment: WorldEnvironment = %WorldEnvironment
+@onready var _sun: DirectionalLight3D = %Sun
 
 var combat: CombatState
 
 var _views: Dictionary[UnitState, UnitView] = {}
 var _ai := BasicAI.new()
+var _game: GameSession
 
 
 func _ready() -> void:
-	if not _validate_setup():
+	_game = get_node_or_null(^"/root/Game") as GameSession
+	if _game != null and _game.has_pending_battle():
+		setup = _game.take_pending_battle()
+		autoplay_player_units = autoplay_player_units or _game.autoplay_battles
+	elif _game != null:
+		_game.release_battle()
+	if not _prepare_setup():
 		return
 	combat = CombatState.from_setup(setup, rules)
+	_apply_zone_look(setup.zone)
 	_map_view.build(combat.grid)
 	_highlighter.setup(_map_view)
 	_camera_rig.set_bounds(_map_view.get_bounds())
@@ -43,6 +59,7 @@ func _ready() -> void:
 	_connect_signals()
 	_hud.set_title(setup.title)
 	_hud.set_camera(_camera_rig.get_camera())
+	_hud.set_result_button_text(_game.get_result_button_text() if _owned_by_game() else "Reintentar")
 	_player_input.setup(self, _map_view, _highlighter, _camera_rig.get_camera(), _hud)
 	_run_next_turn.call_deferred()
 
@@ -67,13 +84,7 @@ func execute_skill(skill: SkillData, target_cell: Vector2i) -> void:
 	var result := combat.use_skill(skill, target_cell)
 	if result == null:
 		return
-	_hud.set_message("%s usa %s" % [result.user.display_name, skill.display_name],
-		result.user.team == UnitState.Team.ENEMY)
-	await _views[result.user].play_attack(target_cell)
-	for hit in result.hits:
-		await _views[hit.target].play_hit(hit)
-		if hit.defeated:
-			await _views[hit.target].play_defeat()
+	await _play_skill_result(result)
 	_refresh_turn_queue()
 
 
@@ -92,6 +103,7 @@ func _run_next_turn() -> void:
 	var unit := combat.start_next_turn()
 	_refresh_turn_queue()
 	_hud.show_unit(unit)
+	_views[unit].refresh_info()
 	_camera_rig.home_position = _map_view.cell_to_world(unit.cell)
 	_camera_rig.focus_on(_camera_rig.home_position)
 	if unit.team == UnitState.Team.PLAYER and not autoplay_player_units:
@@ -118,7 +130,9 @@ func _run_ai_turn(unit: UnitState) -> void:
 				_highlighter.clear_all()
 				await execute_move(action.cell)
 			AiAction.Kind.SKILL:
-				_highlighter.show_cells(TileHighlighter.Layer.AREA, combat.get_effect_cells(action.skill, unit.cell, action.cell))
+				var effective := combat.get_effective(unit, action.skill)
+				var landing := combat.get_landing_cell(unit, effective, unit.cell, action.cell)
+				_highlighter.show_cells(TileHighlighter.Layer.AREA, combat.get_effect_cells(effective, landing, action.cell))
 				await get_tree().create_timer(AI_STEP_TIME).timeout
 				_highlighter.clear_all()
 				await execute_skill(action.skill, action.cell)
@@ -128,6 +142,70 @@ func _run_ai_turn(unit: UnitState) -> void:
 	execute_end_turn(unit.facing)
 
 #endregion
+
+
+#region Animation of results
+
+func _play_skill_result(result: SkillResult) -> void:
+	var user_view := _views[result.user]
+	var skill := result.skill
+	var label := skill.display_name + (" (ira desatada)" if skill.empowered else "")
+	_hud.set_message("%s usa %s" % [result.user.display_name, label], result.user.team == UnitState.Team.ENEMY)
+	if result.user_moved():
+		await user_view.play_leap(result.user_to)
+		_camera_rig.home_position = _map_view.cell_to_world(result.user.cell)
+	if skill.deals_damage():
+		await user_view.play_attack(result.target_cell)
+	for hit in result.hits:
+		var view := _views[hit.target]
+		match hit.source:
+			SkillResult.HitSource.BOUNCE:
+				view.play_text("¡Rebote!", UnitView.CRIT_COLOR)
+			SkillResult.HitSource.EXPLOSION:
+				view.play_text("¡Boom!", UnitView.CRIT_COLOR)
+		await view.play_hit(hit)
+		if hit.pushed_to != hit.pushed_from and not hit.defeated:
+			await view.play_push(hit.pushed_to)
+		if hit.healed > 0:
+			user_view.play_heal(hit.healed)
+		if hit.defeated:
+			await view.play_defeat()
+	if result.refunded_ap > 0:
+		user_view.play_text("+%d PA" % result.refunded_ap, UnitView.HEAL_COLOR)
+	user_view.refresh_info()
+
+#endregion
+
+
+#region Setup
+
+func _prepare_setup() -> bool:
+	if setup == null or rules == null or unit_view_scene == null:
+		push_error("BattleController: setup, rules and unit_view_scene must be assigned.")
+		return false
+	if setup.map == null:
+		if setup.zone == null:
+			push_error("BattleController: the setup needs a map or a zone to generate one.")
+			return false
+		setup = setup.duplicate()
+		var map_seed := setup.rng_seed if setup.rng_seed != 0 else randi()
+		setup.map = MapGenerator.generate(setup.zone, rules, map_seed,
+			setup.player_units.size(), setup.enemy_units.size())
+	var errors := setup.map.validate()
+	for error in errors:
+		push_error("Map '%s': %s" % [setup.map.display_name, error])
+	return errors.is_empty()
+
+
+func _apply_zone_look(zone: ZoneData) -> void:
+	if zone == null:
+		return
+	var environment := _environment.environment
+	environment.background_color = zone.background_color
+	environment.ambient_light_color = zone.ambient_color
+	environment.ambient_light_energy = zone.ambient_energy
+	_sun.light_color = zone.sun_color
+	_sun.light_energy = zone.sun_energy
 
 
 func _spawn_views() -> void:
@@ -144,21 +222,13 @@ func _connect_signals() -> void:
 	combat.unit_facing_changed.connect(_on_unit_facing_changed)
 	combat.unit_stats_changed.connect(_on_unit_stats_changed)
 	combat.combat_finished.connect(_on_combat_finished)
-	_hud.restart_requested.connect(_on_restart_requested)
+	_hud.restart_requested.connect(_on_result_confirmed)
 
 
 func _refresh_turn_queue() -> void:
 	_hud.show_turn_queue(combat.get_turn_preview(QUEUE_PREVIEW_SIZE))
 
-
-func _validate_setup() -> bool:
-	if setup == null or setup.map == null or rules == null or unit_view_scene == null:
-		push_error("BattleController: setup, setup.map, rules and unit_view_scene must be assigned.")
-		return false
-	var errors := setup.map.validate()
-	for error in errors:
-		push_error("Map '%s': %s" % [setup.map.resource_path, error])
-	return errors.is_empty()
+#endregion
 
 
 func _on_turn_started(unit: UnitState) -> void:
@@ -185,9 +255,17 @@ func _on_combat_finished(winner: UnitState.Team) -> void:
 	var victory := winner == UnitState.Team.PLAYER
 	_hud.set_message("¡Victoria!" if victory else "Derrota")
 	# Let the last hit animation play before covering the screen.
-	await get_tree().create_timer(1.2).timeout
+	await get_tree().create_timer(RESULT_DELAY).timeout
 	_hud.show_result(victory)
 
 
-func _on_restart_requested() -> void:
-	get_tree().reload_current_scene()
+func _on_result_confirmed() -> void:
+	if _owned_by_game():
+		_game.finish_battle(combat.winner == UnitState.Team.PLAYER, combat)
+	else:
+		get_tree().reload_current_scene()
+
+
+## True when this battle was launched by GameSession (run or quick battle).
+func _owned_by_game() -> bool:
+	return _game != null and _game.owns_battle()

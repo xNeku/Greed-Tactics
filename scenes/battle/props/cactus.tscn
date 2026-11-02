@@ -1,0 +1,52 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="green"]
+albedo_color = Color(0.3, 0.58, 0.32, 1)
+roughness = 0.9
+
+[sub_resource type="CylinderMesh" id="body"]
+material = SubResource("green")
+top_radius = 0.11
+bottom_radius = 0.13
+height = 0.85
+radial_segments = 7
+rings = 1
+
+[sub_resource type="CylinderMesh" id="arm_up"]
+material = SubResource("green")
+top_radius = 0.07
+bottom_radius = 0.07
+height = 0.3
+radial_segments = 6
+rings = 1
+
+[sub_resource type="CylinderMesh" id="arm"]
+material = SubResource("green")
+top_radius = 0.07
+bottom_radius = 0.07
+height = 0.32
+radial_segments = 6
+rings = 1
+
+[node name="Cactus" type="Node3D"]
+editor_description = "Desert obstacle."
+
+[node name="Body" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.42, 0)
+mesh = SubResource("body")
+
+[node name="ArmLeft" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.2, 0.55, 0)
+mesh = SubResource("arm_up")
+
+[node name="ArmLeftBase" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.35, 0, 0, 0, 1, -0.1, 0.4, 0)
+mesh = SubResource("arm")
+
+[node name="ArmRight" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.8, 0, 0, 0, 1, 0.19, 0.68, 0)
+mesh = SubResource("arm_up")
+
+[node name="ArmRightBase" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.3, 0, 0, 0, 1, 0.1, 0.55, 0)
+mesh = SubResource("arm")

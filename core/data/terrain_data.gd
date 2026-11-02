@@ -18,3 +18,7 @@ extends Resource
 @export_group("Visual")
 @export var top_color: Color = Color(0.37, 0.8, 0.56)
 @export var side_color: Color = Color(0.22, 0.55, 0.38)
+## Optional decoration placed on top of the cell (tree, cactus, stalagmite...).
+@export var prop_scene: PackedScene
+@export_range(0.3, 3.0) var prop_min_scale: float = 0.85
+@export_range(0.3, 3.0) var prop_max_scale: float = 1.15

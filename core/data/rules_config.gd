@@ -28,3 +28,24 @@ extends Resource
 @export_range(0, 100) var min_hit_chance: int = 5
 @export_range(0, 100) var max_hit_chance: int = 100
 @export_range(0, 100) var min_damage: int = 1
+## Extra damage per level of height advantage over the target (fraction).
+@export_range(0.0, 0.5) var height_damage_bonus: float = 0.05
+
+@export_group("Mana")
+## Mana recovered at the start of each turn of a MANA unit.
+@export_range(0, 100) var mana_regen_per_turn: int = 4
+
+@export_group("Rage")
+@export_range(1, 1000) var rage_max: int = 100
+## Rage gained for every hit landed.
+@export_range(0, 100) var rage_on_hit_dealt: int = 14
+## Flat rage gained when damaged.
+@export_range(0, 100) var rage_on_hit_taken: int = 6
+## Extra rage when damaged: this many points per 100% of max HP lost.
+@export_range(0, 300) var rage_per_max_hp_taken: int = 60
+## Damage bonus per rage point (0.005 = +50% at 100 rage).
+@export_range(0.0, 0.05) var rage_damage_bonus: float = 0.005
+
+@export_group("Modifiers")
+## Cells a bounce can travel to find its next target.
+@export_range(1, 10) var bounce_search_radius: int = 3

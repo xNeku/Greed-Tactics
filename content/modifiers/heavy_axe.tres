@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ModifierData" format=3]
+
+[ext_resource type="Script" path="res://core/data/modifier_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"heavy_axe"
+display_name = "Hacha pesada"
+description = "+20% de daño a las habilidades de hacha."
+target_tag = &"hacha"
+effect = 4
+value = 20

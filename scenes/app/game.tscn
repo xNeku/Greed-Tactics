@@ -1,0 +1,10 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/app/game_session.gd" id="1_game"]
+[ext_resource type="Resource" path="res://content/run/default_run.tres" id="2_run"]
+[ext_resource type="Resource" path="res://content/rules/default_rules.tres" id="3_rules"]
+
+[node name="Game" type="Node"]
+script = ExtResource("1_game")
+run_config = ExtResource("2_run")
+rules = ExtResource("3_rules")

@@ -3,8 +3,10 @@ extends RefCounted
 ## Authoritative state and rules of one combat. Has no nodes and no visuals:
 ## the presentation calls the command methods and listens to the signals.
 ##
-## Commands validate their input and return an empty/false result when the
+## Commands validate their input and return an empty/null result when the
 ## action is illegal, so the UI can never put the combat in an invalid state.
+## Skills are always resolved through their EffectiveSkill (rage mutation +
+## modifiers, see ResolutionPipeline).
 
 signal turn_started(unit: UnitState)
 signal unit_moved(unit: UnitState, path: Array[Vector2i])
@@ -16,12 +18,15 @@ signal turn_ended(unit: UnitState)
 signal combat_finished(winner: UnitState.Team)
 
 const NO_WINNER := -1
+const NO_CELL := Vector2i(-1, -1)
 
 var grid: BattleGrid
 var rules: RulesConfig
 var units: Array[UnitState] = []
 var active_unit: UnitState
 var winner: int = NO_WINNER
+## Number of turns started so far (for stats and balance).
+var turn_count: int = 0
 
 var _turn_queue: TurnQueue
 var _rng := RandomNumberGenerator.new()
@@ -40,30 +45,43 @@ func _init(p_grid: BattleGrid, p_rules: RulesConfig, rng_seed: int = 0) -> void:
 
 static func from_setup(setup: BattleSetup, p_rules: RulesConfig) -> CombatState:
 	var combat := CombatState.new(BattleGrid.new(setup.map), p_rules, setup.rng_seed)
-	combat._spawn_team(setup.player_units, setup.map.player_spawns, UnitState.Team.PLAYER, GridDir.Dir.NORTH)
-	combat._spawn_team(setup.enemy_units, setup.map.enemy_spawns, UnitState.Team.ENEMY, GridDir.Dir.SOUTH)
+	var players := combat._spawn_team(setup.player_units, setup.map.player_spawns, UnitState.Team.PLAYER,
+		setup.player_level, 1.0)
+	for i in players.size():
+		players[i].modifiers = setup.player_modifiers.duplicate()
+		if i < setup.player_hp.size() and setup.player_hp[i] > 0:
+			players[i].hp = mini(setup.player_hp[i], players[i].max_hp)
+	combat._spawn_team(setup.enemy_units, setup.map.enemy_spawns, UnitState.Team.ENEMY,
+		setup.enemy_level, setup.enemy_stat_scale)
 	return combat
 
 
 #region Setup
 
-func add_unit(data: UnitData, team: UnitState.Team, cell: Vector2i, facing := GridDir.Dir.SOUTH) -> UnitState:
-	var unit := UnitState.new(_next_id, data, team, cell, facing)
+func add_unit(data: UnitData, team: UnitState.Team, cell: Vector2i, facing := GridDir.Dir.SOUTH,
+		level: int = -1, stat_scale: float = 1.0) -> UnitState:
+	var unit := UnitState.new(_next_id, data, team, cell, facing, level, stat_scale)
 	_next_id += 1
 	units.append(unit)
 	return unit
 
 
-func _spawn_team(roster: Array[UnitData], spawns: Array[Vector2i], team: UnitState.Team, facing: GridDir.Dir) -> void:
+func _spawn_team(roster: Array[UnitData], spawns: Array[Vector2i], team: UnitState.Team,
+		level: int, stat_scale: float) -> Array[UnitState]:
+	var spawned: Array[UnitState] = []
 	var name_counts: Dictionary[String, int] = {}
 	for data in roster:
 		name_counts[data.display_name] = name_counts.get(data.display_name, 0) + 1
 	var seen: Dictionary[String, int] = {}
+	var center := Vector2(grid.size) * 0.5
 	for i in mini(roster.size(), spawns.size()):
-		var unit := add_unit(roster[i], team, spawns[i], facing)
+		var facing := GridDir.from_delta(Vector2i(center.round()) - spawns[i])
+		var unit := add_unit(roster[i], team, spawns[i], facing, level, stat_scale)
 		if name_counts[unit.display_name] > 1:
 			seen[unit.display_name] = seen.get(unit.display_name, 0) + 1
 			unit.display_name += " " + char(64 + seen[unit.display_name])
+		spawned.append(unit)
+	return spawned
 
 #endregion
 
@@ -89,10 +107,11 @@ func get_turn_preview(count: int) -> Array[UnitState]:
 	return _turn_queue.preview(units, count, active_unit)
 
 
-func get_occupied_cells() -> Dictionary[Vector2i, bool]:
+func get_occupied_cells(except: UnitState = null) -> Dictionary[Vector2i, bool]:
 	var cells: Dictionary[Vector2i, bool] = {}
 	for unit in get_living_units():
-		cells[unit.cell] = true
+		if unit != except:
+			cells[unit.cell] = true
 	return cells
 
 
@@ -110,30 +129,74 @@ func get_reach_map(unit: UnitState) -> ReachMap:
 	return Pathfinder.find_reachable(grid, rules, unit.cell, unit.pm, blocked, occupied)
 
 
-## Cells [param skill] can target if its user stood on [param from_cell].
-## [param _user] is unused for now; modifiers (M1) will extend the range per unit.
-func get_targetable_cells(_user: UnitState, skill: SkillData, from_cell: Vector2i) -> Array[Vector2i]:
+func get_effective(user: UnitState, skill: SkillData) -> EffectiveSkill:
+	return user.get_effective(skill)
+
+
+## True if [param user] can pay for [param skill] and has at least one target.
+func can_use_skill(user: UnitState, skill: SkillData) -> bool:
+	var effective := get_effective(user, skill)
+	return user.can_afford(effective) and not get_targetable_cells(user, skill, user.cell).is_empty()
+
+
+## Cells [param skill] can target if [param user] stood on [param from_cell].
+func get_targetable_cells(user: UnitState, skill: SkillData, from_cell: Vector2i) -> Array[Vector2i]:
+	var effective := get_effective(user, skill)
 	var result: Array[Vector2i] = []
+	if effective.target_rule == SkillData.TargetRule.SELF:
+		result.append(from_cell)
+		return result
 	var from_height := grid.get_height(from_cell)
-	for cell in AreaShape.get_ring(from_cell, skill.range_min, skill.range_max):
+	for cell in AreaShape.get_ring(from_cell, effective.range_min, effective.range_max):
 		if not grid.is_inside(cell):
 			continue
-		if absi(grid.get_height(cell) - from_height) > skill.vertical_reach:
+		if absi(grid.get_height(cell) - from_height) > effective.vertical_reach:
+			continue
+		if effective.requires_straight_line and cell.x != from_cell.x and cell.y != from_cell.y:
+			continue
+		if not _matches_target_rule(user, effective, cell):
+			continue
+		if get_landing_cell(user, effective, from_cell, cell) == NO_CELL:
 			continue
 		result.append(cell)
 	return result
 
 
-func get_effect_cells(skill: SkillData, from_cell: Vector2i, target_cell: Vector2i) -> Array[Vector2i]:
+## Where the user ends up after using [param skill] on [param target_cell]
+## from [param from_cell]. NO_CELL if the motion is impossible.
+func get_landing_cell(user: UnitState, skill: EffectiveSkill, from_cell: Vector2i, target_cell: Vector2i) -> Vector2i:
+	match skill.motion:
+		SkillData.Motion.TELEPORT:
+			return target_cell if _is_free(target_cell, user) else NO_CELL
+		SkillData.Motion.CHARGE:
+			return _get_charge_landing(user, from_cell, target_cell)
+		SkillData.Motion.BEHIND_TARGET:
+			var target := get_unit_at(target_cell)
+			if target == null:
+				return NO_CELL
+			var back := target_cell - GridDir.to_vector(target.facing)
+			if not _is_free(back, user) and back != from_cell:
+				return NO_CELL
+			if absi(grid.get_height(back) - grid.get_height(target_cell)) > rules.max_climb:
+				return NO_CELL
+			return back
+		_:
+			return from_cell
+
+
+func get_effect_cells(skill: EffectiveSkill, from_cell: Vector2i, target_cell: Vector2i) -> Array[Vector2i]:
 	var direction := GridDir.from_delta(target_cell - from_cell)
 	var cells := AreaShape.get_cells(skill.area_shape, target_cell, skill.area_size, direction)
 	return cells.filter(func(c: Vector2i) -> bool: return grid.is_inside(c))
 
 
 ## Units affected by [param skill] aimed at [param target_cell].
-func get_skill_targets(user: UnitState, skill: SkillData, from_cell: Vector2i, target_cell: Vector2i) -> Array[UnitState]:
+func get_skill_targets(user: UnitState, skill: EffectiveSkill, from_cell: Vector2i, target_cell: Vector2i) -> Array[UnitState]:
 	var targets: Array[UnitState] = []
-	for cell in get_effect_cells(skill, from_cell, target_cell):
+	if not skill.deals_damage():
+		return targets
+	var landing := get_landing_cell(user, skill, from_cell, target_cell)
+	for cell in get_effect_cells(skill, landing, target_cell):
 		var unit := get_unit_at(cell)
 		if unit == null or unit == user:
 			continue
@@ -143,17 +206,15 @@ func get_skill_targets(user: UnitState, skill: SkillData, from_cell: Vector2i, t
 
 
 func preview_skill(user: UnitState, skill: SkillData, from_cell: Vector2i, target_cell: Vector2i) -> Array[AttackPreview]:
-	var occupied := get_occupied_cells()
-	occupied.erase(user.cell)
+	var effective := get_effective(user, skill)
+	var landing := get_landing_cell(user, effective, from_cell, target_cell)
 	var previews: Array[AttackPreview] = []
-	for target in get_skill_targets(user, skill, from_cell, target_cell):
-		var side := GridRules.get_attack_side(grid, rules, from_cell, target.cell, target.facing, occupied)
-		previews.append(CombatFormulas.build_preview(rules, user, skill, target, side))
+	if landing == NO_CELL:
+		return previews
+	var occupied := get_occupied_cells(user)
+	for target in get_skill_targets(user, effective, from_cell, target_cell):
+		previews.append(_preview_hit(user, effective, landing, target, occupied))
 	return previews
-
-
-func can_use_skill_at(user: UnitState, skill: SkillData, target_cell: Vector2i) -> bool:
-	return user.can_afford(skill) and get_targetable_cells(user, skill, user.cell).has(target_cell)
 
 #endregion
 
@@ -165,7 +226,8 @@ func start_next_turn() -> UnitState:
 	if is_finished():
 		return null
 	active_unit = _turn_queue.advance(units)
-	active_unit.begin_turn()
+	active_unit.begin_turn(rules)
+	turn_count += 1
 	turn_started.emit(active_unit)
 	return active_unit
 
@@ -187,30 +249,43 @@ func move_active_unit(destination: Vector2i) -> Array[Vector2i]:
 	return path
 
 
-## Uses [param skill] on [param target_cell]. Returns null if illegal.
+## Uses [param skill] (an equipped SkillData) on [param target_cell].
+## Returns null if illegal.
 func use_skill(skill: SkillData, target_cell: Vector2i) -> SkillResult:
 	var user := active_unit
-	if not can_use_skill_at(user, skill, target_cell):
+	var effective := get_effective(user, skill)
+	if not user.can_afford(effective) or not get_targetable_cells(user, skill, user.cell).has(target_cell):
 		return null
-	user.pa -= skill.ap_cost
-	user.mp -= skill.mp_cost
-	if target_cell != user.cell:
-		user.facing = GridDir.from_delta(target_cell - user.cell, user.facing)
-		unit_facing_changed.emit(user)
 
 	var result := SkillResult.new()
 	result.user = user
-	result.skill = skill
+	result.skill = effective
 	result.target_cell = target_cell
-	result.affected_cells = get_effect_cells(skill, user.cell, target_cell)
-	for preview in preview_skill(user, skill, user.cell, target_cell):
-		result.hits.append(_resolve_hit(preview))
+	result.user_from = user.cell
+	# Targets are chosen before moving, from the landing cell.
+	var landing := get_landing_cell(user, effective, user.cell, target_cell)
+	var targets := get_skill_targets(user, effective, user.cell, target_cell)
 
+	user.pay_for(effective)
+	user.cell = landing
+	result.user_to = landing
+	if target_cell != user.cell:
+		user.facing = GridDir.from_delta(target_cell - user.cell, user.facing)
+	result.affected_cells = get_effect_cells(effective, landing, target_cell)
+
+	var already_hit: Array[UnitState] = []
+	for target in targets:
+		_resolve_hit(result, target, user.cell, SkillResult.HitSource.PRIMARY, already_hit)
+	_resolve_bounces(result, already_hit)
+	_resolve_kill_refund(result)
+
+	if result.user_moved():
+		unit_moved.emit(user, [user.cell] as Array[Vector2i])
+	unit_facing_changed.emit(user)
 	unit_stats_changed.emit(user)
 	skill_resolved.emit(result)
 	for hit in result.hits:
-		if hit.landed:
-			unit_stats_changed.emit(hit.target)
+		unit_stats_changed.emit(hit.target)
 		if hit.defeated:
 			unit_defeated.emit(hit.target)
 	_check_victory()
@@ -233,18 +308,170 @@ func end_turn(facing: GridDir.Dir) -> void:
 #endregion
 
 
-func _resolve_hit(preview: AttackPreview) -> SkillResult.Hit:
+#region Resolution
+
+func _preview_hit(user: UnitState, skill: EffectiveSkill, from_cell: Vector2i, target: UnitState,
+		occupied: Dictionary[Vector2i, bool]) -> AttackPreview:
+	var side := GridRules.get_attack_side(grid, rules, from_cell, target.cell, target.facing, occupied)
+	var height_diff := grid.get_height(from_cell) - grid.get_height(target.cell)
+	return CombatFormulas.build_preview(rules, user, skill, target, side, height_diff)
+
+
+func _resolve_hit(result: SkillResult, target: UnitState, from_cell: Vector2i,
+		source: SkillResult.HitSource, already_hit: Array[UnitState]) -> SkillResult.Hit:
+	var user := result.user
+	var skill := result.skill
+	var preview := _preview_hit(user, skill, from_cell, target, get_occupied_cells(user))
 	var hit := SkillResult.Hit.new()
-	hit.target = preview.target
+	hit.target = target
+	hit.source = source
+	hit.origin_cell = from_cell
 	hit.side = preview.side
+	hit.pushed_from = target.cell
+	hit.pushed_to = target.cell
 	hit.landed = _rng.randi_range(1, 100) <= preview.hit_chance
+	result.hits.append(hit)
+	already_hit.append(target)
 	if not hit.landed:
 		return hit
+
 	hit.critical = _rng.randi_range(1, 100) <= preview.crit_chance
 	hit.damage = preview.crit_damage if hit.critical else preview.damage
-	preview.target.hp = maxi(preview.target.hp - hit.damage, 0)
-	hit.defeated = not preview.target.is_alive()
+	_apply_damage(target, hit.damage)
+	user.add_rage(rules.rage_on_hit_dealt + skill.rage_on_hit, rules)
+	hit.defeated = not target.is_alive()
+
+	var fx := ResolutionPipeline.get_impact_effects(skill, hit.side, hit.critical)
+	if fx.lifesteal > 0:
+		hit.healed = user.heal(roundi(hit.damage * fx.lifesteal / 100.0))
+	if fx.knockback > 0 and target.is_alive():
+		hit.pushed_to = _push(target, GridDir.from_delta(target.cell - from_cell), fx.knockback)
+		target.cell = hit.pushed_to
+	if fx.explode_percent > 0 and source != SkillResult.HitSource.EXPLOSION:
+		_resolve_explosion(result, hit, fx.explode_percent, fx.explode_radius, already_hit)
 	return hit
+
+
+## Stage 3: splash damage around a landed hit. Always hits, never crits.
+func _resolve_explosion(result: SkillResult, origin: SkillResult.Hit, percent: int, radius: int,
+		already_hit: Array[UnitState]) -> void:
+	var damage := maxi(roundi(origin.damage * percent / 100.0), rules.min_damage)
+	for cell in AreaShape.get_cells(AreaShape.Shape.DIAMOND, origin.pushed_from, maxi(radius, 1)):
+		var unit := get_unit_at(cell)
+		if unit == null or unit == origin.target or not unit.is_enemy_of(result.user) or already_hit.has(unit):
+			continue
+		var hit := SkillResult.Hit.new()
+		hit.target = unit
+		hit.source = SkillResult.HitSource.EXPLOSION
+		hit.origin_cell = origin.pushed_from
+		hit.landed = true
+		hit.damage = damage
+		hit.pushed_from = unit.cell
+		hit.pushed_to = unit.cell
+		_apply_damage(unit, damage)
+		hit.defeated = not unit.is_alive()
+		result.hits.append(hit)
+		already_hit.append(unit)
+
+
+## Stage 4: chains. Each hop jumps from the last landed target to the nearest
+## enemy not hit yet, capped by the bounce limit.
+func _resolve_bounces(result: SkillResult, already_hit: Array[UnitState]) -> void:
+	var hops := result.skill.bounce_hops
+	if hops <= 0:
+		return
+	var last: SkillResult.Hit = null
+	for hit in result.hits:
+		if hit.landed and hit.source == SkillResult.HitSource.PRIMARY:
+			last = hit
+	while hops > 0 and last != null:
+		var from_cell := last.pushed_to if last.target.is_alive() else last.pushed_from
+		var next := _nearest_enemy(result.user, from_cell, already_hit)
+		if next == null:
+			return
+		last = _resolve_hit(result, next, from_cell, SkillResult.HitSource.BOUNCE, already_hit)
+		hops -= 1
+		if not last.landed:
+			return
+
+
+func _resolve_kill_refund(result: SkillResult) -> void:
+	var refund := ResolutionPipeline.get_kill_refund(result.skill)
+	if refund.x <= 0:
+		return
+	var user := result.user
+	for hit in result.hits:
+		if hit.defeated and user.refunds_this_turn < refund.y:
+			user.refunds_this_turn += 1
+			user.pa += refund.x
+			result.refunded_ap += refund.x
+
+
+func _apply_damage(target: UnitState, damage: int) -> void:
+	target.hp = maxi(target.hp - damage, 0)
+	if target.is_alive():
+		target.add_rage(CombatFormulas.rage_from_damage_taken(rules, target, damage), rules)
+
+
+## Pushes from the target's cell up to [param distance] cells. Stops at
+## obstacles, units, the map edge or walls higher than max_climb (drops are fine).
+func _push(target: UnitState, direction: GridDir.Dir, distance: int) -> Vector2i:
+	var cell := target.cell
+	for i in distance:
+		var next := cell + GridDir.to_vector(direction)
+		if not _is_free(next, target):
+			break
+		if grid.get_height(next) - grid.get_height(cell) > rules.max_climb:
+			break
+		cell = next
+	return cell
+
+
+func _nearest_enemy(user: UnitState, from_cell: Vector2i, exclude: Array[UnitState]) -> UnitState:
+	var best: UnitState = null
+	var best_distance := rules.bounce_search_radius + 1
+	for unit in get_living_units():
+		if not unit.is_enemy_of(user) or exclude.has(unit):
+			continue
+		var distance := BattleGrid.manhattan(from_cell, unit.cell)
+		if distance < best_distance:
+			best_distance = distance
+			best = unit
+	return best
+
+
+func _get_charge_landing(user: UnitState, from_cell: Vector2i, target_cell: Vector2i) -> Vector2i:
+	if from_cell.x != target_cell.x and from_cell.y != target_cell.y:
+		return NO_CELL
+	var step := GridDir.to_vector(GridDir.from_delta(target_cell - from_cell))
+	var cell := from_cell
+	while cell + step != target_cell:
+		var next := cell + step
+		if not _is_free(next, user):
+			return NO_CELL
+		if absi(grid.get_height(next) - grid.get_height(cell)) > rules.max_climb:
+			return NO_CELL
+		cell = next
+	return cell
+
+
+func _matches_target_rule(user: UnitState, skill: EffectiveSkill, cell: Vector2i) -> bool:
+	match skill.target_rule:
+		SkillData.TargetRule.ENEMY_UNIT:
+			var unit := get_unit_at(cell)
+			return unit != null and unit.is_enemy_of(user)
+		SkillData.TargetRule.EMPTY_CELL:
+			return _is_free(cell, user)
+		_:
+			return true
+
+
+## Walkable and without any living unit other than [param ignore].
+func _is_free(cell: Vector2i, ignore: UnitState) -> bool:
+	if not grid.is_walkable(cell):
+		return false
+	var unit := get_unit_at(cell)
+	return unit == null or unit == ignore
 
 
 func _check_victory() -> void:
@@ -256,3 +483,5 @@ func _check_victory() -> void:
 		return
 	winner = UnitState.Team.PLAYER if players_alive else UnitState.Team.ENEMY
 	combat_finished.emit(winner)
+
+#endregion

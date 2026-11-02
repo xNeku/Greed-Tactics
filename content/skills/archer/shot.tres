@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"shot"
+display_name = "Disparo"
+description = "Flecha a 2-5 casillas."
+tags = Array[StringName]([&"basico", &"proyectil", &"flecha"])
+range_min = 2
+range_max = 5
+vertical_reach = 3
+power = 11

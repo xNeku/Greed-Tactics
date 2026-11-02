@@ -1,4 +1,4 @@
-# GDD - Greed Tactics · Tactics Roguelite Isométrico (v0.2)
+# GDD - Greed Tactics · Tactics Roguelite Isométrico (v0.3)
 
 Nov 2, 2026 · @Neku
 
@@ -42,6 +42,16 @@ Roguelike táctico isométrico 2.5D. Combate por turnos rápido y legible, runs 
 - Persiste: personajes desbloqueados, habilidades del pool, armas desbloqueadas, razas y clases, maestría, fragmentos.
 - No persiste: compañeros reclutados, bendiciones, modificadores de la run, objetos temporales.
 
+**[Decidido v0.3] Estructura del prototipo de run** (`RunConfig` en `content/run/default_run.tres`, todo ajustable):
+
+- **2 etapas × 4 fases.** Cada etapa toma una temática distinta al azar (Cueva, Bosque, Desierto). La **fase 4 de cada etapa es el miniboss** de la zona (+2 enemigos normales).
+- **Recompensas:** las fases **pares** (2 y 4) dan **1 modificador a elegir entre 3 + XP**; las **impares** dan **oro + XP**. Reroll: 1 por elección, cuesta 5 de oro.
+- **Grupo:** los 4 héroes (una por clase) van juntos. El **nivel es compartido** y sube con XP (40 XP para nivel 2, +25 por nivel); al subir, el grupo se cura un 25%.
+- **La vida persiste entre fases.** Un héroe caído vuelve con el 25% de vida tras una victoria. Si cae todo el grupo, se pierde la run.
+- **Oro:** sirve para rerollear y para curar al grupo (+50% de vida por 15 de oro) desde el mapa de la run.
+- **Escalado:** los enemigos suben 1 nivel por fase y 3 por etapa, +12% de estadísticas por etapa, y cada etapa trae un enemigo más por combate.
+- Pantallas: menú principal → mapa de run → combate → recompensa → ... → fin de run. También hay **combate rápido** (zona aleatoria) desde el menú.
+
 ## 3. Combate
 
 **Orden de turno:** por velocidad. La cola de turnos siempre visible muestra los próximos 5-6 actores.
@@ -76,6 +86,11 @@ Roguelike táctico isométrico 2.5D. Combate por turnos rápido y legible, runs 
   - Crítico = crítico base de la unidad, +15 puntos por la espalda. Daño crítico ×1.5.
   - El alcance vertical de cada habilidad (`vertical_reach`) limita la diferencia de altura con la casilla objetivo (melee: 1, arco: 3).
 - **[Decidido v0.2] Previsión:** al pasar el ratón por un objetivo se muestra una ficha por cada unidad afectada con lado (Frente/Flanco/Espalda), daño, % de golpe y % de crítico, calculados con las mismas funciones que resuelven el ataque.
+- **[Decidido v0.3] Bonus de altura:** +5% de daño por cada nivel por encima del objetivo (`RulesConfig.height_damage_bonus`, 0 para desactivarlo).
+- **[Decidido v0.3] Recursos por clase** (`UnitData.resource_kind`):
+  - **Maná** (Maga): se gasta en habilidades y se regenera 4 por turno.
+  - **Ira** (Guerrero y Asesina): empieza en 0 cada combate y llega hasta 100. Se gana **pegando** (+14 por golpe acertado) y **siendo golpeado** (+6 más un extra proporcional a la vida perdida). **Cuanta más ira, más daño:** +0,5% por punto (+50% con 100). Las habilidades fuertes **gastan ira**. Cada habilidad tiene un **umbral de mutación** (50-70): con la ira por encima, la habilidad se sustituye por su versión mutada (★), mucho más potente.
+  - **Sin recurso** (Arquero): solo PA. Sus habilidades fuertes tienen **enfriamiento** (turnos de espera).
 
 **Límites de combate:**
 
@@ -103,6 +118,10 @@ Roguelike táctico isométrico 2.5D. Combate por turnos rápido y legible, runs 
 - En run solo llevas las que tienes equipadas en los slots, más pasivas.
 
 **Etiquetas:** cada habilidad lleva etiquetas (`basico`, `lanzamiento`, `area`, `movimiento`, y opcionalmente `proyectil`, `melee`, `fuego`, etc.). Los modificadores (sección 5) se aplican por etiqueta, no por habilidad concreta.
+
+**[Decidido v0.3] Habilidades de movimiento** (`SkillData.motion`): `TELEPORT` (salta a una casilla libre ignorando alturas), `CHARGE` (corre en línea recta y golpea al llegar al lado del objetivo) y `BEHIND_TARGET` (aparece a la espalda del objetivo y golpea; necesita la espalda libre). Además, cualquier habilidad puede **empujar** (`knockback`): el objetivo se desplaza hasta chocar con un obstáculo, una unidad o una pared más alta que `max_climb` (las caídas sí se permiten).
+
+**[Decidido v0.3] Reglas de objetivo** (`SkillData.target_rule`): cualquier casilla, solo enemigos, solo casillas libres o uno mismo (alcance 0).
 
 **[Decidido v0.2] Datos de una habilidad (`SkillData`):** tipo, etiquetas, coste PA/MP, alcance mínimo y máximo (distancia Manhattan), alcance vertical, forma del área (`SINGLE`, `DIAMOND`, `SQUARE`, `CROSS`, `LINE`) y tamaño, poder y si afecta a aliados. Un alcance 0-0 apunta a la propia casilla (habilidades centradas en uno mismo).
 
@@ -152,6 +171,23 @@ El orden es fijo y está documentado. El caos viene de acumular, no de resolver 
 - *Movimiento que explota:* etiqueta `movimiento`, disparador al acabar, efecto explosión 3x3, daño numérico.
 - *Crítico por la espalda:* etiqueta `basico`, disparador al atacar por la espalda, efecto aumento de crítico, tipo numérico.
 
+**[Decidido v0.3] Implementación (`ModifierData` + `ResolutionPipeline`):**
+
+| Etapa | Efectos | Tipo |
+|---|---|---|
+| 1. Forma y trayectoria | `RANGE` (+alcance), `AREA_SIZE` (+área; una casilla pasa a rombo), `BOUNCE` (rebote, límite = saltos) | numérico / comportamiento |
+| 2. Numéricos | `DAMAGE_FLAT`, `DAMAGE_PERCENT`, `COST_REDUCTION` (−maná/ira y −1 de enfriamiento por cada 10), `CRIT_CHANCE`, `RAGE_ON_HIT` | numérico |
+| 3. Al impacto | `EXPLODE` (% del daño a los adyacentes, límite = radio), `KNOCKBACK`, `LIFESTEAL` | comportamiento |
+| 4. Encadenados | los saltos de `BOUNCE` (hasta el enemigo más cercano a ≤3 casillas, sin repetir), con tope = límite | comportamiento |
+| Al matar | `REFUND_AP` (recupera PA, límite = veces por turno) | comportamiento |
+
+- **Disparadores:** `ALWAYS`, `ON_BACK_ATTACK`, `ON_CRIT`, `ON_KILL`. Los condicionales se evalúan golpe a golpe.
+- El tipo (numérico o comportamiento) se **deduce del efecto**, así no puede haber datos incoherentes.
+- La **mutación por ira se aplica antes** que los modificadores: los modificadores afectan también a la versión mutada.
+- **Tabla de incompatibilidades:** `ModifierData.incompatible_with` (por id). Ejemplo: *Rebote* y *Detonación*. El primero que consigues se queda; las ofertas nunca te ofrecen algo incompatible con lo que tienes ni un comportamiento repetido.
+- Las ofertas solo incluyen modificadores cuya etiqueta usa alguna habilidad del grupo.
+- Pool actual: 22 modificadores en `content/modifiers/`.
+
 ## 6. Personajes jugables
 
 - Personajes **fijos**, con nombre, personalidad, estética y clase ya definidos. Ej.: Pablo, arquero humano.
@@ -174,6 +210,19 @@ El orden es fijo y está documentado. El caos viene de acumular, no de resolver 
 | Pablo | Humano · Arquero | Daño a distancia | Golpe de arco (básica), Flecha (lanzamiento 2-4, alcance vertical 3) |
 
 Enemigos de prototipo: Goblin (Saqueador, melee) y Limo (Bestia, melee lento y resistente).
+
+**[Decidido v0.3] Las 4 clases jugables del prototipo** (plantilla completa: básica, lanzamiento, área, movimiento):
+
+| Personaje | Clase | Recurso | Básica | Lanzamiento | Área | Movimiento |
+|---|---|---|---|---|---|---|
+| Kael | Guerrero | Ira | Golpe → ★ Golpe brutal (50) | Hacha arrojadiza → ★ Hacha giratoria (60) | Torbellino → ★ Torbellino sangriento (70) | Carga → ★ Carga imparable (50) |
+| Nyx | Asesina | Ira | Puñalada → ★ Puñalada letal (50) | Dagas → ★ Lluvia de dagas (60) | Danza de cuchillas → ★ Danza mortal (70) | Paso sombrío → ★ Ejecución sombría (50) |
+| Lyra | Maga | Maná | Proyectil arcano (gratis) | Lanza de hielo (empuja) | Bola de fuego | Parpadeo (teletransporte) |
+| Pablo | Arquero | Enfriamientos | Disparo (2-5) | Tiro certero (3-7, CD 2) | Lluvia de flechas (3x3, CD 3) | Voltereta (0 PA, CD 2) |
+
+(El número entre paréntesis es la ira necesaria para la mutación.)
+
+**[v0.3] Enemigos por zona:** Cueva (Goblin, Murciélago, Limo; miniboss **Ogro de las cavernas**), Bosque (Lobo, Goblin arquero, Jabalí, Goblin; miniboss **Ent anciano**), Desierto (Escorpión, Bandido, Momia; miniboss **Gusano de arena**, que emerge a tu espalda).
 
 ## 7. Compañeros
 
@@ -219,6 +268,15 @@ Enemigos de prototipo: Goblin (Saqueador, melee) y Limo (Bestia, melee lento y r
 - Cada zona tiene un pool de enemigos y reglas de mapa (agua, alturas, planos).
 - Los minibosses se eligen de una pool rotatoria por zona.
 - **[v0.2]** El formato de mapa (`MapData`: filas de texto de terreno + filas de alturas + spawns) está pensado para que un generador procedural produzca mapas con `MapData.create()` y los valide con `MapData.validate()`.
+- **[Decidido v0.3] Generador procedural (`MapGenerator`)**, determinista por semilla, parametrizado por `ZoneData`:
+  - **Tamaño** aleatorio por zona: 19-24 × 14-18 (casi el doble que la arena de M0), siempre más ancho que alto.
+  - **Bosque:** colinas por ruido (0-4 niveles); un **río** cruza el eje corto con orillas en pendiente (forma un valle); arboledas agrupadas por ruido; las cimas son roca; una **senda** de tierra de oeste a este que vadea el río.
+  - **Desierto:** dunas suaves; 2-4 **mesetas** de arenisca altas (3-6 niveles) de contorno irregular, cada una con una **rampa** escalonada para subir; a veces un **oasis** con orilla de hierba; cactus y rocas dispersos.
+  - **Cueva:** muros de roca por **autómata celular** (bordes cerrados, pilares interiores), solo la región abierta más grande; muros solo un poco más altos que el suelo para que no tapen; manchas de roca húmeda; **pozas** junto a los muros; estalagmitas y cristales.
+  - **Spawns:** jugadores en la franja oeste y enemigos en la este (el mapa se refleja al azar).
+  - **Garantía de conectividad:** se comprueba con las reglas reales de movimiento que todos los spawns se alcanzan entre sí; si no, se excava el camino más barato y se suavizan sus alturas.
+  - Cada zona define además su luz (fondo, ambiente, sol) y su pool de enemigos y minibosses.
+  - Decorado: cada terreno puede tener un `prop_scene` (árbol, cactus, roca, estalagmita, cristal).
 
 **Apertura tipo Isaac:**
 
@@ -307,6 +365,8 @@ docs/        GDD, roadmap, backlog, convenciones
 
 **Presentación:** nodos de Godot que escuchan señales de las reglas. Nunca al revés.
 
+- **[v0.3]** Nuevas carpetas: `core/mapgen/` (`MapGenerator`), `core/run/` (`RunState`, `HeroState`, `ModifierOffer`), `scenes/app/` (autoload `Game` = `GameSession`, único sitio que cambia de escena), `scenes/menu/`, `scenes/run/` (mapa de run, recompensa, fin) y `scenes/ui/components/` (tarjetas reutilizables). `EffectiveSkill` es la habilidad ya resuelta (mutación + modificadores) que usan targeting, previsión y resolución.
+
 - **[v0.2]** `BattleController` (raíz de `battle.tscn`) crea el `CombatState` desde un `BattleSetup`, instancia las vistas y lleva el bucle de turnos. `PlayerTurnInput` y la IA llaman a los mismos `execute_move/skill/end_turn`, que aplican el comando a las reglas y esperan (`await`) la animación correspondiente. `BattleHud` es una fachada sobre los widgets del HUD, cada uno en su propia escena.
 
 **Mapa:** ~~`TileMapLayer` para el suelo y los bloques.~~ **[Decidido v0.2]** El mapa es 3D real (como en la referencia): `BattleMapView` dibuja una columna por casilla con `MultiMeshInstance3D` (un draw call para todo el terreno sólido y otro para el agua). El picking del ratón es analítico (rayo contra la caja de cada columna), sin físicas. Grafo 3D (x, y, altura) para pathfinding con escaleras, pozos y rampas, en lugar de `AStarGrid2D` plano: hoy `Pathfinder` (Dijkstra) trabaja sobre (x, y) con altura por casilla; los planos (§9) añadirán la tercera coordenada.
@@ -316,6 +376,7 @@ docs/        GDD, roadmap, backlog, convenciones
 **Tests:** las reglas de la sección 5 y el pipeline de modificadores deben ser testeables sin escena. Es lo primero que se prueba.
 
 - **[v0.2]** Runner propio sin dependencias (`tests/test_runner.gd`): cualquier `tests/unit/test_*.gd` que extienda `TestCase` se ejecuta; un error de script durante un test cuenta como fallo. Test de integración `tests/integration/autoplay_battle.gd`: juega el combate entero con IA en ambos bandos y falla si no termina o hay errores. CI en GitHub Actions ejecuta ambos en cada push.
+- **[v0.3]** `tests/integration/autoplay_run.gd` simula runs completas solo con reglas (rápido, imprime estadísticas de balance) y `tests/integration/autoplay_ui_run.gd` recorre las pantallas reales de punta a punta (con pantalla o Xvfb guarda una captura de cada una).
 
 **Regla para el agente:** cada modificador nuevo se añade como dato y pasa por los tests del pipeline antes de tocar contenido.
 
@@ -341,12 +402,19 @@ Cada hito tiene un criterio de salida. No se pasa al siguiente sin cumplirlo.
 - **Cuenta de energía o límite de partidas:** no definido. Probablemente no hace falta.
 - **Nombre del juego:** provisional "Greed Tactics" (nombre del repositorio). Confirmar.
 - **[v0.2] Línea de visión:** ¿los proyectiles se bloquean con bloques altos o unidades en medio? Hoy no hay línea de visión, solo alcance vertical.
-- **[v0.2] Bonus de altura:** ¿atacar desde arriba da daño o alcance extra (como en FFT)? Hoy no.
+- ~~**[v0.2] Bonus de altura**~~ → resuelto en v0.3: +5% de daño por nivel de ventaja (configurable).
 - **[v0.2] Coste del ataque básico:** el GDD dice "sin coste o coste mínimo". Con 0 PA sería infinito; hoy cuesta 1 de 2 PA (dos ataques por turno). Validar en M1 con la duración de combate.
 - **[v0.2] Orientación al esperar:** hoy se elige a mano al terminar. ¿Automática hacia el enemigo más cercano para ir más rápido (pilar 1), con opción de cambiarla?
 - **[v0.2] Agua:** hoy es transitable (2 PM). ¿Agua profunda intransitable / que impida atacar?
+- **[v0.3] Arquero:** se interpretó "el arquero no (usa maná ni ira)" como **enfriamientos**. Confirmar o proponer otro recurso (munición, concentración...).
+- **[v0.3] Fase del miniboss:** hoy el miniboss es la fase 4 (4 combates por etapa, 8 por run). ¿O el miniboss debe ser un 5º combate aparte?
+- **[v0.3] Grupo:** hoy los 4 héroes van siempre juntos. ¿Se elige 1 personaje principal + compañeros (GDD §7)?
+- **[v0.3] Curación entre fases** con oro: ¿se mantiene o se sustituye por otra cosa (tienda, eventos)?
+- **[v0.3] Balance:** con la configuración actual la IA (jugando por el jugador) gana ~90% de las runs y cada combate dura 18-30 turnos de unidad. Validar a mano.
 
 ## Changelog
+
+- **v0.3 (Nov 2, 2026)** — Prototipo de run: 4 clases jugables (Guerrero y Asesina con ira y mutaciones, Maga con maná, Arquero con enfriamientos) con la plantilla de 4 habilidades; habilidades de movimiento (teletransporte, carga, aparecer a la espalda) y empuje; `ModifierData` + `ResolutionPipeline` con el orden fijo de §5 y 22 modificadores; generador procedural de mapas para Cueva, Bosque y Desierto; 12 enemigos y 3 minibosses; run de 2 etapas × 4 fases con recompensas (modificador en pares, oro en impares), XP, nivel, vida persistente y curación; menú, mapa de run, recompensas y fin de run; bonus de altura.
 
 - **v0.2 (Nov 2, 2026)** — Arranque del proyecto en Godot 4.7.2. Añadidas las decisiones de implementación de M0 (marcadas **[Decidido v0.2]**): sistema de turnos CT, costes de altura, terreno, paso entre aliados, fórmulas de daño/golpe/crítico, regla exacta de espalda, comandos del HUD. Mapa 3D con MultiMesh en lugar de `TileMapLayer`. Estructura de carpetas, runner de tests e integración continua. Nuevas preguntas abiertas. Roadmap y backlog movidos a documentos propios.
 - **v0.1 (Nov 2, 2026)** — Documento inicial.

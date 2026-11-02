@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+[ext_resource type="Resource" path="res://content/skills/assassin/shadow_execution.tres" id="2_shadow_execution"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"shadow_step"
+display_name = "Paso sombrío"
+description = "Aparece a la espalda de un enemigo (2-5) y le apuñala. Necesita la espalda libre."
+skill_type = 3
+tags = Array[StringName]([&"movimiento", &"melee", &"sombra"])
+rage_cost = 15
+cooldown = 1
+target_rule = 1
+range_min = 2
+range_max = 5
+vertical_reach = 3
+power = 9
+motion = 3
+empowered_variant = ExtResource("2_shadow_execution")

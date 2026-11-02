@@ -100,7 +100,8 @@ func _enter_target_mode(skill: SkillData) -> void:
 	_hud.get_command_menu().highlight_skill(skill)
 	_targetable = _controller.combat.get_targetable_cells(_unit, skill, _unit.cell)
 	_highlighter.show_cells(TileHighlighter.Layer.TARGET, _targetable)
-	_hud.set_message("%s: elige un objetivo" % skill.display_name)
+	var effective := _unit.get_effective(skill)
+	_hud.set_message("%s: elige un objetivo%s" % [effective.display_name, "  (ira desatada)" if effective.empowered else ""])
 	_on_hover_changed()
 
 
@@ -171,7 +172,12 @@ func _on_cell_clicked(cell: Vector2i) -> void:
 
 func _show_skill_forecast(target_cell: Vector2i) -> void:
 	var combat := _controller.combat
-	_highlighter.show_cells(TileHighlighter.Layer.AREA, combat.get_effect_cells(_skill, _unit.cell, target_cell))
+	var effective := combat.get_effective(_unit, _skill)
+	var landing := combat.get_landing_cell(_unit, effective, _unit.cell, target_cell)
+	if landing != _unit.cell:
+		_highlighter.show_cell(TileHighlighter.Layer.PATH, landing)
+	if effective.deals_damage():
+		_highlighter.show_cells(TileHighlighter.Layer.AREA, combat.get_effect_cells(effective, landing, target_cell))
 	var previews := combat.preview_skill(_unit, _skill, _unit.cell, target_cell)
 	var anchors: Array[Vector3] = []
 	for preview in previews:
@@ -224,7 +230,7 @@ func _refresh_commands() -> void:
 	var usable: Dictionary[SkillData, bool] = {}
 	for skill in _unit.data.skills:
 		usable[skill] = _can_use(skill)
-	_hud.show_commands(not _reach.get_destinations().is_empty(), usable)
+	_hud.show_commands(_unit, not _reach.get_destinations().is_empty(), usable)
 
 
 func _on_move_selected() -> void:
@@ -245,8 +251,7 @@ func _on_wait_selected() -> void:
 
 
 func _can_use(skill: SkillData) -> bool:
-	return _unit.can_afford(skill) \
-		and not _controller.combat.get_targetable_cells(_unit, skill, _unit.cell).is_empty()
+	return _controller.combat.can_use_skill(_unit, skill)
 
 
 func _first_usable_skill() -> SkillData:
@@ -257,8 +262,10 @@ func _first_usable_skill() -> SkillData:
 
 
 func _has_target_in_range(skill: SkillData) -> bool:
-	for cell in _controller.combat.get_targetable_cells(_unit, skill, _unit.cell):
-		if not _controller.combat.get_skill_targets(_unit, skill, _unit.cell, cell).is_empty():
+	var combat := _controller.combat
+	var effective := combat.get_effective(_unit, skill)
+	for cell in combat.get_targetable_cells(_unit, skill, _unit.cell):
+		if not combat.get_skill_targets(_unit, effective, _unit.cell, cell).is_empty():
 			return true
 	return false
 

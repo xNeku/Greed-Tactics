@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+[ext_resource type="Resource" path="res://content/skills/warrior/spinning_axe.tres" id="2_spinning_axe"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"axe_throw"
+display_name = "Hacha arrojadiza"
+description = "Lanza un hacha a 2-3 casillas."
+skill_type = 1
+tags = Array[StringName]([&"lanzamiento", &"proyectil", &"hacha"])
+rage_cost = 15
+range_min = 2
+range_max = 3
+vertical_reach = 2
+power = 13
+empowered_variant = ExtResource("2_spinning_axe")
+empowered_rage_threshold = 60

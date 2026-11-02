@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Script" path="res://core/data/unit_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="2_ltj06"]
+[ext_resource type="Texture2D" path="res://assets/sprites/units/nyx.png" id="2_nyx"]
+[ext_resource type="Resource" path="res://content/skills/assassin/stab.tres" id="3_stab"]
+[ext_resource type="Resource" path="res://content/skills/assassin/throwing_daggers.tres" id="4_throwing_daggers"]
+[ext_resource type="Resource" path="res://content/skills/assassin/blade_dance.tres" id="5_blade_dance"]
+[ext_resource type="Resource" path="res://content/skills/assassin/shadow_step.tres" id="6_shadow_step"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"nyx"
+display_name = "Nyx"
+short_name = "NYX"
+race = "Semielfa"
+unit_class = "Asesina"
+sprite = ExtResource("2_nyx")
+description = "Asesina. Usa ira como el guerrero. Brilla atacando por la espalda."
+resource_kind = 2
+max_hp = 85
+speed = 13
+move_points = 5
+attack = 14
+defense = 3
+evasion = 25
+crit_chance = 15
+attack_per_level = 3
+skills = Array[ExtResource("2_ltj06")]([ExtResource("3_stab"), ExtResource("4_throwing_daggers"), ExtResource("5_blade_dance"), ExtResource("6_shadow_step")])
