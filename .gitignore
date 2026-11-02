@@ -1,0 +1,19 @@
+# Godot 4 cache / editor data
+.godot/
+/android/
+
+# Exports
+/build/
+/export/
+*.pck
+*.zip
+
+# OS / editors
+.DS_Store
+Thumbs.db
+*.tmp
+.vscode/
+.idea/
+
+# Python
+__pycache__/
