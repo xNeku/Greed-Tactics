@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="MapData" format=3]
+
+[ext_resource type="Script" path="res://core/data/map_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://core/data/terrain_data.gd" id="2_4w3xe"]
+[ext_resource type="Resource" path="res://content/terrains/grass.tres" id="2_grass"]
+[ext_resource type="Resource" path="res://content/terrains/stone.tres" id="3_stone"]
+[ext_resource type="Resource" path="res://content/terrains/water.tres" id="4_water"]
+
+[resource]
+script = ExtResource("1_script")
+display_name = "Arena de pruebas"
+terrains = Array[ExtResource("2_4w3xe")]([ExtResource("2_grass"), ExtResource("3_stone"), ExtResource("4_water")])
+terrain_rows = PackedStringArray("gggggggggggg", "gggssgggwwgg", "ggsssggwwggg", "gggggwwwgggg", "ggggwwgssggg", "gggwwggssggg", "gwwwgggggggg", "wwgggssggggg", "gggggssggggg", "gggggggggggg")
+height_rows = PackedStringArray("000000001111", "000110000011", "001210000011", "000000000000", "000000022000", "000000021000", "000000000000", "000001100000", "000001200000", "000000000000")
+player_spawns = Array[Vector2i]([Vector2i(1, 8), Vector2i(2, 9)])
+enemy_spawns = Array[Vector2i]([Vector2i(10, 1), Vector2i(9, 2), Vector2i(11, 0)])

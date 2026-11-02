@@ -1,0 +1,57 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/battle/battle_controller.gd" id="1_controller"]
+[ext_resource type="Resource" path="res://content/battles/test_arena.tres" id="2_setup"]
+[ext_resource type="Resource" path="res://content/rules/default_rules.tres" id="3_rules"]
+[ext_resource type="PackedScene" path="res://scenes/battle/units/unit_view.tscn" id="4_unit_view"]
+[ext_resource type="PackedScene" path="res://scenes/battle/map/battle_map.tscn" id="5_map"]
+[ext_resource type="PackedScene" path="res://scenes/battle/map/tile_highlighter.tscn" id="6_highlighter"]
+[ext_resource type="PackedScene" path="res://scenes/battle/camera/camera_rig.tscn" id="7_camera"]
+[ext_resource type="Script" path="res://scenes/battle/player_turn_input.gd" id="8_input"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud/hud.tscn" id="9_hud"]
+
+[sub_resource type="Environment" id="Environment_battle"]
+background_mode = 1
+background_color = Color(0.105, 0.115, 0.17, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.85, 0.88, 1, 1)
+ambient_light_energy = 0.5
+ssao_enabled = true
+ssao_radius = 0.6
+ssao_intensity = 1.4
+
+[node name="Battle" type="Node3D"]
+script = ExtResource("1_controller")
+setup = ExtResource("2_setup")
+rules = ExtResource("3_rules")
+unit_view_scene = ExtResource("4_unit_view")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_battle")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.81915206, 0.43938506, -0.36868784, 0, 0.64278764, 0.76604444, 0.57357645, -0.62750685, 0.5265408, 0, 10, 0)
+light_energy = 0.8
+shadow_enabled = true
+shadow_opacity = 0.75
+shadow_blur = 1.5
+directional_shadow_max_distance = 45.0
+
+[node name="BattleMap" parent="." instance=ExtResource("5_map")]
+unique_name_in_owner = true
+
+[node name="TileHighlighter" parent="." instance=ExtResource("6_highlighter")]
+unique_name_in_owner = true
+
+[node name="Units" type="Node3D" parent="."]
+unique_name_in_owner = true
+
+[node name="CameraRig" parent="." instance=ExtResource("7_camera")]
+unique_name_in_owner = true
+
+[node name="PlayerTurnInput" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("8_input")
+
+[node name="HUD" parent="." instance=ExtResource("9_hud")]
+unique_name_in_owner = true

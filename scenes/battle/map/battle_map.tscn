@@ -1,0 +1,50 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/battle/map/battle_map_view.gd" id="1_view"]
+[ext_resource type="Shader" path="res://assets/shaders/terrain.gdshader" id="2_terrain"]
+[ext_resource type="Shader" path="res://assets/shaders/water.gdshader" id="3_water"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_terrain"]
+render_priority = 0
+shader = ExtResource("2_terrain")
+shader_parameter/checker_strength = null
+shader_parameter/grid_line_width = null
+shader_parameter/grid_line_darken = null
+shader_parameter/side_gradient = null
+
+[sub_resource type="BoxMesh" id="BoxMesh_solid"]
+material = SubResource("ShaderMaterial_terrain")
+
+[sub_resource type="MultiMesh" id="MultiMesh_solid"]
+resource_local_to_scene = true
+transform_format = 1
+use_colors = true
+use_custom_data = true
+mesh = SubResource("BoxMesh_solid")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_water"]
+render_priority = 0
+shader = ExtResource("3_water")
+shader_parameter/deep_color = null
+shader_parameter/light_color = null
+shader_parameter/side_color = null
+shader_parameter/noise_scale = null
+shader_parameter/flow_speed = null
+shader_parameter/caustic_sharpness = null
+
+[sub_resource type="BoxMesh" id="BoxMesh_liquid"]
+material = SubResource("ShaderMaterial_water")
+
+[sub_resource type="MultiMesh" id="MultiMesh_liquid"]
+resource_local_to_scene = true
+transform_format = 1
+mesh = SubResource("BoxMesh_liquid")
+
+[node name="BattleMap" type="Node3D"]
+script = ExtResource("1_view")
+
+[node name="SolidTerrain" type="MultiMeshInstance3D" parent="."]
+multimesh = SubResource("MultiMesh_solid")
+
+[node name="LiquidTerrain" type="MultiMeshInstance3D" parent="."]
+multimesh = SubResource("MultiMesh_liquid")

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="TerrainData" format=3]
+
+[ext_resource type="Script" path="res://core/data/terrain_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"stone"
+display_name = "Piedra"
+symbol = "s"
+top_color = Color(0.76, 0.79, 0.85, 1)
+side_color = Color(0.6, 0.63, 0.71, 1)

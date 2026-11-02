@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="TerrainData" format=3]
+
+[ext_resource type="Script" path="res://core/data/terrain_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"grass"
+display_name = "Hierba"
+top_color = Color(0.46, 0.8, 0.6, 1)
+side_color = Color(0.3, 0.58, 0.45, 1)

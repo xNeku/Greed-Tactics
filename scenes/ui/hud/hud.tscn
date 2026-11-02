@@ -1,0 +1,150 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/ui/hud/hud.gd" id="1_hud"]
+[ext_resource type="Script" path="res://scenes/ui/hud/components/turn_queue_bar.gd" id="2_queue"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud/components/turn_queue_entry.tscn" id="3_entry"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud/components/unit_info_panel.tscn" id="4_info"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud/components/command_menu.tscn" id="5_menu"]
+[ext_resource type="Script" path="res://scenes/ui/hud/components/action_preview_layer.gd" id="6_previews"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud/components/preview_card.tscn" id="7_card"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud/components/result_overlay.tscn" id="8_result"]
+
+[node name="HUD" type="CanvasLayer"]
+script = ExtResource("1_hud")
+
+[node name="Root" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ActionPreviewLayer" type="Control" parent="Root"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("6_previews")
+card_scene = ExtResource("7_card")
+
+[node name="TopBar" type="PanelContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 56.0
+grow_horizontal = 2
+theme_type_variation = &"TopBar"
+
+[node name="Layout" type="HBoxContainer" parent="Root/TopBar"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TitleLabel" type="Label" parent="Root/TopBar/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"TitleLabel"
+text = "Combate"
+
+[node name="QueueCaption" type="Label" parent="Root/TopBar/Layout"]
+layout_mode = 2
+theme_type_variation = &"CaptionLabel"
+text = "Cola de turnos:"
+
+[node name="TurnQueueBar" type="HBoxContainer" parent="Root/TopBar/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 6
+script = ExtResource("2_queue")
+entry_scene = ExtResource("3_entry")
+
+[node name="MessageBanner" type="PanelContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -330.0
+offset_top = 72.0
+offset_right = 330.0
+offset_bottom = 112.0
+grow_horizontal = 2
+mouse_filter = 2
+
+[node name="MessageLabel" type="Label" parent="Root/MessageBanner"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"MessageLabel"
+text = "Preparando el combate..."
+horizontal_alignment = 1
+
+[node name="BottomLeft" type="VBoxContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = -24.0
+offset_right = 344.0
+offset_bottom = -24.0
+grow_vertical = 0
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="TileInfo" type="PanelContainer" parent="Root/BottomLeft"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+mouse_filter = 2
+theme_type_variation = &"PreviewPanel"
+
+[node name="TileInfoLabel" type="Label" parent="Root/BottomLeft/TileInfo"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Hierba · Elev. 0"
+
+[node name="UnitInfoPanel" parent="Root/BottomLeft" instance=ExtResource("4_info")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="CommandMenu" parent="Root" instance=ExtResource("5_menu")]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -284.0
+offset_top = -24.0
+offset_right = -24.0
+offset_bottom = -24.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="ControlsHint" type="Label" parent="Root"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -300.0
+offset_top = -34.0
+offset_right = 300.0
+offset_bottom = -12.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_type_variation = &"CaptionLabel"
+text = "Q/E rotar · Rueda zoom · WASD / botón central mover cámara · Espacio centrar · Clic dcho. cancelar"
+horizontal_alignment = 1
+
+[node name="ResultOverlay" parent="Root" instance=ExtResource("8_result")]
+unique_name_in_owner = true
+layout_mode = 1
