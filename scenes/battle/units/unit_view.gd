@@ -28,6 +28,8 @@ var unit: UnitState
 var _map: BattleMapView
 var _camera: Camera3D
 var _facing_tween: Tween
+var _label_base_y := 0.0
+var _icons_base_y := 0.0
 ## Sprite colour when not flashing: white, or tinted by the strongest status.
 var _base_modulate := Color.WHITE
 
@@ -43,6 +45,8 @@ func setup(p_unit: UnitState, map_view: BattleMapView, camera: Camera3D) -> void
 	_sprite.pixel_size *= unit.data.sprite_scale
 	_info_label.position.y *= unit.data.sprite_scale
 	_status_icons.position.y *= unit.data.sprite_scale
+	_label_base_y = _info_label.position.y
+	_icons_base_y = _status_icons.position.y
 	_ring.scale = Vector3.ONE * clampf(unit.data.sprite_scale, 1.0, 1.3)
 	set_active(false)
 	sync_to_state()
@@ -50,6 +54,7 @@ func setup(p_unit: UnitState, map_view: BattleMapView, camera: Camera3D) -> void
 
 func _process(_delta: float) -> void:
 	_update_sprite_flip()
+	_compensate_camera_pitch()
 
 
 ## Snaps position, facing and labels to the current state, without animating.
@@ -260,3 +265,18 @@ func _update_sprite_flip() -> void:
 	var screen_x := facing.dot(_camera.global_basis.x)
 	if absf(screen_x) > 0.05:
 		_sprite.flip_h = screen_x < 0.0
+
+
+## The sprite is a vertical (Y-fixed) billboard and the camera looks down at
+## it, so on screen it would look squashed by cos(pitch). Stretch it back so
+## pixel art keeps square pixels whatever the camera pitch is.
+func _compensate_camera_pitch() -> void:
+	if _camera == null:
+		return
+	# The camera looks along -Z: when it looks down, its +Z axis points up.
+	var down := clampf(_camera.global_basis.z.y, 0.0, 0.95)
+	var stretch := 1.0 / sqrt(1.0 - down * down)
+	_sprite.scale.y = stretch
+	# Keep the floating info above the (now taller) sprite.
+	_info_label.position.y = _label_base_y * stretch
+	_status_icons.position.y = _icons_base_y * stretch
