@@ -829,9 +829,11 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
       const [snap, enemySnap] = await Promise.all([db.collection("heroes").get(), db.collection("enemies").get()]);
       clearTimeout(timer);
       const byOrder = (a, b) => (a.order ?? 99) - (b.order ?? 99);
-      state.heroes = snap.docs.map(d => ensureShape(d.data(), "heroes")).sort(byOrder);
+      // Snapshots are frozen: work on plain copies.
+      const plain = (d) => JSON.parse(JSON.stringify(d.data()));
+      state.heroes = snap.docs.map(d => ensureShape(plain(d), "heroes")).sort(byOrder);
       state.enemies = enemySnap.docs.map(d => {
-        const e = d.data();
+        const e = plain(d);
         const size = (CATEGORIES.find(c => c[0] === e.category) || [])[3];
         return ensureShape(e, "enemies", size);
       }).sort(byOrder);
