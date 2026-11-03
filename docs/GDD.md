@@ -32,7 +32,7 @@ Roguelike táctico isométrico 2.5D. Combate por turnos rápido y legible, runs 
 
 **Bucle de meta:**
 
-- Desbloquear personajes jugando con ellos (cuanto más juegas, más habilidades y modificadores desbloqueas para ese personaje).
+- Desbloquear personajes jugando con ellos (cuanto más juegas, más habilidades y modificadores desbloqueas para ese personaje). **[v0.6]** Esa mejora también se nota cuando el personaje sale como compañero (progresión bilateral, §7).
 - Desbloquear armas vía gambling con fragmentos.
 - Desbloquear razas y clases en minibosses.
 - Subir maestría por personaje y arma.
@@ -257,7 +257,7 @@ Enemigos de prototipo: Goblin (Saqueador, melee) y Limo (Bestia, melee lento y r
 - **Retroceso** (`SkillData.recoil`): tras disparar sale despedida N casillas en dirección contraria al objetivo; se para ante obstáculos, unidades o muros. La previsión dibuja la flecha verde y la casilla final; la IA puntúa la casilla final.
 - *Quemarropa* (1-2, retroceso 1) · *Doble cañón* (línea 1-3, 2 tiros, retroceso 2, queda Temeraria) · *Abanico de plomo* (cruz, retroceso 1) · *Salto de pólvora* (1-2, retroceso 4: entrar, pegar y largarse).
 
-**[Decidido v0.6] Taller de héroes:** artefacto privado de Neku en claude.ai (fuente `tools/hero_workshop/taller.html`). Guarda en su base de datos un documento por héroe (`heroes/<id>`): sprites de frente/lado/arma como paleta + filas (`.` = transparente), skills, pasivas, desbloqueables y arma. `tools/export_hero_sheets.gd` genera esos documentos desde el juego; Claude lee los cambios de Neku y los pasa a `assets/` y `content/`.
+**[Decidido v0.6] Taller de héroes y enemigos:** artefacto privado de Neku en claude.ai (fuente `tools/hero_workshop/taller.html`). Guarda en su base de datos un documento por héroe (`heroes/<id>`) y por enemigo (`enemies/<id>`, con categoría jefe / miniboss / normal, zonas, comportamiento, estadísticas y recompensas; Neku puede crear enemigos nuevos desde ahí): sprites de frente/lado/arma como paleta + filas (`.` = transparente), skills, pasivas, desbloqueables y arma. `tools/export_hero_sheets.gd` genera esos documentos desde el juego (`{heroes, enemies}`); Claude lee los cambios de Neku y los pasa a `assets/` y `content/`.
 
 **[Decidido v0.5] Plantel y grupo:** `RunConfig.roster` (8 héroes: Kael, Pablo, Tohil, Nyx, Sigrid, Elara, Grizka, Lyra) y `party_size` 4. En el menú se eligen 4 haciendo clic en sus tarjetas; el combate rápido usa el mismo grupo.
 
@@ -273,6 +273,13 @@ Enemigos de prototipo: Goblin (Saqueador, melee) y Limo (Bestia, melee lento y r
 - **Límite en combate:** máximo 3 aliados activos. Los demás quedan en reserva y se cambian entre combates.
 - **IA:** reglas de decisión por rol (prioridades simples: el sanador cura al aliado más bajo, el tanque se interpone, etc.). No se programa un comportamiento distinto por personaje.
 - Los compañeros no persisten entre runs, pero los que hayas visto pueden salir de nuevo en futuras runs.
+- **[Decidido v0.6, Neku] Los compañeros son nuestros propios héroes jugables** (Kael, Pablo, Tohil, Nyx, Sigrid, Elara, Grizka...), no personajes aparte. Un compañero es el mismo `UnitData` que el héroe, con su kit, su sprite y su arma.
+- **[Decidido v0.6, Neku] Progresión bilateral:** lo que mejoras de un personaje en la meta (maestría, habilidades y pasivas desbloqueadas, arma) lo lleva también cuando aparece como compañero en mitad de una run. Si mejoras a Elara jugando con ella, la Elara que te encuentres como aliada será mejor.
+- **Propuesta v0.6 (pendiente de confirmar):**
+  - El compañero aparece **al nivel actual de la run** y con la progresión de cuenta de ese personaje; no trae los modificadores de run (esos son del grupo que empezó).
+  - Solo pueden salir como compañeros los héroes que **no** están en tu grupo.
+  - La progresión va también en sentido contrario: los combates que gana un personaje como compañero le dan **maestría reducida** (p. ej. 50%) para la meta. Así usarlo como aliado también lo mejora.
+  - Lo controla la IA con un perfil por rol (`AiProfile`). Opción a decidir: que el jugador pueda controlarlo.
 - **[Decidido v0.4] IA táctica** (`BasicAI` + `AiProfile` en `content/ai/`). Cada decisión:
   1. Calcula un **mapa de amenaza**: cuánto daño podrían hacer los rivales a cada casilla el turno siguiente (su movimiento + alcance + daño).
   2. Puntúa cada combinación **moverse + habilidad + objetivo**: daño esperado, bonus por **matar**, por rematar **heridos** (focus fire), por quitar de en medio a los **peligrosos** (más ataque), por aplicar **estados**, menos el coste del recurso y menos la **amenaza** de la casilla donde acaba.
@@ -461,7 +468,8 @@ Cada hito tiene un criterio de salida. No se pasa al siguiente sin cumplirlo.
 - **Razas y clases desbloqueadas en personajes fijos:** propuesta en sección 10 (se aplican como modificador de inicio de run). Confirmar.
 - **Maestría de armas:** ¿se desbloquea por usos del arma con un personaje concreto, o por usos del arma en general?
 - **Tiempo de run:** 4-5 pisos encajan en 1-2 horas solo si los combates duran 4-6 minutos. Hay que validarlo en M2.
-- **Compañeros con kit propio:** ¿pueden ser jugables en otra run o solo aparecen como aliados?
+- ~~**Compañeros con kit propio:**~~ → resuelto en v0.6: los compañeros son los mismos héroes jugables, con progresión bilateral (§7).
+- **[v0.6] Compañeros:** ¿los controla la IA o el jugador? ¿Cuentan dentro del grupo de 4 o van aparte (máx. 3 aliados activos)? ¿Usarlos como aliados les da maestría (y cuánta)?
 - **Cuenta de energía o límite de partidas:** no definido. Probablemente no hace falta.
 - **Nombre del juego:** provisional "Greed Tactics" (nombre del repositorio). Confirmar.
 - **[v0.2] Línea de visión:** ¿los proyectiles se bloquean con bloques altos o unidades en medio? Hoy no hay línea de visión, solo alcance vertical.

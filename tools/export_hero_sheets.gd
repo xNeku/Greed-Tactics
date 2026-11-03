@@ -1,22 +1,43 @@
 extends SceneTree
-## Exports every roster hero (stats, skills, rage mutations and sprites as
-## palette + rows) to JSON, the format of Neku's sprite editor artifact.
+## Exports every roster hero and every zone enemy (stats, skills, rage
+## mutations and sprites as palette + rows) to JSON: {heroes: [], enemies: []},
+## the documents of Neku's hero workshop artifact (tools/hero_workshop/).
 ## Usage: godot --headless --script res://tools/export_hero_sheets.gd -- out.json
 
 const SLOT_NAMES := ["Básica", "Lanzamiento", "Área", "Movimiento"]
 const RESOURCE_NAMES := ["Enfriamientos", "Maná", "Ira"]
 const SYMBOLS := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+const BEHAVIOURS := {
+	"melee_aggressive": "Cuerpo a cuerpo agresivo: va a por ti sin miedo",
+	"skirmisher": "Hostigador: entra, golpea y se aparta",
+	"ranged": "A distancia: mantiene 4 casillas",
+	"boss": "Jefe: casi ignora el peligro y concentra el daño",
+}
 
 
 func _initialize() -> void:
 	var out_path := OS.get_cmdline_user_args()[0]
 	var config := load("res://content/run/default_run.tres") as RunConfig
 	var heroes: Array = []
-	for data in config.roster:
-		heroes.append(_hero(data))
+	for i in config.roster.size():
+		var sheet := _hero(config.roster[i])
+		sheet["order"] = i
+		heroes.append(sheet)
+	var enemies: Array = []
+	var seen: Dictionary = {}
+	for zone in config.zones:
+		for pool: Array[UnitData] in [zone.enemy_pool, zone.miniboss_pool]:
+			for data in pool:
+				if not seen.has(data):
+					seen[data] = _enemy(data, pool == zone.miniboss_pool)
+					seen[data]["order"] = seen.size()
+					enemies.append(seen[data])
+				var zones: Array = seen[data]["zones"]
+				if not zones.has(zone.display_name):
+					zones.append(zone.display_name)
 	var file := FileAccess.open(out_path, FileAccess.WRITE)
-	file.store_string(JSON.stringify(heroes, "  "))
-	print("Exported %d heroes to %s" % [heroes.size(), out_path])
+	file.store_string(JSON.stringify({"heroes": heroes, "enemies": enemies}, "  "))
+	print("Exported %d heroes and %d enemies to %s" % [heroes.size(), enemies.size(), out_path])
 	quit()
 
 
@@ -40,6 +61,29 @@ func _hero(data: UnitData) -> Dictionary:
 			"speed": data.speed, "move": data.move_points, "evasion": data.evasion, "crit": data.crit_chance},
 		"skills": skills,
 		"unlocks": unlocks,
+		"sprites": {"front": _sprite(data.sprite), "side": _sprite(data.sprite_side)},
+	}
+
+
+func _enemy(data: UnitData, miniboss: bool) -> Dictionary:
+	var skills: Array = []
+	for skill in data.skills:
+		skills.append(_skill(skill))
+	var profile := data.ai_profile.resource_path.get_file().get_basename() if data.ai_profile != null else ""
+	return {
+		"id": String(data.id),
+		"name": data.display_name,
+		"category": "miniboss" if miniboss else "normal",
+		"zones": [],
+		"race": data.race,
+		"heroClass": data.unit_class,
+		"description": data.description,
+		"behaviour": BEHAVIOURS.get(profile, profile),
+		"scale": data.sprite_scale,
+		"rewards": {"xp": data.xp_reward, "gold": data.gold_reward},
+		"stats": {"hp": data.max_hp, "mp": data.max_mp, "attack": data.attack, "defense": data.defense,
+			"speed": data.speed, "move": data.move_points, "evasion": data.evasion, "crit": data.crit_chance},
+		"skills": skills,
 		"sprites": {"front": _sprite(data.sprite), "side": _sprite(data.sprite_side)},
 	}
 

@@ -15,6 +15,8 @@ El estado por hito está en [`ROADMAP.md`](ROADMAP.md).
 | GT-251 | Animaciones de Pablo (y del resto cuando lleguen sus sprites) con `art/src` + `tools/build_sprite_frames.gd` | M4 | P1 | ⬜ |
 | GT-252 | Pablo sin arco visible en el sprite: decidir con Neku si lo lleva a la espalda o en la mano | M4 | P2 | ⬜ |
 | GT-260 | Importador del taller: leer los cambios de Neku (sprites, arma, pasivas, desbloqueables) y pasarlos a `assets/` y `content/` | M4 | P1 | ⬜ |
+| GT-262 | Compañeros = héroes jugables con progresión bilateral: aparecen a nivel de run con su progresión de cuenta (depende de la meta de M3) | M3 | P1 | ⬜ |
+| GT-263 | Jefes de verdad: diseñarlos en el taller (Neku) y meterlos en las zonas | M4 | P1 | ⬜ |
 | GT-257 | Equilibrar a Nyx, Elara y Grizka jugando (con ellas la IA gana 1/5 runs simuladas frente a 3/5 del grupo por defecto) | M5 | P1 | ⬜ |
 | GT-258 | Animaciones y armas de Nyx, Elara y Grizka cuando Neku pase los sprites | M4 | P2 | ⬜ |
 | GT-255 | Integrar las hachas a dos manos de Sigrid cuando Neku pase el sprite del arma | M4 | P1 | ⬜ |
@@ -79,6 +81,7 @@ El estado por hito está en [`ROADMAP.md`](ROADMAP.md).
 | GT-241 | Kael camorrista: kit a puños, sprites de frente/lado y animaciones (idle, andar, puñetazo, golpe) | M4 | 2026-11-03 |
 | GT-242 | Sprite de Pablo de Neku: más delgado, moño frontal, aros dorados pegados a la oreja (sin tribales, v0.5.1); frente + lado | M4 | 2026-11-03 |
 | GT-243 | Terrenos con textura procedural, decoración, niebla, sol, glow, partículas por zona, viñeta | M5 | 2026-11-03 |
+| GT-264 | Taller: categoría de enemigos (jefes, minibosses, normales) con ficha editable y creación/borrado de enemigos nuevos | M4 | 2026-11-03 |
 | GT-261 | Taller de héroes (artefacto en claude.ai): editor pixel perfect con lápiz, goma, gotero, cubo, simetría, deshacer, paleta, vista previa y PNG; fichas con skills, pasivas, desbloqueables y arma. Fuente en `tools/hero_workshop/`, datos con `tools/export_hero_sheets.gd` | M4 | 2026-11-03 |
 | GT-259 | v0.6: Nyx asesina táctica (toxina acumulable, provocación), Elara paladina (curas, Égida), Grizka pistolera (retroceso); menú en rejilla | M1 | 2026-11-03 |
 | GT-256 | Correcciones v0.5.1: aros de Pablo, sin tribales, Sigrid sin hacha, chamán Tohil (hombre), grupo inicial con los 4 de Neku | M4 | 2026-11-03 |

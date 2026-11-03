@@ -61,6 +61,8 @@ header.top h1 span { color: var(--fg); font-weight: 500; }
 /* Hero rack */
 .rack { display: grid; gap: 6px; }
 .rack-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); margin: 0 0 2px 4px; }
+.rack-title.group { margin-top: 14px; }
+.rack-add { justify-self: start; margin: 2px 0 0 10px; }
 .hero-btn {
   display: grid; grid-template-columns: 44px 1fr; gap: 10px; align-items: center;
   padding: 6px 10px 6px 6px; border: 1px solid transparent; border-radius: 6px;
@@ -151,8 +153,9 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
 
 @media (max-width: 900px) {
   .bench { grid-template-columns: minmax(0, 1fr); }
-  .rack { grid-auto-flow: column; grid-auto-columns: 150px; overflow-x: auto; padding-bottom: 4px; }
+  .rack { grid-auto-flow: column; grid-auto-columns: 150px; overflow-x: auto; padding-bottom: 4px; align-items: center; }
   .rack-title { display: none; }
+  .rack-add { white-space: nowrap; margin: 0 8px; }
   .editor { grid-template-columns: minmax(0, 1fr); }
 }
 @media (prefers-reduced-motion: no-preference) {
@@ -162,13 +165,13 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
 
 <div class="shell">
   <header class="top">
-    <h1>Greed Tactics <span>· taller de héroes</span></h1>
+    <h1>Greed Tactics <span>· taller</span></h1>
     <div class="save-state" id="saveState" data-state="idle" aria-live="polite"><span class="dot"></span><span id="saveText">Conectando…</span></div>
   </header>
   <div class="bench">
-    <nav class="rack" id="rack" aria-label="Héroes"><p class="rack-title">Héroes</p></nav>
+    <nav class="rack" id="rack" aria-label="Héroes y enemigos"><p class="rack-title">Héroes</p></nav>
     <main class="sheet" id="sheet">
-      <div class="pane"><div class="notice" id="bootNotice"><b>Cargando héroes…</b> Si tarda, recarga la página.</div></div>
+      <div class="pane"><div class="notice" id="bootNotice"><b>Cargando el taller…</b> Si tarda, recarga la página.</div></div>
     </main>
   </div>
 </div>
@@ -182,10 +185,13 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
 
   const state = {
     db: null, downloads: null,
-    heroes: [], current: null, tab: "sprites", view: "front",
+    heroes: [], enemies: [], current: null, tab: "sprites", view: "front",
     tool: "pencil", color: "#f2c14e", mirror: false, grid: true, zoom: 0,
   };
-  const editors = {};   // key "<hero>/<view>" -> {undo: [], redo: []}
+  const editors = {};   // key "<kind>/<id>/<view>" -> {undo: [], redo: []}
+  const CATEGORIES = [["boss", "Jefes", "Jefe", 32], ["miniboss", "Minibosses", "Miniboss", 28], ["normal", "Enemigos normales", "Enemigo", 24]];
+  const ZONES = ["Cueva", "Bosque", "Desierto"];
+  const STAT_FIELDS = [["hp", "PV"], ["mp", "Maná"], ["attack", "Ataque"], ["defense", "Defensa"], ["speed", "Velocidad"], ["move", "PM"], ["evasion", "Evasión %"], ["crit", "Crítico %"]];
   const saveTimers = {};
   const saving = {};
   const dirtyAgain = {};
@@ -222,8 +228,12 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
   }
 
   // ---------- data ----------
-  function hero() { return state.heroes.find(h => h.id === state.current); }
-  function ensureShape(h) {
+  function entryKey(h) { return h._kind + "/" + h.id; }
+  function allEntries() { return state.heroes.concat(state.enemies); }
+  function hero() { return allEntries().find(h => entryKey(h) === state.current); }
+  function isEnemy(h) { return h._kind === "enemies"; }
+  function ensureShape(h, kind, size) {
+    h._kind = kind;
     h.sprites = h.sprites || {};
     h.skills = h.skills || [];
     h.passives = h.passives || [];
@@ -233,7 +243,7 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
     h._img = h._img || {};
     for (const view of ["front", "side"]) {
       if (!h._img[view]) {
-        const base = h.sprites.front || { w: 20, h: 28 };
+        const base = h.sprites.front || { w: size || 20, h: size || 28 };
         h._img[view] = decode(h.sprites[view], base.w, base.h);
       }
     }
@@ -249,31 +259,30 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
   }
 
   function scheduleSave(h) {
-    clearTimeout(saveTimers[h.id]);
+    const key = entryKey(h);
+    clearTimeout(saveTimers[key]);
     setSaveState("saving", "Cambios sin guardar…");
-    saveTimers[h.id] = setTimeout(() => save(h), SAVE_DELAY);
+    saveTimers[key] = setTimeout(() => save(h), SAVE_DELAY);
   }
   async function save(h) {
     if (!state.db) { setSaveState("error", "Sin base de datos: los cambios no se guardan"); return; }
-    if (saving[h.id]) { dirtyAgain[h.id] = true; return; }
-    saving[h.id] = true;
+    const key = entryKey(h);
+    if (saving[key]) { dirtyAgain[key] = true; return; }
+    saving[key] = true;
     setSaveState("saving", "Guardando " + h.name + "…");
-    const doc = {
-      id: h.id, order: h.order ?? 99, name: h.name, race: h.race, heroClass: h.heroClass, resource: h.resource,
-      description: h.description, stats: h.stats || {},
-      skills: h.skills, passives: h.passives, unlocks: h.unlocks, swatches: h.swatches,
-      sprites: { front: encode(h._img.front), side: encode(h._img.side) },
-      weapon: { name: h.weapon.name, type: h.weapon.type, description: h.weapon.description, sprite: encode(h._img.weapon) },
-      editedAt: new Date().toISOString(),
-    };
+    const doc = {};
+    for (const [k, v] of Object.entries(h)) if (!k.startsWith("_")) doc[k] = v;
+    doc.sprites = { front: encode(h._img.front), side: encode(h._img.side) };
+    doc.weapon = { name: h.weapon.name, type: h.weapon.type, description: h.weapon.description, sprite: encode(h._img.weapon) };
+    doc.editedAt = new Date().toISOString();
     try {
-      await state.db.doc("heroes/" + h.id).set(doc);
+      await state.db.doc(h._kind + "/" + h.id).set(doc);
       setSaveState("saved", "Guardado · " + new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" }));
     } catch (e) {
       setSaveState("error", "No se pudo guardar (" + (e && e.code || "error") + "). Vuelve a intentarlo editando algo.");
     } finally {
-      saving[h.id] = false;
-      if (dirtyAgain[h.id]) { dirtyAgain[h.id] = false; save(h); }
+      saving[key] = false;
+      if (dirtyAgain[key]) { dirtyAgain[key] = false; save(h); }
     }
   }
 
@@ -289,26 +298,40 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
       if (c) { ctx.fillStyle = c; ctx.fillRect(ox + x, oy + y, 1, 1); }
     }
   }
+  function rackButton(h, subText) {
+    const b = el("button", { class: "hero-btn", type: "button", id: "entry-" + h._kind + "-" + h.id, "aria-current": String(entryKey(h) === state.current) });
+    const c = document.createElement("canvas");
+    drawThumb(c, h._img.front);
+    b.append(c, el("span", {}, el("b", { text: h.name || "Sin nombre" }), el("small", { text: subText })));
+    b.addEventListener("click", () => { state.current = entryKey(h); state.zoom = 0; state.view = "front"; if (state.tab === "weapon" || state.tab === "sheet") state.tab = "sprites"; render(); });
+    return b;
+  }
   function renderRack() {
     const rack = document.getElementById("rack");
-    rack.querySelectorAll(".hero-btn").forEach(b => b.remove());
-    for (const h of state.heroes) {
-      const b = document.createElement("button");
-      b.className = "hero-btn"; b.type = "button"; b.id = "hero-" + h.id;
-      b.setAttribute("aria-current", String(h.id === state.current));
-      const c = document.createElement("canvas");
-      drawThumb(c, h._img.front);
-      const t = document.createElement("span");
-      const name = document.createElement("b"); name.textContent = h.name;
-      const sub = document.createElement("small"); sub.textContent = h.heroClass;
-      t.append(name, sub);
-      b.append(c, t);
-      b.addEventListener("click", () => { state.current = h.id; state.zoom = 0; render(); });
-      rack.append(b);
+    rack.replaceChildren(el("p", { class: "rack-title", text: "Héroes" }));
+    for (const h of state.heroes) rack.append(rackButton(h, h.heroClass));
+    for (const [cat, title, single] of CATEGORIES) {
+      const group = state.enemies.filter(e => e.category === cat);
+      rack.append(el("p", { class: "rack-title group", text: title + " · " + group.length }));
+      for (const e of group) rack.append(rackButton(e, (e.zones || []).join(", ") || "Sin zona"));
+      rack.append(el("button", { class: "link-btn rack-add", type: "button", id: "new-" + cat, text: "+ Nuevo " + single.toLowerCase(), onclick: () => createEnemy(cat) }));
     }
   }
+  async function createEnemy(cat) {
+    const [, , single, size] = CATEGORIES.find(c => c[0] === cat);
+    const e = ensureShape({
+      id: "nuevo-" + Date.now().toString(36), custom: true, order: 1000 + state.enemies.length,
+      name: "Nuevo " + single.toLowerCase(), category: cat, zones: [], race: "", heroClass: "", description: "", behaviour: "",
+      rewards: { xp: 10, gold: 3 }, stats: { hp: cat === "boss" ? 400 : cat === "miniboss" ? 250 : 60, mp: 0, attack: 12, defense: 3, speed: 9, move: 4, evasion: 5, crit: 5 },
+      skills: [], passives: [], sprites: {},
+    }, "enemies", size);
+    state.enemies.push(e);
+    state.current = entryKey(e); state.tab = "sheet"; state.zoom = 0;
+    render();
+    save(e);
+  }
   function refreshThumb(h) {
-    const b = document.getElementById("hero-" + h.id);
+    const b = document.getElementById("entry-" + h._kind + "-" + h.id);
     if (b) drawThumb(b.querySelector("canvas"), h._img.front);
   }
 
@@ -331,33 +354,38 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
     sheet.replaceChildren();
     if (!h) return;
     const s = h.stats || {};
+    const category = CATEGORIES.find(c => c[0] === h.category);
     const chips = el("div", { class: "chips" },
-      el("span", { class: "chip res", text: h.resource }),
+      el("span", { class: "chip res", text: isEnemy(h) ? (category ? category[2] : "Enemigo") : h.resource }),
+      ...(isEnemy(h) ? (h.zones || []).map(z => el("span", { class: "chip", text: z })) : []),
       ...[["PV", s.hp], ["Maná", s.mp], ["Ataque", s.attack], ["Defensa", s.defense], ["Velocidad", s.speed], ["PM", s.move], ["Evasión", s.evasion + "%"], ["Crítico", s.crit + "%"]]
         .filter(([, v]) => v !== undefined && v !== 0 && v !== "0%")
         .map(([k, v]) => { const c = el("span", { class: "chip" }); c.append(el("i", { text: k }), String(v)); return c; }));
     const head = el("div", { class: "sheet-head" },
-      el("h2", { text: h.name }),
-      el("div", { class: "sub", text: h.heroClass + " · " + h.race }),
+      el("h2", { id: "entryName", text: h.name || "Sin nombre" }),
+      el("div", { class: "sub", text: [h.heroClass, h.race].filter(Boolean).join(" · ") || "Sin clase ni raza" }),
       chips);
+    if (isEnemy(h) && h.behaviour) head.append(el("div", { class: "sub", text: "Comportamiento: " + h.behaviour }));
     const tabs = el("div", { class: "tabs", role: "tablist" });
-    for (const [key, label] of [["sprites", "Sprites"], ["skills", "Habilidades"], ["weapon", "Arma"]]) {
+    const tabList = isEnemy(h) ? [["sprites", "Sprites"], ["skills", "Habilidades"], ["sheet", "Ficha"]] : [["sprites", "Sprites"], ["skills", "Habilidades"], ["weapon", "Arma"]];
+    for (const [key, label] of tabList) {
       tabs.append(el("button", { class: "tab", role: "tab", type: "button", id: "tab-" + key, "aria-selected": String(state.tab === key),
         text: label, onclick: () => { state.tab = key; render(); } }));
     }
     head.append(tabs);
     const pane = el("div", { class: "pane" });
     if (state.tab === "sprites") pane.append(spritePane(h));
-    else if (state.tab === "skills") pane.append(skillsPane(h));
+    else if (state.tab === "skills") pane.append(isEnemy(h) ? enemySkillsPane(h) : skillsPane(h));
+    else if (state.tab === "sheet") pane.append(sheetPane(h));
     else pane.append(weaponPane(h));
     sheet.append(head, pane);
-    if (state.tab !== "skills") mountEditor(h);
+    if (state.tab === "sprites" || state.tab === "weapon") mountEditor(h);
   }
 
   function spritePane(h) {
     const wrap = el("div");
     const views = el("div", { class: "views" });
-    for (const [key, label] of [["front", "Frente"], ["side", "Lado (mirando a la derecha)"]]) {
+    for (const [key, label] of [["front", "Frente"], ["side", isEnemy(h) ? "Lado (opcional, mirando a la derecha)" : "Lado (mirando a la derecha)"]]) {
       views.append(el("button", { class: "tool", type: "button", "aria-pressed": String(state.view === key), text: label,
         onclick: () => { state.view = key; state.zoom = 0; render(); } }));
     }
@@ -410,6 +438,81 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
       listSection(h, "unlocks", "Desbloqueables", "Skills que se ganan durante la partida: mutaciones de ira ★, niveles, objetos…",
         { name: "", requirement: "", description: "" }, [["name", "Nombre", "Ej. Doble aguijón ★"], ["requirement", "Cómo se desbloquea", "Ej. 50 de ira / nivel 5"], ["description", "Qué hace", "", true]], "Añadir desbloqueable"));
     return wrap;
+  }
+  function enemySkillsPane(h) {
+    const wrap = el("div");
+    wrap.append(
+      listSection(h, "skills", "Skills", "Lo que hace en combate. Los enemigos no siguen la plantilla de 4 huecos.",
+        { slot: "", name: "", cost: "", description: "" }, [["name", "Nombre", "Ej. Zarpazo"], ["slot", "Tipo", "Básica, Área, Carga…"], ["description", "Qué hace", "", true]], "Añadir skill"),
+      listSection(h, "passives", "Pasivas", "Rasgos siempre activos: resistencias, auras, fases del jefe…",
+        { name: "", description: "" }, [["name", "Nombre", "Ej. Piel de piedra"], ["description", "Qué hace", "", true]], "Añadir pasiva"));
+    return wrap;
+  }
+  function sheetPane(h) {
+    const wrap = el("div", { class: "section" });
+    const form = el("div", { class: "weapon-form" });
+    const cat = el("select", { id: "enemy-category" });
+    for (const [key, , single] of CATEGORIES) { const o = el("option", { text: single }); o.value = key; cat.append(o); }
+    cat.value = h.category || "normal";
+    cat.addEventListener("change", () => { h.category = cat.value; scheduleSave(h); render(); });
+    const name = textField(h, "name", h, { id: "enemy-name" });
+    name.addEventListener("input", () => { document.getElementById("entryName").textContent = name.value || "Sin nombre"; });
+    name.addEventListener("change", () => renderRack());
+    form.append(el("label", {}, "Nombre", name), el("label", {}, "Categoría", cat),
+      el("label", {}, "Raza", textField(h, "race", h, { id: "enemy-race" })),
+      el("label", {}, "Clase o rol", textField(h, "heroClass", h, { id: "enemy-class" })));
+    const zones = el("div", { class: "chips", role: "group", "aria-label": "Zonas" });
+    h.zones = h.zones || [];
+    for (const z of ZONES) {
+      const b = el("button", { class: "tool", type: "button", "aria-pressed": String(h.zones.includes(z)), text: z });
+      b.addEventListener("click", () => {
+        const i = h.zones.indexOf(z);
+        if (i === -1) h.zones.push(z); else h.zones.splice(i, 1);
+        b.setAttribute("aria-pressed", String(i === -1));
+        scheduleSave(h); renderRack();
+      });
+      zones.append(b);
+    }
+    form.append(el("label", { style: "grid-column: 1 / -1" }, "Zonas donde aparece", zones),
+      el("label", { style: "grid-column: 1 / -1" }, "Comportamiento", textField(h, "behaviour", h, { id: "enemy-behaviour", placeholder: "Cómo juega la IA: agresivo, a distancia, huye…" })),
+      el("label", { style: "grid-column: 1 / -1" }, "Descripción", textField(h, "description", h, { id: "enemy-desc", multiline: true })));
+    const stats = el("div", { class: "weapon-form" });
+    h.stats = h.stats || {};
+    h.rewards = h.rewards || { xp: 0, gold: 0 };
+    const num = (obj, key, label, id) => {
+      const input = el("input", { type: "number", id, min: "0" });
+      input.value = obj[key] ?? 0;
+      input.addEventListener("input", () => { obj[key] = Number(input.value) || 0; scheduleSave(h); });
+      return el("label", {}, label, input);
+    };
+    for (const [key, label] of STAT_FIELDS) stats.append(num(h.stats, key, label, "stat-" + key));
+    stats.append(num(h.rewards, "xp", "XP que da", "reward-xp"), num(h.rewards, "gold", "Oro que da", "reward-gold"));
+    wrap.append(el("div", { class: "section-head" }, el("h3", { text: "Ficha" }), el("p", { text: "Lo que define al enemigo. Claude lo pasa al juego cuando se lo pidas." })),
+      form, el("div", { class: "section-head" }, el("h3", { text: "Estadísticas (nivel 1)" })), stats);
+    if (h.custom) {
+      const confirmBox = el("div", { class: "chips" });
+      const del = el("button", { class: "tool", type: "button", id: "delete-enemy", text: "Borrar este enemigo" });
+      del.addEventListener("click", () => {
+        confirmBox.replaceChildren(el("span", { class: "sub", text: "¿Seguro? No se puede deshacer." }),
+          el("button", { class: "tool", type: "button", text: "Sí, borrar", onclick: () => deleteEnemy(h) }),
+          el("button", { class: "tool", type: "button", text: "Cancelar", onclick: () => confirmBox.replaceChildren(del) }));
+      });
+      confirmBox.append(del);
+      wrap.append(confirmBox);
+    }
+    return wrap;
+  }
+  async function deleteEnemy(h) {
+    clearTimeout(saveTimers[entryKey(h)]);
+    try {
+      if (state.db) await state.db.doc("enemies/" + h.id).delete();
+      state.enemies.splice(state.enemies.indexOf(h), 1);
+      state.current = entryKey(state.heroes[0]); state.tab = "sprites";
+      setSaveState("saved", "Enemigo borrado");
+      render();
+    } catch (e) {
+      setSaveState("error", "No se pudo borrar (" + (e && e.code || "error") + ")");
+    }
   }
   function listSection(h, key, title, help, blank, fields, addLabel) {
     const sec = el("div", { class: "section" },
@@ -486,7 +589,7 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
 
   function mountEditor(h) {
     const view = state.tab === "weapon" ? "weapon" : state.view;
-    const key = h.id + "/" + view;
+    const key = entryKey(h) + "/" + view;
     const hist = editors[key] || (editors[key] = { undo: [], redo: [] });
     let img = imageFor(h, view);
     const canvas = document.getElementById("pixelCanvas");
@@ -691,7 +794,7 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
   let keyTarget = null;
   document.addEventListener("keydown", e => {
     if (e.target.matches("input, textarea, select")) return;
-    if (!keyTarget || state.tab === "skills") return;
+    if (!keyTarget || !document.getElementById("pixelCanvas")) return;
     const k = e.key.toLowerCase();
     if ((e.ctrlKey || e.metaKey) && k === "z") { e.preventDefault(); e.shiftKey ? keyTarget.redo() : keyTarget.undo(); return; }
     if ((e.ctrlKey || e.metaKey) && k === "y") { e.preventDefault(); keyTarget.redo(); return; }
@@ -723,9 +826,15 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
       return;
     }
     try {
-      const snap = await db.collection("heroes").get();
+      const [snap, enemySnap] = await Promise.all([db.collection("heroes").get(), db.collection("enemies").get()]);
       clearTimeout(timer);
-      state.heroes = snap.docs.map(d => ensureShape(d.data())).sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
+      const byOrder = (a, b) => (a.order ?? 99) - (b.order ?? 99);
+      state.heroes = snap.docs.map(d => ensureShape(d.data(), "heroes")).sort(byOrder);
+      state.enemies = enemySnap.docs.map(d => {
+        const e = d.data();
+        const size = (CATEGORIES.find(c => c[0] === e.category) || [])[3];
+        return ensureShape(e, "enemies", size);
+      }).sort(byOrder);
     } catch (e) {
       clearTimeout(timer);
       setSaveState("error", "Error al cargar");
@@ -734,11 +843,11 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
     }
     if (!state.heroes.length) {
       setSaveState("idle", "Sin héroes");
-      showNotice("<b>El taller está vacío.</b> Pídele a Claude que cargue los héroes del juego y aparecerán aquí.");
+      showNotice("<b>El taller está vacío.</b> Pídele a Claude que cargue los héroes y enemigos del juego y aparecerán aquí.");
       return;
     }
     setSaveState("saved", "Todo guardado");
-    state.current = state.heroes[0].id;
+    state.current = entryKey(state.heroes[0]);
     render();
   }
   let waited = 0;
@@ -746,7 +855,7 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
     if (window.claude && typeof window.claude.use === "function") { boot(); return; }
     if ((waited += 100) > 10000) {
       setSaveState("error", "Sin conexión");
-      showNotice("<b>Abre esta página desde claude.ai</b> para cargar los héroes.");
+      showNotice("<b>Abre esta página desde claude.ai</b> para cargar el taller.");
       return;
     }
     setTimeout(start, 100);
