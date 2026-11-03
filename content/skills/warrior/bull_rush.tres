@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="SkillData" format=3]
 
 [ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://core/data/status_data.gd" id="1_unot8"]
 [ext_resource type="Resource" path="res://content/statuses/stun.tres" id="90_status"]
 
 [resource]

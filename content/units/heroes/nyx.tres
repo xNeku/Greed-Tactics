@@ -1,29 +1,30 @@
 [gd_resource type="Resource" script_class="UnitData" format=3]
 
 [ext_resource type="Script" path="res://core/data/unit_data.gd" id="1_script"]
-[ext_resource type="Script" path="res://core/data/skill_data.gd" id="2_ltj06"]
-[ext_resource type="Texture2D" path="res://assets/sprites/units/nyx.png" id="2_nyx"]
-[ext_resource type="Resource" path="res://content/skills/assassin/stab.tres" id="3_stab"]
-[ext_resource type="Resource" path="res://content/skills/assassin/throwing_daggers.tres" id="4_throwing_daggers"]
-[ext_resource type="Resource" path="res://content/skills/assassin/blade_dance.tres" id="5_blade_dance"]
-[ext_resource type="Resource" path="res://content/skills/assassin/shadow_step.tres" id="6_shadow_step"]
+[ext_resource type="Texture2D" path="res://assets/sprites/units/nyx.png" id="2_r"]
+[ext_resource type="Texture2D" path="res://assets/sprites/units/nyx_side.png" id="3_r"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="4_r"]
+[ext_resource type="Resource" path="res://content/skills/assassin/sting.tres" id="5_r"]
+[ext_resource type="Resource" path="res://content/skills/assassin/taunt_dart.tres" id="6_r"]
+[ext_resource type="Resource" path="res://content/skills/assassin/toxic_cloud.tres" id="7_r"]
+[ext_resource type="Resource" path="res://content/skills/assassin/shadow_step.tres" id="8_r"]
 
 [resource]
 script = ExtResource("1_script")
 id = &"nyx"
 display_name = "Nyx"
 short_name = "NYX"
-race = "Semielfa"
+race = "Humana"
 unit_class = "Asesina"
-sprite = ExtResource("2_nyx")
-description = "Asesina. Usa ira como el guerrero. Brilla atacando por la espalda."
+sprite = ExtResource("2_r")
+sprite_side = ExtResource("3_r")
+description = "Asesina táctica. Golpea poco, pero todo lo que hace mete cargas de toxina (más cargas, más daño cada turno). Provoca a los enemigos para que vayan a por ella y se mueve muchísimo por el mapa. Usa ira."
 resource_kind = 2
-max_hp = 85
-speed = 13
-move_points = 5
-attack = 14
+max_hp = 80
+speed = 14
+move_points = 6
+attack = 11
 defense = 3
-evasion = 25
-crit_chance = 15
-attack_per_level = 3
-skills = Array[ExtResource("2_ltj06")]([ExtResource("3_stab"), ExtResource("4_throwing_daggers"), ExtResource("5_blade_dance"), ExtResource("6_shadow_step")])
+evasion = 30
+crit_chance = 12
+skills = Array[ExtResource("4_r")]([ExtResource("5_r"), ExtResource("6_r"), ExtResource("7_r"), ExtResource("8_r")])

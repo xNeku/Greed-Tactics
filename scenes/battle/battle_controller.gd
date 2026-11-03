@@ -198,6 +198,14 @@ func _play_skill_result(result: SkillResult) -> void:
 			user_view.play_heal(hit.healed)
 		if hit.defeated:
 			await view.play_defeat()
+	if result.has_recoil():
+		user_view.play_text("¡Retroceso!", UnitView.CRIT_COLOR)
+		await user_view.play_push(result.recoil_to)
+		_camera_rig.home_position = _map_view.cell_to_world(result.user.cell)
+	for ally in result.heals:
+		if result.heals[ally] > 0 and _views.has(ally):
+			_vfx.impact(_views[ally].get_cast_position(), UnitView.HEAL_COLOR, 0.7)
+			_views[ally].play_heal(result.heals[ally])
 	if result.replaced != null and _views.has(result.replaced):
 		_views[result.replaced].play_defeat()
 	if result.summoned != null:

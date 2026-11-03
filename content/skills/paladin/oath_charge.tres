@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://core/data/status_data.gd" id="1_xfwpq"]
+[ext_resource type="Resource" path="res://content/statuses/aegis.tres" id="2_r"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"oath_charge"
+display_name = "Carga del juramento"
+description = "Carga en línea (2-5) contra un enemigo, empuja 1 y se cubre con Égida (+60% defensa, 2 turnos)."
+skill_type = 3
+tags = Array[StringName]([&"movimiento", &"melee", &"luz"])
+mp_cost = 8
+cooldown = 2
+target_rule = 1
+range_min = 2
+range_max = 5
+vertical_reach = 2
+requires_straight_line = true
+power = 13
+motion = 2
+knockback = 1
+self_status = ExtResource("2_r")
+vfx_color = Color(1, 0.93, 0.6, 1)

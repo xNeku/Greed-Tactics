@@ -2,7 +2,7 @@ extends SceneTree
 ## Simulates whole runs in pure rules (no scenes): procedural maps, both teams
 ## driven by BasicAI, rewards picked at random. Fails on script errors or if a
 ## battle gets stuck. Prints balance stats.
-## Usage: godot --headless --script res://tests/integration/autoplay_run.gd [-- runs]
+## Usage: godot --headless --script res://tests/integration/autoplay_run.gd [-- runs [hero_id,hero_id,...]]
 
 const MAX_TURNS_PER_BATTLE := 400
 
@@ -22,10 +22,17 @@ func _initialize() -> void:
 	var runs := int(args[0]) if not args.is_empty() else 2
 	var config := load("res://content/run/default_run.tres") as RunConfig
 	var rules := load("res://content/rules/default_rules.tres") as RulesConfig
+	# Optional second argument: hero ids for the party, e.g. "nyx,paladin,gunner,kael".
+	var party: Array[UnitData] = []
+	if args.size() > 1:
+		for id in args[1].split(","):
+			for hero in config.roster:
+				if hero.id == StringName(id):
+					party.append(hero)
 	var stuck := false
 	var wins := 0
 	for r in runs:
-		var run := RunState.new(config, rules, 1000 + r)
+		var run := RunState.new(config, rules, 1000 + r, party)
 		var started := Time.get_ticks_msec()
 		while run.status == RunState.Status.MAP:
 			run.heal_party()

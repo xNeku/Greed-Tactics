@@ -42,6 +42,10 @@ var modifiers: Array[ModifierData] = []
 var refunds_this_turn: int = 0
 ## Active statuses and the turns they have left.
 var statuses: Dictionary[StatusData, int] = {}
+## Charges of stacking statuses (see StatusData.max_stacks). Missing = 1.
+var status_stacks: Dictionary[StatusData, int] = {}
+## Who taunted this unit (a status with [member StatusData.taunts]), or null.
+var taunted_by: UnitState
 ## Set at the start of a turn the unit cannot play (stunned, or killed by a status).
 var skip_turn: bool = false
 ## Who summoned this unit (totems), or null.
@@ -159,9 +163,35 @@ func heal(amount: int) -> int:
 
 #region Statuses
 
-## Refreshes the status to at least [param duration] turns.
-func add_status(status: StatusData, duration: int) -> void:
+## Refreshes the status to at least [param duration] turns. Stacking
+## statuses also gain a charge; taunts remember [param source].
+func add_status(status: StatusData, duration: int, source: UnitState = null) -> void:
+	if status.max_stacks > 1 and statuses.has(status):
+		status_stacks[status] = mini(get_stacks(status) + 1, status.max_stacks)
 	statuses[status] = maxi(statuses.get(status, 0), duration)
+	if status.taunts and source != null:
+		taunted_by = source
+
+
+func remove_status(status: StatusData) -> void:
+	statuses.erase(status)
+	status_stacks.erase(status)
+	if status.taunts and not statuses.keys().any(func(s: StatusData) -> bool: return s.taunts):
+		taunted_by = null
+
+
+## Charges of [param status] (0 if not active).
+func get_stacks(status: StatusData) -> int:
+	if not statuses.has(status):
+		return 0
+	return status_stacks.get(status, 1)
+
+
+## The living unit this one is forced to go for, or null.
+func get_taunter() -> UnitState:
+	if taunted_by != null and taunted_by.is_alive():
+		return taunted_by
+	return null
 
 
 func has_status(status: StatusData) -> bool:

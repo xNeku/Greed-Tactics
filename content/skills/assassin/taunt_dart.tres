@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+[ext_resource type="Resource" path="res://content/statuses/toxin.tres" id="2_r"]
+[ext_resource type="Resource" path="res://content/statuses/taunted.tres" id="3_r"]
+[ext_resource type="Script" path="res://core/data/status_data.gd" id="4_r"]
+[ext_resource type="Resource" path="res://content/skills/assassin/spite_dart.tres" id="5_r"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"taunt_dart"
+display_name = "Dardo de burla"
+description = "Dardo (2-5) que mete +1 carga de toxina y PROVOCA: el enemigo solo irá a por Nyx."
+skill_type = 1
+tags = Array[StringName]([&"proyectil", &"veneno"])
+rage_cost = 10
+cooldown = 1
+range_min = 2
+range_max = 5
+vertical_reach = 4
+power = 5
+status = ExtResource("2_r")
+extra_statuses = Array[ExtResource("4_r")]([ExtResource("3_r")])
+vfx_style = 3
+vfx_color = Color(0.72, 0.45, 1, 1)
+empowered_variant = ExtResource("5_r")

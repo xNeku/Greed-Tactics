@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+[ext_resource type="Resource" path="res://content/statuses/toxin.tres" id="2_r"]
+[ext_resource type="Script" path="res://core/data/status_data.gd" id="2_y1avh"]
+[ext_resource type="Resource" path="res://content/skills/assassin/miasma.tres" id="3_r"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"toxic_cloud"
+display_name = "Nube tóxica"
+description = "Frasco (2-4) que suelta una nube: poco daño en rombo y +1 carga de toxina a todos."
+skill_type = 2
+tags = Array[StringName]([&"area", &"veneno"])
+rage_cost = 20
+range_min = 2
+range_max = 4
+vertical_reach = 5
+area_shape = 1
+area_size = 1
+power = 4
+status = ExtResource("2_r")
+vfx_style = 4
+vfx_color = Color(0.72, 0.45, 1, 1)
+empowered_variant = ExtResource("3_r")

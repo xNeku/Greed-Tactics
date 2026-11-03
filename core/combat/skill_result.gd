@@ -30,10 +30,15 @@ var skill: EffectiveSkill
 var target_cell: Vector2i
 var affected_cells: Array[Vector2i] = []
 var hits: Array[Hit] = []
+## HP recovered by each ally the skill healed (heal_percent).
+var heals: Dictionary[UnitState, int] = {}
 ## Where the user was before the skill moved it (== landing if no motion).
 var user_from: Vector2i
 var user_to: Vector2i
 var refunded_ap: int = 0
+## Recoil after the hits: where the user slid from/to (both NO_CELL if none).
+var recoil_from: Vector2i = Vector2i(-1, -1)
+var recoil_to: Vector2i = Vector2i(-1, -1)
 ## Unit created by the skill (totems...), or null.
 var summoned: UnitState
 ## Previous summon removed to make room for the new one, or null.
@@ -42,3 +47,7 @@ var replaced: UnitState
 
 func user_moved() -> bool:
 	return user_from != user_to
+
+
+func has_recoil() -> bool:
+	return recoil_to != Vector2i(-1, -1)

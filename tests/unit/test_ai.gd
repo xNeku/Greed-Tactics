@@ -76,3 +76,36 @@ func test_ranged_profile_keeps_distance() -> void:
 	_play_turn(archer)
 	assert_true(hero.hp < hero.max_hp, "shoots")
 	assert_true(BattleGrid.manhattan(archer.cell, hero.cell) >= 3, "and does not stay in melee range")
+
+
+func test_taunted_unit_goes_for_the_taunter() -> void:
+	var near := combat.add_unit(TestFixtures.unit_data("Near", 1), UnitState.Team.PLAYER, Vector2i(5, 4))
+	near.hp = 10  # Wounded and adjacent: normally the obvious target.
+	var taunter := combat.add_unit(TestFixtures.unit_data("Taunter", 1), UnitState.Team.PLAYER, Vector2i(5, 8))
+	var foe := combat.add_unit(TestFixtures.unit_data("Foe", 20), UnitState.Team.ENEMY, Vector2i(5, 5))
+	var taunt := TestFixtures.status(StatusData.Kind.OTHER, 2)
+	taunt.taunts = true
+	foe.add_status(taunt, 2, taunter)
+	_turn_of(foe)
+	_play_turn(foe)
+	assert_eq(near.hp, 10, "ignores the wounded unit next to it")
+	assert_true(taunter.hp < taunter.max_hp, "walks to the taunter and hits it")
+
+
+func test_ai_values_healing_wounded_allies() -> void:
+	var foe_data := TestFixtures.unit_data("Healer", 20)
+	var nova := TestFixtures.skill(5)
+	nova.target_rule = SkillData.TargetRule.SELF
+	nova.area_shape = AreaShape.Shape.DIAMOND
+	nova.area_size = 2
+	nova.heal_percent = 50
+	foe_data.skills = [nova]
+	var healer := combat.add_unit(foe_data, UnitState.Team.ENEMY, Vector2i(5, 5))
+	var ally := combat.add_unit(TestFixtures.unit_data("Ally", 1), UnitState.Team.ENEMY, Vector2i(5, 6))
+	ally.hp = 20
+	combat.add_unit(TestFixtures.unit_data("Hero", 1), UnitState.Team.PLAYER, Vector2i(6, 5))
+	_turn_of(healer)
+	var action := BasicAI.new().decide(combat, healer)
+	assert_eq(action.kind, AiAction.Kind.SKILL)
+	combat.use_skill(action.skill, action.cell)
+	assert_eq(ally.hp, 70, "healed 50% of max HP")

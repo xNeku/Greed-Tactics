@@ -1,22 +1,25 @@
 [gd_resource type="Resource" script_class="SkillData" format=3]
 
 [ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
-[ext_resource type="Resource" path="res://content/skills/assassin/shadow_execution.tres" id="2_shadow_execution"]
+[ext_resource type="Script" path="res://core/data/status_data.gd" id="2_1jwoq"]
+[ext_resource type="Resource" path="res://content/statuses/toxin.tres" id="2_r"]
+[ext_resource type="Resource" path="res://content/skills/assassin/shadow_execution.tres" id="3_r"]
 
 [resource]
 script = ExtResource("1_script")
 id = &"shadow_step"
 display_name = "Paso sombrío"
-description = "Aparece a la espalda de un enemigo (2-5) y le apuñala. Necesita la espalda libre."
+description = "Aparece a la espalda de un enemigo (2-6) y le pincha con veneno. Necesita la espalda libre."
 skill_type = 3
-tags = Array[StringName]([&"movimiento", &"melee", &"sombra"])
-rage_cost = 15
+tags = Array[StringName]([&"movimiento", &"melee", &"sombra", &"veneno"])
+rage_cost = 10
 cooldown = 1
 target_rule = 1
 range_min = 2
-range_max = 5
-vertical_reach = 3
-power = 9
+range_max = 6
+vertical_reach = 4
+power = 6
 motion = 3
+status = ExtResource("2_r")
 vfx_color = Color(0.7, 0.5, 1, 1)
-empowered_variant = ExtResource("2_shadow_execution")
+empowered_variant = ExtResource("3_r")

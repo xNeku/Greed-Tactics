@@ -12,6 +12,8 @@ extends Resource
 @export var dangerous_target_weight: float = 0.5
 ## Value of applying a status (scaled by its chance).
 @export var status_value: float = 12.0
+## Value per HP healed on an ally.
+@export var heal_weight: float = 1.2
 ## How much spending mana/rage/cooldowns hurts.
 @export var resource_cost_weight: float = 1.0
 

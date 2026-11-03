@@ -1,23 +1,27 @@
 [gd_resource type="Resource" script_class="SkillData" format=3]
 
 [ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
-[ext_resource type="Resource" path="res://content/statuses/silence.tres" id="90_status"]
+[ext_resource type="Resource" path="res://content/statuses/toxin.tres" id="2_r"]
+[ext_resource type="Resource" path="res://content/statuses/silence.tres" id="3_r"]
+[ext_resource type="Script" path="res://core/data/status_data.gd" id="4_r"]
 
 [resource]
 script = ExtResource("1_script")
 id = &"shadow_execution"
 display_name = "Ejecución sombría ★"
-description = "Mutación con 50+ de ira: aparece a la espalda y ejecuta."
+description = "Mutación con 50+ de ira: aparece a la espalda (2-7), apuñala dos veces y silencia."
 skill_type = 3
-tags = Array[StringName]([&"movimiento", &"melee", &"sombra"])
-rage_cost = 15
+tags = Array[StringName]([&"movimiento", &"melee", &"sombra", &"veneno"])
+rage_cost = 10
 cooldown = 1
 target_rule = 1
 range_min = 2
-range_max = 5
-vertical_reach = 3
-power = 20
+range_max = 7
+vertical_reach = 4
+power = 6
 motion = 3
-crit_bonus = 20
-status = ExtResource("90_status")
+crit_bonus = 15
+strikes = 2
+status = ExtResource("2_r")
+extra_statuses = Array[ExtResource("4_r")]([ExtResource("3_r")])
 vfx_color = Color(0.8, 0.4, 1, 1)

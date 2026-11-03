@@ -264,6 +264,19 @@ func _refresh_statuses() -> void:
 		icon.position.x = x
 		x += 0.28
 		_status_icons.add_child(icon)
+		var stacks := unit.get_stacks(status)
+		if stacks > 1:
+			var count := Label3D.new()
+			count.text = str(stacks)
+			count.pixel_size = 0.006
+			count.font_size = 40
+			count.outline_size = 10
+			count.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+			count.no_depth_test = true
+			count.render_priority = 8
+			count.modulate = status.color.lightened(0.4)
+			count.position = Vector3(0.11, -0.09, 0.0)
+			icon.add_child(count)
 	_base_modulate = tint
 	if unit.is_alive():
 		_sprite.modulate = Color(tint, _sprite.modulate.a)

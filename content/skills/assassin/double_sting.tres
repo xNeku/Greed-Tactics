@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/status_data.gd" id="1_dw067"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+[ext_resource type="Resource" path="res://content/statuses/toxin.tres" id="2_r"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"double_sting"
+display_name = "Doble aguijón ★"
+description = "Mutación con 50+ de ira: dos pinchazos seguidos, una carga de toxina cada uno."
+tags = Array[StringName]([&"basico", &"melee", &"veneno"])
+power = 6
+strikes = 2
+status = ExtResource("2_r")
+vfx_color = Color(0.72, 0.45, 1, 1)

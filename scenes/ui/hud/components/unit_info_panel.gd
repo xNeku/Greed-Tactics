@@ -41,7 +41,9 @@ func show_unit(unit: UnitState, is_active: bool) -> void:
 	var pa := unit.pa if is_active else unit.action_points
 	var statuses := PackedStringArray()
 	for status in unit.statuses:
-		statuses.append("%s (%d)" % [status.display_name, unit.statuses[status]])
+		var stacks := unit.get_stacks(status)
+		var charges := " ×%d" % stacks if stacks > 1 else ""
+		statuses.append("%s%s (%d)" % [status.display_name, charges, unit.statuses[status]])
 	_status_label.visible = not statuses.is_empty()
 	_status_label.text = "Estados: " + ", ".join(statuses)
 	if not unit.statuses.is_empty():

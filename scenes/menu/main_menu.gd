@@ -3,7 +3,7 @@ extends Control
 
 @export var hero_card_scene: PackedScene
 
-@onready var _classes: HBoxContainer = %Classes
+@onready var _classes: GridContainer = %Classes
 @onready var _seed_edit: LineEdit = %SeedEdit
 @onready var _new_run_button: Button = %NewRunButton
 @onready var _quick_battle_button: Button = %QuickBattleButton
@@ -20,8 +20,8 @@ func _ready() -> void:
 	_party = config.heroes.duplicate()
 	for data in roster:
 		var card: HeroCard = hero_card_scene.instantiate()
-		card.show_description = true
 		card.selectable = true
+		card.tooltip_text = data.description
 		_classes.add_child(card)
 		card.show_hero(data, config.start_level)
 		card.pressed.connect(_on_card_pressed.bind(data))

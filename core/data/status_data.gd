@@ -3,7 +3,8 @@ extends Resource
 ## A status effect (burn, poison, slow, stun, silence...). Behaviour is data:
 ## any combination of damage over time, movement/speed penalties, skipping
 ## turns or blocking skills. Applied by skills and modifiers (GDD §5 stage 3).
-## Re-applying a status refreshes its duration (it does not stack).
+## Re-applying a status refreshes its duration; it only stacks when
+## [member max_stacks] > 1 (each application adds a charge).
 
 ## Visual family, used by the presentation to pick tint and icon.
 enum Kind { BURN, POISON, SLOW, STUN, SILENCE, OTHER, KNOCKUP }
@@ -14,6 +15,8 @@ enum Kind { BURN, POISON, SLOW, STUN, SILENCE, OTHER, KNOCKUP }
 @export var kind: Kind = Kind.OTHER
 ## Turns it lasts when the skill does not say otherwise.
 @export_range(1, 9) var default_duration: int = 2
+## Charges it can pile up. Damage and heal per turn are multiplied by the charges.
+@export_range(1, 20) var max_stacks: int = 1
 
 @export_group("Effect per turn")
 ## Damage at the start of each of the unit's turns, as % of its max HP.
@@ -37,6 +40,8 @@ enum Kind { BURN, POISON, SLOW, STUN, SILENCE, OTHER, KNOCKUP }
 @export var skips_turn: bool = false
 ## The unit can only use BASIC skills while it lasts.
 @export var blocks_skills: bool = false
+## Taunt: the AI-controlled unit must go for whoever applied it.
+@export var taunts: bool = false
 
 @export_group("Visual")
 ## Do not announce when it ends (auras refresh it every turn).

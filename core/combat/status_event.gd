@@ -5,6 +5,8 @@ extends RefCounted
 var unit: UnitState
 var status: StatusData
 var damage: int = 0
+## Charges the status had when it ticked.
+var stacks: int = 1
 var healed: int = 0
 var expired: bool = false
 var skipped_turn: bool = false

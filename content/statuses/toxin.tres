@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="StatusData" format=3]
+
+[ext_resource type="Script" path="res://core/data/status_data.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/sprites/status/toxin.png" id="2_r"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"toxin"
+display_name = "Toxina"
+description = "Veneno que se acumula: cada carga quita un 2% de la vida máxima + 2 al empezar el turno (hasta 6 cargas)."
+kind = 1
+default_duration = 3
+max_stacks = 6
+damage_percent_per_turn = 2
+damage_flat_per_turn = 2
+color = Color(0.72, 0.45, 1, 1)
+icon = ExtResource("2_r")

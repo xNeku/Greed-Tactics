@@ -1,4 +1,4 @@
-# GDD - Greed Tactics · Tactics Roguelite Isométrico (v0.5)
+# GDD - Greed Tactics · Tactics Roguelite Isométrico (v0.6)
 
 Nov 2, 2026 · @Neku
 
@@ -228,7 +228,7 @@ Enemigos de prototipo: Goblin (Saqueador, melee) y Limo (Bestia, melee lento y r
 | Personaje | Clase | Recurso | Básica | Lanzamiento | Área | Movimiento |
 |---|---|---|---|---|---|---|
 | Kael | Camorrista (v0.5) | Ira | Puñetazo → ★ Gancho brutal (50) | Lanzar escombros → ★ Pedrusco (60) | Ráfaga de golpes → ★ Trifulca (70) | Placaje → ★ Embestida de toro (50) |
-| Nyx | Asesina | Ira | Puñalada → ★ Puñalada letal (50) | Dagas → ★ Lluvia de dagas (60) | Danza de cuchillas → ★ Danza mortal (70) | Paso sombrío → ★ Ejecución sombría (50) |
+| Nyx | Asesina táctica (v0.6) | Ira | Aguijón → ★ Doble aguijón (50) | Dardo de burla → ★ Dardo de rencor (60) | Nube tóxica → ★ Miasma (70) | Paso sombrío → ★ Ejecución sombría (50) |
 | Lyra | Maga | Maná | Proyectil arcano (gratis) | Lanza de hielo (empuja) | Bola de fuego | Parpadeo (teletransporte) |
 | Pablo | Arquero | Enfriamientos | Disparo (2-5) | Tiro certero (3-7, CD 2) | Lluvia de flechas (3x3, CD 3) | Voltereta (0 PA, CD 2) |
 
@@ -243,7 +243,21 @@ Enemigos de prototipo: Goblin (Saqueador, melee) y Limo (Bestia, melee lento y r
 - *Tajo salvaje* (2 golpes rápidos, roba 15%) → ★ *Carnicería* (3 golpes, roba 25%) · *Hacha voladora* (2-4, empuja) → ★ *Tormenta de acero* (cruz) · *Remolino sangriento* (8 casillas, roba 30%, se vuelve **Temeraria**: +25% daño, −50% defensa) → ★ *Danza de la masacre* (2 giros) · *Salto aplastante* (salta 2-4 ignorando alturas, golpea alrededor y **lanza por los aires** = pierden el turno) → ★ *Caída del cielo* (3x3).
 - Mecánicas genéricas nuevas: `SkillData.strikes` (golpes múltiples), `lifesteal_percent`, `self_status`; estados con `defense_percent_bonus` y tipo `KNOCKUP` (animación de salto).
 
-**[Decidido v0.5] Plantel y grupo:** `RunConfig.roster` (6 héroes: Kael, Pablo, Tohil, Nyx, Sigrid, Lyra) y `party_size` 4. En el menú se eligen 4 haciendo clic en sus tarjetas; el combate rápido usa el mismo grupo.
+**[v0.6] Nyx, Asesina táctica** (sprite de Neku): ira; golpea poco, se mueve muchísimo (6 PM, 14 vel.) y **todo lo que hace mete cargas de Toxina**.
+- *Toxina*: estado acumulable (`StatusData.max_stacks` = 6). Cada carga quita 2% vida máx. + 2 por turno; las cargas multiplican el daño. Cada golpe de un ataque múltiple añade una carga. La previsión muestra «cargas 2 → 3» y el icono lleva el número.
+- *Provocado* (`StatusData.taunts`): la unidad recuerda quién la provocó y la IA solo valora golpearle a él y solo se acerca a él, mientras viva y dure el estado.
+- *Dardo de burla* (2-5, toxina + provoca) → ★ *Dardo de rencor* (cruz) · *Nube tóxica* (rombo) → ★ *Miasma* (rombo 2) · *Paso sombrío* (espalda, 2-6) → ★ *Ejecución sombría* (2 golpes + silencio).
+- `SkillData.extra_statuses`: estados adicionales que se aplican siempre con el principal.
+
+**[v0.6] Elara, Paladina elfa** (sprite de Neku): maná; tanque (130 PV, 8 def.), control, curas y golpes muy fuertes.
+- *Golpe sagrado* (17, 25% aturdir) · *Lanza de luz* (línea 2-4, empuja, 60% aturdir) · *Resplandor* (rombo 2 a su alrededor: daña enemigos y **cura 20%** a aliados, ella incluida) · *Carga del juramento* (carga 2-5, empuja y se da **Égida** +60% defensa).
+- Mecánica nueva: `SkillData.heal_percent` (cura % de la vida máx. a los aliados del área). La previsión pinta en verde a los curados y dice cuánto; la IA valora curar (`AiProfile.heal_weight`).
+
+**[v0.6] Grizka, Goblin pistolera** (sprite de Neku): enfriamientos; atracadora rápida de poco alcance, cañón de cristal (62 PV, 1 def., 30% crít.).
+- **Retroceso** (`SkillData.recoil`): tras disparar sale despedida N casillas en dirección contraria al objetivo; se para ante obstáculos, unidades o muros. La previsión dibuja la flecha verde y la casilla final; la IA puntúa la casilla final.
+- *Quemarropa* (1-2, retroceso 1) · *Doble cañón* (línea 1-3, 2 tiros, retroceso 2, queda Temeraria) · *Abanico de plomo* (cruz, retroceso 1) · *Salto de pólvora* (1-2, retroceso 4: entrar, pegar y largarse).
+
+**[Decidido v0.5] Plantel y grupo:** `RunConfig.roster` (8 héroes: Kael, Pablo, Tohil, Nyx, Sigrid, Elara, Grizka, Lyra) y `party_size` 4. En el menú se eligen 4 haciendo clic en sus tarjetas; el combate rápido usa el mismo grupo.
 
 **[Decidido v0.5.1] Personajes de Neku = jugables:** los sprites que pasa Neku son héroes del jugador, nunca enemigos. El grupo inicial son los cuatro suyos (Kael, Pablo, Tohil, Sigrid) para ir probándolos; Nyx y Lyra quedan en el plantel. Las armas las dibuja Neku: no se añaden armas inventadas a sus sprites.
 
@@ -461,6 +475,7 @@ Cada hito tiene un criterio de salida. No se pasa al siguiente sin cumplirlo.
 
 ## Changelog
 
+- **v0.6 (Nov 3, 2026)** — Tres heroínas de Neku: **Nyx** rehecha como asesina táctica (toxina acumulable y provocación), **Elara** paladina elfa (curas en área, aturdimientos, Égida) y **Grizka** goblin pistolera (retroceso). Mecánicas genéricas: `max_stacks`, `taunts`, `extra_statuses`, `heal_percent`, `recoil`. Plantel de 8; el menú muestra las tarjetas en rejilla de 4 columnas con la descripción como tooltip. `autoplay_run.gd` acepta un grupo (`-- 5 nyx,paladin,gunner,shaman`).
 - **v0.5.1 (Nov 3, 2026)** — Correcciones de Neku: Pablo sin tatuajes tribales y con los aros pegados a la oreja; Sigrid sin el hacha añadida (las armas las pasará Neku); el chamán es hombre y se llama **Tohil**; grupo inicial = Kael, Pablo, Tohil, Sigrid.
 - **v0.5 (Nov 3, 2026)** — Personalidad: Kael pasa a ser **Camorrista** (pelea a puños: Puñetazo, Lanzar escombros, Ráfaga de golpes, Placaje y sus mutaciones Gancho brutal, Pedrusco, Trifulca, Embestida de toro; mod. *Nudillos de hierro*). Sprites de Neku para Kael y Pablo (frente + lado) y **animaciones** de Kael (reposo, andar, puñetazo, golpe recibido) con `SpriteFrames`. Terrenos con textura procedural por tipo (hierba con laterales de tierra, roca agrietada, dunas, sendero con guijarros, cueva húmeda), bisel y oclusión; decoración (matojos, flores, guijarros, arbustos secos, setas luminosas); niebla, ángulo de sol, glow y partículas por zona (luciérnagas, polvo, motas); cristales que iluminan; viñeta.
 

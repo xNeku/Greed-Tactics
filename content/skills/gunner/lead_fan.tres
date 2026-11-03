@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/status_data.gd" id="1_iygiu"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"lead_fan"
+display_name = "Abanico de plomo"
+description = "Vacía el tambor en cruz (alcance 1-2, radio 1). Retroceso 1."
+skill_type = 2
+tags = Array[StringName]([&"area", &"proyectil", &"polvora"])
+cooldown = 3
+range_max = 2
+vertical_reach = 3
+area_shape = 3
+area_size = 1
+power = 9
+crit_bonus = 10
+recoil = 1
+vfx_style = 4
+vfx_color = Color(1, 0.8, 0.35, 1)

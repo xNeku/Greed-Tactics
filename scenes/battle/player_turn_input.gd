@@ -211,6 +211,10 @@ func _show_skill_forecast(target_cell: Vector2i) -> void:
 	if effective.summon != null:
 		_highlighter.show_cells(TileHighlighter.Layer.LANDING, _controller.get_aura_cells(effective.summon, target_cell))
 		_arrows.add(_unit_point(_unit), _ground_point(target_cell), FeedbackArrows.Kind.MOTION)
+	var final_cell := combat.get_final_cell(_unit, effective, _unit.cell, target_cell)
+	if final_cell != landing and final_cell != CombatState.NO_CELL:
+		_highlighter.show_cell(TileHighlighter.Layer.LANDING, final_cell)
+		_arrows.add(_ground_point(landing) + Vector3.UP * 0.3, _ground_point(final_cell), FeedbackArrows.Kind.MOTION)
 	if not effective.deals_damage():
 		return
 	_highlighter.show_cells(TileHighlighter.Layer.AREA, combat.get_effect_cells(effective, landing, target_cell))
@@ -237,6 +241,21 @@ func _show_skill_forecast(target_cell: Vector2i) -> void:
 			_arrows.add(_unit_point(from_unit), _unit_point(next), FeedbackArrows.Kind.CHAIN)
 			from_unit = next
 	_hud.show_previews(previews, anchors)
+	_show_heal_forecast(combat, target_cell)
+
+
+## Green cells and a summary line for the allies a healing skill would cure.
+func _show_heal_forecast(combat: CombatState, target_cell: Vector2i) -> void:
+	var heals := combat.preview_heals(_unit, _skill, _unit.cell, target_cell)
+	if heals.is_empty():
+		return
+	var cells: Array[Vector2i] = []
+	var parts := PackedStringArray()
+	for ally in heals:
+		cells.append(ally.cell)
+		parts.append("%s +%d" % [ally.display_name, heals[ally]])
+	_highlighter.show_cells(TileHighlighter.Layer.LANDING, cells)
+	_hud.set_message("Cura: " + ", ".join(parts))
 
 
 func _update_info_panels() -> void:

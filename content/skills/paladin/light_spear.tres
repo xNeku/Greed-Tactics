@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/status_data.gd" id="1_ijfng"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+[ext_resource type="Resource" path="res://content/statuses/stun.tres" id="2_r"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"light_spear"
+display_name = "Lanza de luz"
+description = "Lanza sagrada en línea recta (2-4): empuja 1 y aturde (60%)."
+skill_type = 1
+tags = Array[StringName]([&"proyectil", &"luz"])
+mp_cost = 10
+cooldown = 1
+range_min = 2
+range_max = 4
+vertical_reach = 4
+requires_straight_line = true
+power = 12
+knockback = 1
+status = ExtResource("2_r")
+status_chance = 60
+status_duration = 1
+vfx_style = 3
+vfx_color = Color(1, 0.93, 0.6, 1)

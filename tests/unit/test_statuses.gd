@@ -102,3 +102,70 @@ func test_reapplying_refreshes_instead_of_stacking() -> void:
 	foe.add_status(burn, 2)
 	assert_eq(foe.statuses[burn], 3)
 	assert_eq(foe.statuses.size(), 1)
+
+
+func test_stacking_status_adds_charges_up_to_the_cap() -> void:
+	var toxin := TestFixtures.status(StatusData.Kind.POISON, 3)
+	toxin.max_stacks = 3
+	for i in 5:
+		foe.add_status(toxin, 3)
+	assert_eq(foe.get_stacks(toxin), 3, "capped at max_stacks")
+	assert_eq(foe.statuses.size(), 1)
+
+
+func test_charges_multiply_damage_over_time() -> void:
+	var toxin := TestFixtures.status(StatusData.Kind.POISON, 3)  # 5 flat per charge
+	toxin.max_stacks = 6
+	foe.add_status(toxin, 3)
+	foe.add_status(toxin, 3)
+	foe.add_status(toxin, 3)
+	_turn_of(foe)
+	assert_eq(combat.last_status_events[0].stacks, 3)
+	assert_eq(foe.hp, foe.max_hp - 15)
+
+
+func test_each_strike_adds_a_charge_and_forecast_shows_it() -> void:
+	var toxin := TestFixtures.status(StatusData.Kind.POISON, 3)
+	toxin.max_stacks = 6
+	var skill := hero.data.skills[0]
+	skill.status = toxin
+	skill.strikes = 2
+	_turn_of(hero)
+	combat.use_skill(skill, foe.cell)
+	assert_eq(foe.get_stacks(toxin), 2)
+
+
+func test_charges_vanish_when_the_status_expires() -> void:
+	var toxin := TestFixtures.status(StatusData.Kind.POISON, 1)
+	toxin.max_stacks = 6
+	foe.add_status(toxin, 1)
+	foe.add_status(toxin, 1)
+	_turn_of(foe)
+	assert_eq(foe.get_stacks(toxin), 0)
+	assert_true(foe.status_stacks.is_empty())
+
+
+func test_extra_statuses_are_applied_with_the_main_one() -> void:
+	var toxin := TestFixtures.status(StatusData.Kind.POISON)
+	var taunt := TestFixtures.status(StatusData.Kind.OTHER)
+	taunt.taunts = true
+	var skill := hero.data.skills[0]
+	skill.status = toxin
+	skill.extra_statuses = [taunt]
+	_turn_of(hero)
+	combat.use_skill(skill, foe.cell)
+	assert_true(foe.has_status(toxin))
+	assert_true(foe.has_status(taunt))
+	assert_eq(foe.get_taunter(), hero, "the taunt remembers who applied it")
+
+
+func test_taunt_is_forgotten_when_it_expires_or_the_taunter_dies() -> void:
+	var taunt := TestFixtures.status(StatusData.Kind.OTHER, 1)
+	taunt.taunts = true
+	foe.add_status(taunt, 1, hero)
+	assert_eq(foe.get_taunter(), hero)
+	hero.hp = 0
+	assert_null(foe.get_taunter(), "dead taunters do not count")
+	hero.hp = 10
+	_turn_of(foe)
+	assert_null(foe.get_taunter())

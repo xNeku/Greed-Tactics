@@ -154,13 +154,29 @@ func get_move_preview(unit: UnitState, cell: Vector2i) -> Dictionary:
 ## Where a push of [param distance] cells in [param direction] would leave
 ## [param target]. {"to": Vector2i, "blocked_at": Vector2i (NO_CELL if complete)}.
 func predict_push(target: UnitState, direction: GridDir.Dir, distance: int) -> Dictionary:
-	var cell := target.cell
+	return predict_slide(target, target.cell, direction, distance)
+
+
+## Like [method predict_push] but starting from [param from_cell] (recoil
+## is computed from where the user lands, before it actually moves).
+func predict_slide(unit: UnitState, from_cell: Vector2i, direction: GridDir.Dir, distance: int) -> Dictionary:
+	var cell := from_cell
 	for i in distance:
 		var next := cell + GridDir.to_vector(direction)
-		if not _is_free(next, target) or grid.get_height(next) - grid.get_height(cell) > rules.max_climb:
+		if not _is_free(next, unit) or grid.get_height(next) - grid.get_height(cell) > rules.max_climb:
 			return {"to": cell, "blocked_at": next}
 		cell = next
 	return {"to": cell, "blocked_at": NO_CELL}
+
+
+## Where [param user] ends after [param skill]: the landing cell, moved back
+## by the skill's recoil (away from the target, stopped by obstacles).
+func get_final_cell(user: UnitState, skill: EffectiveSkill, from_cell: Vector2i, target_cell: Vector2i) -> Vector2i:
+	var landing := get_landing_cell(user, skill, from_cell, target_cell)
+	if landing == NO_CELL or skill.recoil <= 0 or target_cell == landing:
+		return landing
+	var away := GridDir.from_delta(landing - target_cell, user.facing)
+	return predict_slide(user, landing, away, skill.recoil).to
 
 
 ## Units a bouncing skill would chain to after hitting [param first]
@@ -266,6 +282,23 @@ func preview_skill(user: UnitState, skill: SkillData, from_cell: Vector2i, targe
 		previews.append(_preview_hit(user, effective, landing, target, occupied))
 	return previews
 
+
+## HP each ally would recover from [param skill] (heal_percent), capped by missing HP.
+func preview_heals(user: UnitState, skill: SkillData, from_cell: Vector2i, target_cell: Vector2i) -> Dictionary[UnitState, int]:
+	var effective := get_effective(user, skill)
+	var heals: Dictionary[UnitState, int] = {}
+	if effective.heal_percent <= 0:
+		return heals
+	var landing := get_landing_cell(user, effective, from_cell, target_cell)
+	if landing == NO_CELL:
+		return heals
+	for cell in get_effect_cells(effective, landing, target_cell):
+		var unit := user if cell == landing else get_unit_at(cell)
+		if unit == null or unit.is_enemy_of(user) or not unit.is_alive():
+			continue
+		heals[unit] = mini(roundi(unit.max_hp * effective.heal_percent / 100.0), unit.max_hp - unit.hp)
+	return heals
+
 #endregion
 
 
@@ -338,16 +371,27 @@ func use_skill(skill: SkillData, target_cell: Vector2i) -> SkillResult:
 				_resolve_hit(result, target, user.cell, SkillResult.HitSource.PRIMARY, already_hit)
 	if effective.self_status != null:
 		user.add_status(effective.self_status, effective.self_status.default_duration)
+	if effective.heal_percent > 0:
+		for ally in preview_heals(user, skill, result.user_from, target_cell).keys():
+			result.heals[ally] = ally.heal(roundi(ally.max_hp * effective.heal_percent / 100.0))
 	_resolve_bounces(result, already_hit)
+	if effective.recoil > 0 and user.is_alive():
+		var recoil_to := get_final_cell(user, effective, result.user_from, target_cell)
+		if recoil_to != user.cell:
+			result.recoil_from = user.cell
+			result.recoil_to = recoil_to
+			user.cell = recoil_to
 	_resolve_kill_refund(result)
 	if effective.summon != null:
 		_summon(result, effective.summon, target_cell)
 
-	if result.user_moved():
+	if result.user_moved() or result.has_recoil():
 		unit_moved.emit(user, [user.cell] as Array[Vector2i])
 	unit_facing_changed.emit(user)
 	unit_stats_changed.emit(user)
 	skill_resolved.emit(result)
+	for ally in result.heals:
+		unit_stats_changed.emit(ally)
 	for hit in result.hits:
 		unit_stats_changed.emit(hit.target)
 		if hit.defeated:
@@ -419,7 +463,7 @@ func _resolve_hit(result: SkillResult, target: UnitState, from_cell: Vector2i,
 	if target.is_alive():
 		for app: StatusApplication in fx.statuses:
 			if _rng.randi_range(1, 100) <= app.chance:
-				target.add_status(app.status, app.duration)
+				target.add_status(app.status, app.duration, user)
 				hit.applied_statuses.append(app.status)
 	if fx.knockback > 0 and target.is_alive():
 		var push := predict_push(target, GridDir.from_delta(target.cell - from_cell), fx.knockback)
@@ -501,12 +545,14 @@ func _tick_statuses(unit: UnitState) -> Array[StatusEvent]:
 		var event := StatusEvent.new()
 		event.unit = unit
 		event.status = status
-		var damage := roundi(unit.max_hp * status.damage_percent_per_turn / 100.0) + status.damage_flat_per_turn
+		var stacks := unit.get_stacks(status)
+		event.stacks = stacks
+		var damage := (roundi(unit.max_hp * status.damage_percent_per_turn / 100.0) + status.damage_flat_per_turn) * stacks
 		if damage > 0 and unit.is_alive():
 			event.damage = damage
 			_apply_damage(unit, damage)
 		if status.heal_percent_per_turn > 0 and unit.is_alive():
-			event.healed = unit.heal(roundi(unit.max_hp * status.heal_percent_per_turn / 100.0))
+			event.healed = unit.heal(roundi(unit.max_hp * status.heal_percent_per_turn / 100.0) * stacks)
 		if status.skips_turn:
 			event.skipped_turn = true
 			unit.skip_turn = true
@@ -514,7 +560,7 @@ func _tick_statuses(unit: UnitState) -> Array[StatusEvent]:
 			unit.pa = 0
 		unit.statuses[status] -= 1
 		if unit.statuses[status] <= 0:
-			unit.statuses.erase(status)
+			unit.remove_status(status)
 			event.expired = true
 		events.append(event)
 	if not unit.is_alive():

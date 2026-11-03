@@ -75,6 +75,10 @@ enum Motion {
 @export_range(0, 100) var crit_bonus: int = 0
 ## Times each target is hit (fast multi-hits). Each strike rolls separately.
 @export_range(1, 6) var strikes: int = 1
+## Cells the user is thrown back (away from the target) after using it.
+@export_range(0, 6) var recoil: int = 0
+## Allies (user included) inside the effect area recover this % of their max HP.
+@export_range(0, 100) var heal_percent: int = 0
 ## % of the damage dealt healed back to the user.
 @export_range(0, 100) var lifesteal_percent: int = 0
 ## Status the user puts on itself when using the skill (frenzy, guard...).
@@ -92,6 +96,8 @@ enum Motion {
 @export_range(0, 100) var status_chance: int = 100
 ## 0 = the status default duration.
 @export_range(0, 9) var status_duration: int = 0
+## More statuses applied on hit (always, default duration). E.g. poison + taunt.
+@export var extra_statuses: Array[StatusData] = []
 
 @export_group("Visual")
 @export var vfx_style: VfxStyle = VfxStyle.AUTO

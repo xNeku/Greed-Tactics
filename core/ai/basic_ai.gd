@@ -13,6 +13,8 @@ extends RefCounted
 ##   3. Uses the skill now, moves to set up the best one, or repositions
 ##      (approach for melee, keep distance for ranged, avoid danger).
 ##   4. Ends the turn facing the nearest opponent.
+## A taunted unit (UnitState.get_taunter) only values hits on its taunter and
+## only approaches it.
 
 const MOVE_COST_WEIGHT := 0.05
 ## How much the danger of the landing cell counts when the unit is attacking.
@@ -74,10 +76,12 @@ func best_attack_from(combat: CombatState, unit: UnitState, from_cell: Vector2i,
 			var value := 0.0
 			for preview in combat.preview_skill(unit, skill, from_cell, cell):
 				value += _hit_value(unit, preview, profile)
+			for healed: int in combat.preview_heals(unit, skill, from_cell, cell).values():
+				value += profile.heal_weight * healed
 			if value <= 0.0:
 				continue
 			value -= profile.resource_cost_weight * (effective.rage_cost * 0.1 + effective.mp_cost * 0.2 + effective.cooldown * 1.5)
-			var landing := combat.get_landing_cell(unit, effective, from_cell, cell)
+			var landing := combat.get_final_cell(unit, effective, from_cell, cell)
 			var score := value + ATTACK_POSITION_WEIGHT * position_value(combat, unit, landing, threat, profile)
 			if value > 0.0 and (best.is_empty() or score > best.score):
 				best = {"skill": skill, "cell": cell, "score": score, "landing": landing}
@@ -86,6 +90,9 @@ func best_attack_from(combat: CombatState, unit: UnitState, from_cell: Vector2i,
 
 func _hit_value(unit: UnitState, preview: AttackPreview, profile: AiProfile) -> float:
 	var target := preview.target
+	var taunter := unit.get_taunter()
+	if taunter != null and target.is_enemy_of(unit) and target != taunter:
+		return 0.0  # Taunted: only the taunter is worth hitting.
 	var chance := preview.hit_chance / 100.0
 	var value := preview.get_total_damage() * chance
 	if preview.get_total_damage() >= target.hp:
@@ -214,10 +221,12 @@ func _reposition_value(combat: CombatState, unit: UnitState, cell: Vector2i,
 func _distance_to_opponents(combat: CombatState, unit: UnitState) -> Dictionary[Vector2i, int]:
 	var blocked: Dictionary[Vector2i, bool] = {}
 	var opponents: Array[UnitState] = []
+	var taunter := unit.get_taunter()
 	for other in combat.get_living_units():
 		if other.is_enemy_of(unit):
-			opponents.append(other)
 			blocked[other.cell] = true
+			if taunter == null or other == taunter:
+				opponents.append(other)
 	var merged: Dictionary[Vector2i, int] = {}
 	for opponent in opponents:
 		var others := blocked.duplicate()
@@ -251,6 +260,10 @@ func _facing_towards_nearest_opponent(combat: CombatState, unit: UnitState) -> G
 
 func _opponent_cells(combat: CombatState, unit: UnitState) -> Array[Vector2i]:
 	var cells: Array[Vector2i] = []
+	var taunter := unit.get_taunter()
+	if taunter != null:
+		cells.append(taunter.cell)
+		return cells
 	for other in combat.get_living_units():
 		if other.is_enemy_of(unit):
 			cells.append(other.cell)

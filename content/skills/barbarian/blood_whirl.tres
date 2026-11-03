@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="SkillData" format=3]
 
 [ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://core/data/status_data.gd" id="2_gpv65"]
 [ext_resource type="Resource" path="res://content/statuses/reckless.tres" id="3_self"]
 [ext_resource type="Resource" path="res://content/skills/barbarian/massacre_dance.tres" id="4_emp"]
 

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/status_data.gd" id="1_o807i"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+[ext_resource type="Resource" path="res://content/statuses/stun.tres" id="2_r"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"holy_strike"
+display_name = "Golpe sagrado"
+description = "Golpe muy fuerte a un adyacente; 25% de aturdir."
+tags = Array[StringName]([&"basico", &"melee", &"luz"])
+power = 17
+status = ExtResource("2_r")
+status_chance = 25
+status_duration = 1
+vfx_color = Color(1, 0.93, 0.6, 1)

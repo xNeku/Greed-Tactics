@@ -169,3 +169,34 @@ func test_self_status_and_defense_penalty() -> void:
 	combat.use_skill(whirl, Vector2i(2, 4))
 	assert_true(user.has_status(reckless))
 	assert_eq(user.get_defense(), 5)
+
+
+func test_recoil_throws_the_user_back_away_from_the_target() -> void:
+	var c := CombatState.new(TestFixtures.flat_grid(9, 9), TestFixtures.rules(), 4)
+	var data := TestFixtures.unit_data("Gunner", 20)
+	var shot := TestFixtures.skill(5, 1, 2)
+	shot.recoil = 2
+	data.skills = [shot]
+	var gunner := c.add_unit(data, UnitState.Team.PLAYER, Vector2i(4, 4))
+	c.add_unit(TestFixtures.unit_data("Foe", 1), UnitState.Team.ENEMY, Vector2i(4, 3))
+	c.start_next_turn()
+	var effective := c.get_effective(gunner, shot)
+	assert_eq(c.get_final_cell(gunner, effective, gunner.cell, Vector2i(4, 3)), Vector2i(4, 6), "forecast")
+	var result := c.use_skill(shot, Vector2i(4, 3))
+	assert_true(result.has_recoil())
+	assert_eq(gunner.cell, Vector2i(4, 6))
+	assert_eq(result.recoil_from, Vector2i(4, 4))
+
+
+func test_recoil_stops_at_obstacles() -> void:
+	var c := CombatState.new(TestFixtures.flat_grid(9, 9), TestFixtures.rules(), 4)
+	var data := TestFixtures.unit_data("Gunner", 20)
+	var shot := TestFixtures.skill(5, 1, 2)
+	shot.recoil = 3
+	data.skills = [shot]
+	var gunner := c.add_unit(data, UnitState.Team.PLAYER, Vector2i(4, 4))
+	c.add_unit(TestFixtures.unit_data("Foe", 1), UnitState.Team.ENEMY, Vector2i(3, 4))
+	c.add_unit(TestFixtures.unit_data("Wall", 1), UnitState.Team.PLAYER, Vector2i(6, 4))
+	c.start_next_turn()
+	c.use_skill(shot, Vector2i(3, 4))
+	assert_eq(gunner.cell, Vector2i(5, 4), "stops before the ally behind")

@@ -27,7 +27,12 @@ func show_preview(preview: AttackPreview) -> void:
 
 	var statuses := PackedStringArray()
 	for app in preview.statuses:
-		statuses.append("%s %d%%" % [app.status.display_name, app.chance])
+		var text := "%s %d%%" % [app.status.display_name, app.chance]
+		if app.status.max_stacks > 1:
+			var now := target.get_stacks(app.status)
+			var after := mini(now + preview.strikes, app.status.max_stacks)
+			text += " (cargas %d → %d)" % [now, after]
+		statuses.append(text)
 	_status_label.visible = not statuses.is_empty()
 	_status_label.text = " · ".join(statuses)
 	if not preview.statuses.is_empty():

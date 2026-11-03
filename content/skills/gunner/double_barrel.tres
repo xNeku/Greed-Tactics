@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/status_data.gd" id="1_plg2i"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+[ext_resource type="Resource" path="res://content/statuses/reckless.tres" id="2_r"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"double_barrel"
+display_name = "Doble cañón"
+description = "Dos tiros seguidos en línea recta (1-3). Sale despedida 2 casillas y queda Temeraria (+daño, −defensa)."
+skill_type = 1
+tags = Array[StringName]([&"proyectil", &"polvora"])
+cooldown = 2
+range_max = 3
+vertical_reach = 3
+requires_straight_line = true
+crit_bonus = 15
+strikes = 2
+recoil = 2
+self_status = ExtResource("2_r")
+vfx_style = 3
+vfx_color = Color(1, 0.8, 0.35, 1)

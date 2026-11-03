@@ -34,6 +34,8 @@ var knockback: int
 var crit_bonus: int
 var strikes: int = 1
 var self_status: StatusData
+var heal_percent: int = 0
+var recoil: int = 0
 
 # Numeric modifiers (stage 2)
 var damage_flat: int = 0
@@ -85,8 +87,13 @@ static func from_skill(base_skill: SkillData, used: SkillData) -> EffectiveSkill
 	e.strikes = used.strikes
 	e.lifesteal_percent = used.lifesteal_percent
 	e.self_status = used.self_status
+	e.heal_percent = used.heal_percent
+	e.recoil = used.recoil
 	if used.status != null:
 		e.statuses.append(StatusApplication.create(used.status, used.status_chance, used.status_duration))
+	for extra in used.extra_statuses:
+		if extra != null:
+			StatusApplication.merge(e.statuses, StatusApplication.create(extra, 100, 0))
 	e.summon = used.summon as UnitData
 	e.vfx_style = used.vfx_style
 	e.vfx_color = used.vfx_color
