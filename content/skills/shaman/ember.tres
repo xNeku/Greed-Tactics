@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+[ext_resource type="Resource" path="res://content/statuses/burn.tres" id="2_status"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"ember"
+display_name = "Ascua"
+description = "Chispa de fuego a 2-6 casillas. Poco daño, 35% de quemar."
+tags = Array[StringName]([&"basico", &"proyectil", &"fuego"])
+range_min = 2
+range_max = 6
+vertical_reach = 4
+power = 5
+status = ExtResource("2_status")
+status_chance = 35
+vfx_style = 3
+vfx_color = Color(1, 0.5, 0.15, 1)

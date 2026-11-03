@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Script" path="res://core/data/unit_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="2_4fgtj"]
+[ext_resource type="Texture2D" path="res://assets/sprites/units/shaman.png" id="2_sprite"]
+[ext_resource type="Texture2D" path="res://assets/sprites/units/shaman_side.png" id="3_side"]
+[ext_resource type="Resource" path="res://content/skills/shaman/ember.tres" id="4_s"]
+[ext_resource type="Resource" path="res://content/skills/shaman/totem_throw.tres" id="5_s"]
+[ext_resource type="Resource" path="res://content/skills/shaman/ember_rain.tres" id="6_s"]
+[ext_resource type="Resource" path="res://content/skills/shaman/smoke_step.tres" id="7_s"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"shaman"
+display_name = "Nayra"
+short_name = "NAY"
+race = "Humana"
+unit_class = "Chamán de fuego"
+sprite = ExtResource("2_sprite")
+sprite_side = ExtResource("3_side")
+description = "Chamán de fuego: muchísimo alcance y poco daño. Su fuerza son los efectos: quema, ralentiza y planta un tótem que potencia a los suyos y asfixia a los rivales."
+resource_kind = 1
+max_hp = 80
+max_mp = 50
+defense = 3
+evasion = 10
+hp_per_level = 7
+mp_per_level = 4
+skills = Array[ExtResource("2_4fgtj")]([ExtResource("4_s"), ExtResource("5_s"), ExtResource("6_s"), ExtResource("7_s")])

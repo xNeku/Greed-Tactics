@@ -44,6 +44,8 @@ var refunds_this_turn: int = 0
 var statuses: Dictionary[StatusData, int] = {}
 ## Set at the start of a turn the unit cannot play (stunned, or killed by a status).
 var skip_turn: bool = false
+## Who summoned this unit (totems), or null.
+var summoner: UnitState
 
 
 func _init(p_id: int, p_data: UnitData, p_team: Team, p_cell: Vector2i, p_facing: GridDir.Dir,
@@ -62,6 +64,18 @@ func _init(p_id: int, p_data: UnitData, p_team: Team, p_cell: Vector2i, p_facing
 
 func is_alive() -> bool:
 	return hp > 0
+
+
+func is_structure() -> bool:
+	return data.is_structure
+
+
+## Extra damage % from active statuses (auras, buffs, debuffs).
+func get_damage_bonus_percent() -> int:
+	var total := 0
+	for status in statuses:
+		total += status.damage_percent_bonus
+	return total
 
 
 func is_enemy_of(other: UnitState) -> bool:

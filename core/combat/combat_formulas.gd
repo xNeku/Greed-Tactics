@@ -47,6 +47,7 @@ static func compute_damage(
 	multiplier *= 1.0 + maxi(height_diff, 0) * rules.height_damage_bonus
 	if user.uses_rage():
 		multiplier *= 1.0 + user.rage * rules.rage_damage_bonus
+	multiplier *= maxf(1.0 + user.get_damage_bonus_percent() / 100.0, 0.1)
 	return maxi(roundi(base * multiplier), rules.min_damage)
 
 

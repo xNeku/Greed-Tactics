@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+[ext_resource type="Resource" path="res://content/statuses/burn.tres" id="2_status"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"ember_rain"
+display_name = "Lluvia de brasas"
+description = "Brasas en rombo a 3-8 casillas. Poco daño, 70% de quemar."
+skill_type = 2
+tags = Array[StringName]([&"area", &"fuego"])
+mp_cost = 14
+range_min = 3
+range_max = 8
+vertical_reach = 6
+area_shape = 1
+area_size = 1
+power = 6
+status = ExtResource("2_status")
+status_chance = 70
+vfx_style = 4
+vfx_color = Color(1, 0.5, 0.15, 1)

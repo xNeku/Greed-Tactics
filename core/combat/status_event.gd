@@ -5,5 +5,6 @@ extends RefCounted
 var unit: UnitState
 var status: StatusData
 var damage: int = 0
+var healed: int = 0
 var expired: bool = false
 var skipped_turn: bool = false

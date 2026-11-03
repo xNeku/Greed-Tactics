@@ -29,6 +29,18 @@ shader_parameter/center_alpha = 0.85
 material = SubResource("ShaderMaterial_ring")
 size = Vector2(0.84, 0.84)
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_aura"]
+render_priority = 0
+shader = ExtResource("3_disc")
+shader_parameter/softness = 0.12
+shader_parameter/rim_width = 0.06
+shader_parameter/rim_brightness = 0.5
+shader_parameter/center_alpha = 0.45
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_aura"]
+material = SubResource("ShaderMaterial_aura")
+size = Vector2(1, 1)
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_arrow"]
 shading_mode = 0
 albedo_color = Color(1, 0.86, 0.3, 1)
@@ -40,6 +52,12 @@ size = Vector3(0.22, 0.16, 0.03)
 [node name="UnitView" type="Node3D"]
 script = ExtResource("1_view")
 damage_popup_scene = ExtResource("2_popup")
+
+[node name="AuraDisc" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0)
+visible = false
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_aura")
 
 [node name="Shadow" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.025, 0)

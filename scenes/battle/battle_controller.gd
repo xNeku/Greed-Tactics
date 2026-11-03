@@ -198,6 +198,11 @@ func _play_skill_result(result: SkillResult) -> void:
 			user_view.play_heal(hit.healed)
 		if hit.defeated:
 			await view.play_defeat()
+	if result.replaced != null and _views.has(result.replaced):
+		_views[result.replaced].play_defeat()
+	if result.summoned != null:
+		var summoned_view := _spawn_view(result.summoned)
+		await summoned_view.play_appear()
 	if result.refunded_ap > 0:
 		user_view.play_text("+%d PA" % result.refunded_ap, UnitView.HEAL_COLOR)
 	user_view.refresh_info()
@@ -233,12 +238,22 @@ func _show_ai_skill_preview(unit: UnitState, action: AiAction) -> void:
 		_highlighter.show_cell(TileHighlighter.Layer.LANDING, landing)
 		_arrows.add(from, _ground(landing), FeedbackArrows.Kind.MOTION)
 		from = _chest(landing, unit)
+	if effective.summon != null:
+		_highlighter.show_cells(TileHighlighter.Layer.LANDING, get_aura_cells(effective.summon, action.cell))
+		_arrows.add(from, _ground(action.cell), FeedbackArrows.Kind.MOTION)
 	if effective.deals_damage():
 		_highlighter.show_cells(TileHighlighter.Layer.AREA, combat.get_effect_cells(effective, landing, action.cell))
 		if effective.target_rule != SkillData.TargetRule.SELF:
 			var target := combat.get_unit_at(action.cell)
 			_arrows.add(from, _chest(action.cell, target) if target != null else _ground(action.cell), FeedbackArrows.Kind.ATTACK)
 	_arrows.commit()
+
+
+## Cells a summon's aura would cover if placed on [param cell].
+func get_aura_cells(summon: UnitData, cell: Vector2i) -> Array[Vector2i]:
+	var radius := summon.aura.radius if summon.aura != null else 0
+	return AreaShape.get_cells(AreaShape.Shape.DIAMOND, cell, radius).filter(
+		func(c: Vector2i) -> bool: return combat.grid.is_inside(c))
 
 
 func _clear_feedback() -> void:
@@ -278,10 +293,15 @@ func _apply_zone_look(zone: ZoneData) -> void:
 
 func _spawn_views() -> void:
 	for unit in combat.units:
-		var view: UnitView = unit_view_scene.instantiate()
-		_units_root.add_child(view)
-		view.setup(unit, _map_view, _camera_rig.get_camera())
-		_views[unit] = view
+		_spawn_view(unit)
+
+
+func _spawn_view(unit: UnitState) -> UnitView:
+	var view: UnitView = unit_view_scene.instantiate()
+	_units_root.add_child(view)
+	view.setup(unit, _map_view, _camera_rig.get_camera())
+	_views[unit] = view
+	return view
 
 
 func _connect_signals() -> void:
@@ -308,10 +328,13 @@ func _on_turn_ended(unit: UnitState) -> void:
 
 
 func _on_unit_facing_changed(unit: UnitState) -> void:
-	_views[unit].face(unit.facing)
+	if _views.has(unit):
+		_views[unit].face(unit.facing)
 
 
 func _on_unit_stats_changed(unit: UnitState) -> void:
+	if not _views.has(unit):
+		return
 	_views[unit].refresh_info()
 	if unit == combat.active_unit:
 		_hud.show_unit(unit)

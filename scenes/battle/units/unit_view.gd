@@ -23,6 +23,7 @@ const RAGE_COLOR := Color(1.0, 0.45, 0.35)
 @onready var _ring: GeometryInstance3D = $Ring
 @onready var _facing_pivot: Node3D = $FacingPivot
 @onready var _status_icons: Node3D = $Body/StatusIcons
+@onready var _aura_disc: GeometryInstance3D = $AuraDisc
 
 var unit: UnitState
 var _map: BattleMapView
@@ -41,6 +42,8 @@ func setup(p_unit: UnitState, map_view: BattleMapView, camera: Camera3D) -> void
 	_map = map_view
 	_camera = camera
 	name = "Unit%d_%s" % [unit.id, unit.data.id]
+	_facing_pivot.visible = not unit.is_structure()
+	_setup_aura()
 	_sprite.sprite_frames = _build_frames()
 	_sprite.animation_finished.connect(_on_animation_finished)
 	_play_state(&"idle")
@@ -195,6 +198,7 @@ func play_hit(hit: SkillResult.Hit) -> void:
 
 
 func play_defeat() -> void:
+	_aura_disc.visible = false
 	_play_state(&"hit")
 	var tween := create_tween().set_parallel()
 	tween.tween_property(_sprite, "modulate:a", 0.0, 0.4)
@@ -262,6 +266,33 @@ func _spawn_popup(text: String, color: Color, height_offset: float = 0.0) -> voi
 	add_child(popup)
 	popup.global_position = get_head_position() + Vector3.UP * (0.2 + height_offset)
 	popup.show_text(text, color)
+
+
+## Pop-in for summoned units (totems).
+func play_appear() -> void:
+	var tween := create_tween()
+	_body.scale = Vector3(0.2, 0.2, 0.2)
+	tween.tween_property(_body, "scale", Vector3(1.15, 1.15, 1.15), 0.14).set_trans(Tween.TRANS_BACK)
+	tween.tween_property(_body, "scale", Vector3.ONE, 0.1)
+	await tween.finished
+
+
+## Area shown on the ground for units with an aura, gently pulsing.
+func _setup_aura() -> void:
+	var aura := unit.data.aura
+	_aura_disc.visible = aura != null
+	if aura == null:
+		return
+	var size := aura.radius * 2.0 + 1.0
+	_aura_disc.scale = Vector3(size, 1.0, size)
+	_aura_disc.set_instance_shader_parameter(&"disc_color", aura.color)
+	var pulse := create_tween().set_loops()
+	pulse.tween_method(_set_aura_alpha.bind(aura.color), 1.0, 0.55, 1.2).set_trans(Tween.TRANS_SINE)
+	pulse.tween_method(_set_aura_alpha.bind(aura.color), 0.55, 1.0, 1.2).set_trans(Tween.TRANS_SINE)
+
+
+func _set_aura_alpha(factor: float, color: Color) -> void:
+	_aura_disc.set_instance_shader_parameter(&"disc_color", Color(color, color.a * factor))
 
 
 #region Sprite animation

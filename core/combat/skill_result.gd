@@ -34,6 +34,10 @@ var hits: Array[Hit] = []
 var user_from: Vector2i
 var user_to: Vector2i
 var refunded_ap: int = 0
+## Unit created by the skill (totems...), or null.
+var summoned: UnitState
+## Previous summon removed to make room for the new one, or null.
+var replaced: UnitState
 
 
 func user_moved() -> bool:

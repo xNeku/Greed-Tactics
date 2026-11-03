@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AuraData" format=3]
+
+[ext_resource type="Script" path="res://core/data/aura_data.gd" id="1_script"]
+[ext_resource type="Resource" path="res://content/statuses/fervor.tres" id="2_ally"]
+[ext_resource type="Resource" path="res://content/statuses/smoke.tres" id="3_enemy"]
+
+[resource]
+script = ExtResource("1_script")
+ally_status = ExtResource("2_ally")
+enemy_status = ExtResource("3_enemy")
+color = Color(1, 0.5, 0.15, 0.22)

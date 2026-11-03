@@ -20,6 +20,12 @@ enum Kind { BURN, POISON, SLOW, STUN, SILENCE, OTHER }
 @export_range(0, 100) var damage_percent_per_turn: int = 0
 @export_range(0, 999) var damage_flat_per_turn: int = 0
 
+@export_group("Bonuses")
+## Extra damage dealt while active (percentage).
+@export_range(-90, 300) var damage_percent_bonus: int = 0
+## HP recovered at the start of each turn, as % of max HP.
+@export_range(0, 100) var heal_percent_per_turn: int = 0
+
 @export_group("Restrictions")
 ## PM lost every turn while it lasts.
 @export_range(0, 20) var move_penalty: int = 0
@@ -31,5 +37,7 @@ enum Kind { BURN, POISON, SLOW, STUN, SILENCE, OTHER }
 @export var blocks_skills: bool = false
 
 @export_group("Visual")
+## Do not announce when it ends (auras refresh it every turn).
+@export var silent: bool = false
 @export var color: Color = Color.WHITE
 @export var icon: Texture2D

@@ -63,6 +63,13 @@ enum ResourceKind {
 ## The first BASIC one is the default attack.
 @export var skills: Array[SkillData] = []
 
+@export_group("Structure")
+## Structures (totems, barricades...) never take turns, never move and do not
+## count to win or lose a combat. Enemies can still attack and destroy them.
+@export var is_structure: bool = false
+## Passive area effect around this unit.
+@export var aura: AuraData
+
 @export_group("AI")
 ## Tactical weights when the AI controls this unit. Empty = default profile.
 @export var ai_profile: AiProfile

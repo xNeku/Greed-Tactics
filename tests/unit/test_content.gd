@@ -26,7 +26,7 @@ func test_resources_per_class() -> void:
 		kinds[hero.unit_class] = hero.resource_kind
 	assert_eq(kinds["Camorrista"], UnitData.ResourceKind.RAGE)
 	assert_eq(kinds["Asesina"], UnitData.ResourceKind.RAGE)
-	assert_eq(kinds["Maga"], UnitData.ResourceKind.MANA)
+	assert_eq(kinds["Chamán de fuego"], UnitData.ResourceKind.MANA)
 	assert_eq(kinds["Arquero"], UnitData.ResourceKind.NONE)
 
 

@@ -234,6 +234,11 @@ Enemigos de prototipo: Goblin (Saqueador, melee) y Limo (Bestia, melee lento y r
 
 (El número entre paréntesis es la ira necesaria para la mutación.)
 
+**[v0.5] Nayra, Chamán de fuego** (sprite de Neku; sustituye a Lyra en el grupo inicial): maná, muchísimo alcance, poco daño; su valor son los efectos.
+- *Ascua* (básica, 2-6, 35% quemar) · *Lanzar tótem* (2-7, invoca un **Tótem de fuego**) · *Lluvia de brasas* (área 3-8, 70% quemar) · *Paso de humo* (teletransporte 2-5 que ralentiza a los adyacentes al llegar).
+- **Tótem de fuego:** estructura (no juega turno, no cuenta para ganar/perder, el enemigo puede destruirlo; uno por chamán, lanzar otro destruye el anterior). **Aura** de radio 2: aliados con *Fervor* (+20% daño, +4% vida por turno), enemigos con *Humo asfixiante* (−1 PM, −15% velocidad, −3% vida por turno).
+- Nuevas mecánicas genéricas: `SkillData.summon`, `UnitData.is_structure`, `UnitData.aura` (`AuraData`), estados positivos (`damage_percent_bonus`, `heal_percent_per_turn`, `silent`).
+
 **[v0.3] Enemigos por zona:** Cueva (Goblin, Murciélago, Limo; miniboss **Ogro de las cavernas**), Bosque (Lobo, Goblin arquero, Jabalí, Goblin; miniboss **Ent anciano**), Desierto (Escorpión, Bandido, Momia; miniboss **Gusano de arena**, que emerge a tu espalda).
 
 ## 7. Compañeros

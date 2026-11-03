@@ -70,7 +70,8 @@ func _pick_ready(living: Array[UnitState], ct: Dictionary[UnitState, int]) -> Un
 
 
 func _living(units: Array[UnitState]) -> Array[UnitState]:
-	return units.filter(func(u: UnitState) -> bool: return u.is_alive())
+	# Structures (totems...) never take turns.
+	return units.filter(func(u: UnitState) -> bool: return u.is_alive() and not u.is_structure())
 
 
 func _ct_of(units: Array[UnitState]) -> Dictionary[UnitState, int]:

@@ -37,6 +37,10 @@ func show_skill(skill: EffectiveSkill) -> void:
 	_stats_label.text = " · ".join(stats)
 
 	var effects := PackedStringArray()
+	if skill.summon != null:
+		effects.append("Invoca: %s" % skill.summon.display_name)
+		if skill.summon.aura != null:
+			effects.append("Aura radio %d" % skill.summon.aura.radius)
 	if skill.motion != SkillData.Motion.NONE:
 		effects.append(MOTION_TEXT[skill.motion])
 	for app in skill.statuses:

@@ -74,6 +74,12 @@ enum Motion {
 ## Extra crit chance (percentage points) for this skill.
 @export_range(0, 100) var crit_bonus: int = 0
 
+@export_group("Summon")
+## UnitData placed on the target cell (must be an EMPTY_CELL skill). Using it
+## again removes the previous one summoned by the same user.
+## Typed as Resource to avoid a SkillData <-> UnitData script cycle.
+@export var summon: Resource
+
 @export_group("Status")
 ## Status applied to every target hit (optional).
 @export var status: StatusData

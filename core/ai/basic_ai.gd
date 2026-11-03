@@ -23,6 +23,10 @@ func decide(combat: CombatState, unit: UnitState) -> AiAction:
 	var profile := get_profile(unit)
 	var threat := build_threat_map(combat, unit)
 
+	var summon := _best_summon(combat, unit)
+	if not summon.is_empty():
+		return AiAction.use_skill(summon.skill, summon.cell)
+
 	var here := best_attack_from(combat, unit, unit.cell, threat)
 	var best_move := {}
 	var reach: ReachMap = null
@@ -102,6 +106,34 @@ func _best_attack_after_moving(combat: CombatState, unit: UnitState, reach: Reac
 		var score: float = attack.score - reach.get_cost(cell) * MOVE_COST_WEIGHT
 		if best.is_empty() or score > best.score:
 			best = {"destination": cell, "score": score}
+	return best
+
+#endregion
+
+
+#region Summons
+
+## Places a summon (totem) where its aura covers the most allies and enemies,
+## if the unit does not have one on the field already.
+func _best_summon(combat: CombatState, unit: UnitState) -> Dictionary:
+	var best := {}
+	for skill in unit.data.skills:
+		var effective := unit.get_effective(skill)
+		if effective.summon == null or not unit.can_afford(effective):
+			continue
+		var has_one := combat.get_living_units().any(
+			func(u: UnitState) -> bool: return u.summoner == unit and u.data == effective.summon)
+		if has_one:
+			continue
+		var radius := effective.summon.aura.radius if effective.summon.aura != null else 1
+		for cell in combat.get_targetable_cells(unit, skill, unit.cell):
+			var score := 0.0
+			for other in combat.get_living_units():
+				if other.is_structure() or BattleGrid.manhattan(other.cell, cell) > radius:
+					continue
+				score += 6.0 if other.is_enemy_of(unit) else 10.0
+			if score > 10.0 and (best.is_empty() or score > best.score):
+				best = {"skill": skill, "cell": cell, "score": score}
 	return best
 
 #endregion

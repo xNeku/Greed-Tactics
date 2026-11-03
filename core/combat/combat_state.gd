@@ -15,6 +15,8 @@ signal skill_resolved(result: SkillResult)
 signal unit_stats_changed(unit: UnitState)
 signal unit_defeated(unit: UnitState)
 signal turn_ended(unit: UnitState)
+## A skill created a new unit (totem...). Already in [member units].
+signal unit_summoned(unit: UnitState)
 ## Statuses acted at the start of [param unit]'s turn (damage, expiry, lost turn).
 signal statuses_ticked(unit: UnitState, events: Array[StatusEvent])
 signal combat_finished(winner: UnitState.Team)
@@ -277,6 +279,7 @@ func start_next_turn() -> UnitState:
 	active_unit.begin_turn(rules)
 	turn_count += 1
 	last_status_events = _tick_statuses(active_unit)
+	_apply_auras(active_unit)
 	turn_started.emit(active_unit)
 	if not last_status_events.is_empty():
 		statuses_ticked.emit(active_unit, last_status_events)
@@ -333,6 +336,8 @@ func use_skill(skill: SkillData, target_cell: Vector2i) -> SkillResult:
 		_resolve_hit(result, target, user.cell, SkillResult.HitSource.PRIMARY, already_hit)
 	_resolve_bounces(result, already_hit)
 	_resolve_kill_refund(result)
+	if effective.summon != null:
+		_summon(result, effective.summon, target_cell)
 
 	if result.user_moved():
 		unit_moved.emit(user, [user.cell] as Array[Vector2i])
@@ -496,6 +501,8 @@ func _tick_statuses(unit: UnitState) -> Array[StatusEvent]:
 		if damage > 0 and unit.is_alive():
 			event.damage = damage
 			_apply_damage(unit, damage)
+		if status.heal_percent_per_turn > 0 and unit.is_alive():
+			event.healed = unit.heal(roundi(unit.max_hp * status.heal_percent_per_turn / 100.0))
 		if status.skips_turn:
 			event.skipped_turn = true
 			unit.skip_turn = true
@@ -570,11 +577,45 @@ func _is_free(cell: Vector2i, ignore: UnitState) -> bool:
 	return unit == null or unit == ignore
 
 
+## Auras of nearby units refresh their statuses on [param unit] (until its next turn).
+func _apply_auras(unit: UnitState) -> void:
+	if not unit.is_alive():
+		return
+	for source in get_living_units():
+		var aura := source.data.aura
+		if aura == null or source == unit:
+			continue
+		if BattleGrid.manhattan(source.cell, unit.cell) > aura.radius:
+			continue
+		var status := aura.enemy_status if source.is_enemy_of(unit) else aura.ally_status
+		if status != null:
+			unit.add_status(status, 1)
+
+
+func _summon(result: SkillResult, data: UnitData, cell: Vector2i) -> void:
+	var user := result.user
+	for other in get_living_units():
+		if other.summoner == user and other.data == data:
+			other.hp = 0
+			result.replaced = other
+	var unit := add_unit(data, user.team, cell, user.facing, user.level)
+	unit.summoner = user
+	result.summoned = unit
+	unit_summoned.emit(unit)
+	if result.replaced != null:
+		unit_defeated.emit(result.replaced)
+
+
+## Units that decide the combat (structures do not count).
+func _fighters(team: int) -> Array[UnitState]:
+	return get_living_units(team).filter(func(u: UnitState) -> bool: return not u.is_structure())
+
+
 func _check_victory() -> void:
 	if is_finished():
 		return
-	var players_alive := not get_living_units(UnitState.Team.PLAYER).is_empty()
-	var enemies_alive := not get_living_units(UnitState.Team.ENEMY).is_empty()
+	var players_alive := not _fighters(UnitState.Team.PLAYER).is_empty()
+	var enemies_alive := not _fighters(UnitState.Team.ENEMY).is_empty()
 	if players_alive and enemies_alive:
 		return
 	winner = UnitState.Team.PLAYER if players_alive else UnitState.Team.ENEMY

@@ -144,3 +144,32 @@ static func status(kind: StatusData.Kind, duration: int = 2) -> StatusData:
 		StatusData.Kind.SILENCE:
 			s.blocks_skills = true
 	return s
+
+
+## A totem-like structure with an aura: allies +50% damage, enemies slowed.
+static func totem_data() -> UnitData:
+	var data := unit_data("Totem", 1)
+	data.is_structure = true
+	data.move_points = 0
+	data.skills = []
+	var aura := AuraData.new()
+	aura.radius = 2
+	var buff := StatusData.new()
+	buff.id = &"fervor"
+	buff.damage_percent_bonus = 50
+	buff.heal_percent_per_turn = 10
+	buff.silent = true
+	aura.ally_status = buff
+	aura.enemy_status = status(StatusData.Kind.SLOW, 1)
+	data.aura = aura
+	return data
+
+
+static func summon_skill(summoned: UnitData) -> SkillData:
+	var s := skill(0, 1, 5)
+	s.id = &"throw_totem"
+	s.skill_type = SkillData.SkillType.LAUNCH
+	s.target_rule = SkillData.TargetRule.EMPTY_CELL
+	s.vertical_reach = 9
+	s.summon = summoned
+	return s

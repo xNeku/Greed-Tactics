@@ -46,6 +46,7 @@ var lifesteal_percent: int = 0
 var refund_ap: int = 0
 ## Statuses applied on every landed hit (skill + ALWAYS modifiers).
 var statuses: Array[StatusApplication] = []
+var summon: UnitData
 var vfx_style: SkillData.VfxStyle = SkillData.VfxStyle.AUTO
 var vfx_color: Color = Color.WHITE
 
@@ -81,6 +82,7 @@ static func from_skill(base_skill: SkillData, used: SkillData) -> EffectiveSkill
 	e.crit_bonus = used.crit_bonus
 	if used.status != null:
 		e.statuses.append(StatusApplication.create(used.status, used.status_chance, used.status_duration))
+	e.summon = used.summon as UnitData
 	e.vfx_style = used.vfx_style
 	e.vfx_color = used.vfx_color
 	return e

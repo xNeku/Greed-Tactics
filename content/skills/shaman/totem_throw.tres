@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+[ext_resource type="Resource" path="res://content/units/heroes/fire_totem.tres" id="3_summon"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"totem_throw"
+display_name = "Lanzar tótem"
+description = "Planta un Tótem de fuego en una casilla libre a 2-7. Aura de radio 2: aliados con Fervor (+20% daño, regeneración), enemigos con Humo asfixiante. Solo uno a la vez; el enemigo puede destruirlo."
+skill_type = 1
+tags = Array[StringName]([&"lanzamiento", &"totem", &"fuego"])
+mp_cost = 12
+cooldown = 2
+target_rule = 2
+range_min = 2
+range_max = 7
+vertical_reach = 6
+power = 0
+summon = ExtResource("3_summon")
+vfx_style = 4
+vfx_color = Color(1, 0.5, 0.15, 1)

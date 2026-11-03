@@ -208,6 +208,9 @@ func _show_skill_forecast(target_cell: Vector2i) -> void:
 		_highlighter.show_cell(TileHighlighter.Layer.LANDING, landing)
 		_arrows.add(_unit_point(_unit), _ground_point(landing), FeedbackArrows.Kind.MOTION)
 		attack_from = _map.cell_to_world(landing) + Vector3.UP * ARROW_HEIGHT
+	if effective.summon != null:
+		_highlighter.show_cells(TileHighlighter.Layer.LANDING, _controller.get_aura_cells(effective.summon, target_cell))
+		_arrows.add(_unit_point(_unit), _ground_point(target_cell), FeedbackArrows.Kind.MOTION)
 	if not effective.deals_damage():
 		return
 	_highlighter.show_cells(TileHighlighter.Layer.AREA, combat.get_effect_cells(effective, landing, target_cell))
