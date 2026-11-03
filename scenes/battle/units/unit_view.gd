@@ -39,9 +39,7 @@ func setup(p_unit: UnitState, map_view: BattleMapView, camera: Camera3D) -> void
 	_map = map_view
 	_camera = camera
 	name = "Unit%d_%s" % [unit.id, unit.data.id]
-	_sprite.texture = unit.data.sprite
-	if _sprite.texture != null:
-		_sprite.offset.y = _sprite.texture.get_height() * 0.5
+	_set_texture(unit.data.sprite)
 	_sprite.pixel_size *= unit.data.sprite_scale
 	_info_label.position.y *= unit.data.sprite_scale
 	_status_icons.position.y *= unit.data.sprite_scale
@@ -257,14 +255,35 @@ func _spawn_popup(text: String, color: Color, height_offset: float = 0.0) -> voi
 	popup.show_text(text, color)
 
 
-## Sprites are drawn facing right: flip them when the unit faces screen-left.
+## Picks the view and the flip from where the unit faces on screen:
+## towards the camera = front view, away from it = side view (if the unit
+## has one) flipped to the side it walks to. Units without a side view use
+## their single sprite, drawn facing right and flipped when needed.
 func _update_sprite_flip() -> void:
 	if _camera == null or unit == null:
 		return
 	var facing := -_facing_pivot.global_basis.z
 	var screen_x := facing.dot(_camera.global_basis.x)
-	if absf(screen_x) > 0.05:
+	var away := facing.dot(-_camera.global_basis.z) > 0.0
+	if unit.data.sprite_side == null:
+		if absf(screen_x) > 0.05:
+			_sprite.flip_h = screen_x < 0.0
+		return
+	if away:
+		_set_texture(unit.data.sprite_side)
 		_sprite.flip_h = screen_x < 0.0
+	else:
+		_set_texture(unit.data.sprite)
+		_sprite.flip_h = false
+
+
+## Feet on the unit origin whatever the texture height.
+func _set_texture(texture: Texture2D) -> void:
+	if _sprite.texture == texture:
+		return
+	_sprite.texture = texture
+	if texture != null:
+		_sprite.offset.y = texture.get_height() * 0.5
 
 
 ## The sprite is a vertical (Y-fixed) billboard and the camera looks down at

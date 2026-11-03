@@ -32,7 +32,7 @@ El estado por hito está en [`ROADMAP.md`](ROADMAP.md).
 | ID | Tarea | Hito | Prio | Estado |
 |---|---|---|---|---|
 | GT-030 | Línea de visión para proyectiles (pregunta abierta GDD §14) | M1 | P2 | ⬜ |
-| GT-032 | Sprites en 4 direcciones (frente/espalda) además del volteo horizontal | M4 | P2 | ⬜ |
+| GT-032 | Sprites por dirección: frente + lado hechos (v0.4.1, `UnitData.sprite_side`); falta espaldas | M4 | P2 | 🟡 |
 | GT-033 | Animaciones de sprite (idle, andar, atacar, golpe) con `AnimatedSprite3D` / `SpriteFrames` | M4 | P2 | ⬜ |
 | GT-034 | Arte final de tiles y props | M5 | P2 | ⬜ |
 | GT-035 | Internacionalización: textos de UI a CSV de traducciones (`tr()`) | M4 | P3 | ⬜ |
@@ -67,5 +67,6 @@ El estado por hito está en [`ROADMAP.md`](ROADMAP.md).
 | GT-203 | IA táctica: mapa de amenaza, foco en heridos/peligrosos, distancia preferida, perfiles por enemigo | M1 | 2026-11-03 |
 | GT-220 | Flechas de previsión en parábola (verde/roja/naranja/amarilla/gris) y marca de bloqueo; movimiento a medias | M1 | 2026-11-03 |
 | GT-221 | Efectos visuales placeholder (proyectil, parábola, tajo, nova, explosiones por casilla), sacudida de cámara | M1 | 2026-11-03 |
+| GT-240 | Sprite del guerrero (Kael) de Neku: vectorizado pixel perfect desde JPG, sin barriga, vendas, cinturón; vistas frente y lado | M4 | 2026-11-03 |
 | GT-213 | Tests: 91 unitarios + simulación de runs + recorrido end-to-end de pantallas | M1 | 2026-11-02 |
 | GT-100…113 | Base M0 (proyecto, datos, grid, combate, HUD, cámara, IA, tests, CI) | M0 | 2026-11-02 |

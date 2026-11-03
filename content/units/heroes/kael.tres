@@ -7,6 +7,7 @@
 [ext_resource type="Resource" path="res://content/skills/warrior/axe_throw.tres" id="4_axe_throw"]
 [ext_resource type="Resource" path="res://content/skills/warrior/whirlwind.tres" id="5_whirlwind"]
 [ext_resource type="Resource" path="res://content/skills/warrior/charge.tres" id="6_charge"]
+[ext_resource type="Texture2D" path="res://assets/sprites/units/kael_side.png" id="80_side"]
 
 [resource]
 script = ExtResource("1_script")
@@ -16,6 +17,7 @@ short_name = "KAE"
 race = "Humano"
 unit_class = "Guerrero"
 sprite = ExtResource("2_kael")
+sprite_side = ExtResource("80_side")
 description = "Guerrero de primera línea. Usa ira: la gana pegando y recibiendo golpes, pega más cuanta más tiene y sus habilidades mutan al superar cierto umbral."
 resource_kind = 2
 max_hp = 130

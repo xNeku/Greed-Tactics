@@ -19,8 +19,12 @@ enum ResourceKind {
 @export var unit_class: String = ""
 ## Default level when spawned outside a run (tests, quick battles).
 @export_range(1, 99) var level: int = 1
-## Pixel art facing RIGHT. Feet must touch the bottom edge of the texture.
+## Front view (3/4 towards the camera). Feet must touch the bottom edge.
+## Also used as portrait. Without [member sprite_side] it must face RIGHT.
 @export var sprite: Texture2D
+## Optional side view facing RIGHT, used while the unit walks away from the
+## camera. Feet on the bottom edge, same pixel density as [member sprite].
+@export var sprite_side: Texture2D
 ## Multiplier for the sprite size (bosses are bigger).
 @export_range(0.5, 3.0) var sprite_scale: float = 1.0
 @export_multiline var description: String = ""

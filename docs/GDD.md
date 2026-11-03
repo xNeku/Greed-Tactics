@@ -409,6 +409,7 @@ docs/        GDD, roadmap, backlog, convenciones
 **Tests:** las reglas de la sección 5 y el pipeline de modificadores deben ser testeables sin escena. Es lo primero que se prueba.
 
 - **[v0.2]** Runner propio sin dependencias (`tests/test_runner.gd`): cualquier `tests/unit/test_*.gd` que extienda `TestCase` se ejecuta; un error de script durante un test cuenta como fallo. Test de integración `tests/integration/autoplay_battle.gd`: juega el combate entero con IA en ambos bandos y falla si no termina o hay errores. CI en GitHub Actions ejecuta ambos en cada push.
+- **[v0.4.1]** Arte: cada unidad puede tener vista frontal (`sprite`) y de lado (`sprite_side`, mirando a la derecha). Si mira hacia la cámara se usa la frontal; si se aleja, la de lado volteada según la dirección. Kael usa el sprite de Neku (guerrero que pelea a puños).
 - **[v0.3]** `tests/integration/autoplay_run.gd` simula runs completas solo con reglas (rápido, imprime estadísticas de balance) y `tests/integration/autoplay_ui_run.gd` recorre las pantallas reales de punta a punta (con pantalla o Xvfb guarda una captura de cada una).
 
 **Regla para el agente:** cada modificador nuevo se añade como dato y pasa por los tests del pipeline antes de tocar contenido.
