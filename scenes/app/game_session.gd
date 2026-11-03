@@ -29,8 +29,8 @@ var _quick_battle := false
 
 #region Run
 
-func new_run(run_seed: int = 0) -> void:
-	run = RunState.new(run_config, rules, run_seed)
+func new_run(run_seed: int = 0, party: Array[UnitData] = []) -> void:
+	run = RunState.new(run_config, rules, run_seed, party)
 	_change_scene(RUN_MAP)
 
 
@@ -59,14 +59,14 @@ func abandon_run() -> void:
 #region Quick battle
 
 ## A single battle on a random map of [param zone] (random zone if null).
-func start_quick_battle(zone: ZoneData = null) -> void:
+func start_quick_battle(zone: ZoneData = null, party: Array[UnitData] = []) -> void:
 	var zones := run_config.zones
 	if zone == null:
 		zone = zones[randi_range(0, zones.size() - 1)]
 	var setup := BattleSetup.new()
 	setup.title = "Combate rápido: %s" % zone.display_name
 	setup.zone = zone
-	setup.player_units = run_config.heroes.duplicate()
+	setup.player_units = party.duplicate() if not party.is_empty() else run_config.heroes.duplicate()
 	setup.player_level = quick_battle_level
 	setup.enemy_level = quick_battle_level
 	for i in 5:

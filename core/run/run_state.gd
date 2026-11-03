@@ -40,13 +40,14 @@ var total_turns: int = 0
 var _rng := RandomNumberGenerator.new()
 
 
-func _init(p_config: RunConfig, p_rules: RulesConfig, p_seed: int = 0) -> void:
+## [param party] = heroes picked by the player (empty = config.heroes).
+func _init(p_config: RunConfig, p_rules: RulesConfig, p_seed: int = 0, party: Array[UnitData] = []) -> void:
 	config = p_config
 	rules = p_rules
 	seed_value = p_seed if p_seed != 0 else randi()
 	_rng.seed = seed_value
 	level = config.start_level
-	for data in config.heroes:
+	for data in (party if not party.is_empty() else config.heroes):
 		heroes.append(HeroState.new(data, level))
 	var pool := config.zones.duplicate()
 	for i in config.stage_count:

@@ -147,6 +147,22 @@ corner_radius_top_right = 3
 corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_selected_card"]
+content_margin_left = 14.0
+content_margin_top = 10.0
+content_margin_right = 14.0
+content_margin_bottom = 10.0
+bg_color = Color(0.13, 0.12, 0.08, 0.96)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(1, 0.8, 0.3, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_top_bar"]
 content_margin_left = 28.0
 content_margin_top = 10.0
@@ -208,6 +224,8 @@ ResultTitle/base_type = &"Label"
 ResultTitle/colors/font_color = Color(1, 0.8, 0.3, 1)
 ResultTitle/font_sizes/font_size = 48
 ResultTitle/fonts/font = ExtResource("2_xbold")
+SelectedCard/base_type = &"PanelContainer"
+SelectedCard/styles/panel = SubResource("StyleBoxFlat_selected_card")
 TitleLabel/base_type = &"Label"
 TitleLabel/font_sizes/font_size = 22
 TitleLabel/fonts/font = ExtResource("2_xbold")

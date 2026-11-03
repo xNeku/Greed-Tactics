@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+[ext_resource type="Resource" path="res://content/statuses/reckless.tres" id="3_self"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"massacre_dance"
+display_name = "Danza de la masacre ★"
+description = "Mutación con 70+ de ira: dos giros brutales a las 8 casillas de alrededor, robando un 35% de vida. Se vuelve Temeraria."
+skill_type = 2
+tags = Array[StringName]([&"area", &"melee", &"hacha"])
+rage_cost = 25
+target_rule = 3
+range_min = 0
+range_max = 0
+area_shape = 2
+area_size = 1
+power = 11
+strikes = 2
+lifesteal_percent = 35
+self_status = ExtResource("3_self")
+vfx_style = 5
+vfx_color = Color(1, 0.3, 0.3, 1)

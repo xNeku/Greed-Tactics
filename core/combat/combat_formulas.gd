@@ -21,6 +21,7 @@ static func build_preview(
 	preview.hit_chance = compute_hit_chance(rules, target, side)
 	preview.crit_chance = clampi(compute_crit_chance(rules, user, skill, side) + bonus.crit, 0, 100)
 	preview.bounces = skill.bounce_hops
+	preview.strikes = skill.strikes
 	preview.knockback = ResolutionPipeline.get_impact_effects(skill, side, false).knockback
 	return preview
 
@@ -36,7 +37,7 @@ static func compute_damage(
 		hit_bonus: Dictionary = {}) -> int:
 	if not skill.deals_damage():
 		return 0
-	var base := skill.power + user.attack - target.defense + skill.damage_flat + int(hit_bonus.get("damage_flat", 0))
+	var base := skill.power + user.attack - target.get_defense() + skill.damage_flat + int(hit_bonus.get("damage_flat", 0))
 	var multiplier := 1.0
 	match side:
 		GridRules.AttackSide.SIDE:

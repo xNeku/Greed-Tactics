@@ -79,3 +79,13 @@ func test_every_zone_generates_valid_maps() -> void:
 		for s in [1, 2, 3]:
 			var map := MapGenerator.generate(zone, rules, s, 4, 6)
 			assert_eq(map.validate(), PackedStringArray(), "%s seed %d" % [zone.display_name, s])
+
+
+func test_roster_heroes_follow_the_template() -> void:
+	var config := _config()
+	assert_true(config.roster.size() >= 6, "roster")
+	for hero in config.roster:
+		assert_eq(hero.get_missing_skill_types(), PackedStringArray(), hero.display_name)
+		assert_true(hero.sprite != null, hero.display_name)
+	for hero in config.heroes:
+		assert_has(config.roster, hero)

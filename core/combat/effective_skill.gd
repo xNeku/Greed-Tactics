@@ -32,6 +32,8 @@ var affects_allies: bool
 var motion: SkillData.Motion
 var knockback: int
 var crit_bonus: int
+var strikes: int = 1
+var self_status: StatusData
 
 # Numeric modifiers (stage 2)
 var damage_flat: int = 0
@@ -80,6 +82,9 @@ static func from_skill(base_skill: SkillData, used: SkillData) -> EffectiveSkill
 	e.motion = used.motion
 	e.knockback = used.knockback
 	e.crit_bonus = used.crit_bonus
+	e.strikes = used.strikes
+	e.lifesteal_percent = used.lifesteal_percent
+	e.self_status = used.self_status
 	if used.status != null:
 		e.statuses.append(StatusApplication.create(used.status, used.status_chance, used.status_duration))
 	e.summon = used.summon as UnitData

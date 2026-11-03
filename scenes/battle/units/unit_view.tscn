@@ -5,6 +5,18 @@
 [ext_resource type="Shader" path="res://assets/shaders/disc.gdshader" id="3_disc"]
 [ext_resource type="FontFile" path="res://assets/fonts/Nunito-ExtraBold.ttf" id="4_font"]
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_aura"]
+render_priority = 0
+shader = ExtResource("3_disc")
+shader_parameter/softness = 0.12
+shader_parameter/rim_width = 0.06
+shader_parameter/rim_brightness = 0.5
+shader_parameter/center_alpha = 0.6
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_aura"]
+material = SubResource("ShaderMaterial_aura")
+size = Vector2(1, 1)
+
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_shadow"]
 render_priority = 1
 shader = ExtResource("3_disc")
@@ -28,18 +40,6 @@ shader_parameter/center_alpha = 0.85
 [sub_resource type="PlaneMesh" id="PlaneMesh_ring"]
 material = SubResource("ShaderMaterial_ring")
 size = Vector2(0.84, 0.84)
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_aura"]
-render_priority = 0
-shader = ExtResource("3_disc")
-shader_parameter/softness = 0.12
-shader_parameter/rim_width = 0.06
-shader_parameter/rim_brightness = 0.5
-shader_parameter/center_alpha = 0.45
-
-[sub_resource type="PlaneMesh" id="PlaneMesh_aura"]
-material = SubResource("ShaderMaterial_aura")
-size = Vector2(1, 1)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_arrow"]
 shading_mode = 0

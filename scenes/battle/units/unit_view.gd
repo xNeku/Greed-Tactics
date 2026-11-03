@@ -215,7 +215,17 @@ func play_defeat() -> void:
 func play_statuses_applied(statuses: Array[StatusData]) -> void:
 	for status in statuses:
 		_spawn_popup("¡%s!" % status.display_name, status.color, 0.35)
+		if status.kind == StatusData.Kind.KNOCKUP:
+			await _play_knockup()
 	refresh_info()
+
+
+## Thrown up in the air and back down.
+func _play_knockup() -> void:
+	var tween := create_tween()
+	tween.tween_property(_body, "position:y", 0.9, 0.18).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(_body, "position:y", 0.0, 0.22).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+	await tween.finished
 
 
 ## Start-of-turn status effects (damage over time, lost turn, expiry).

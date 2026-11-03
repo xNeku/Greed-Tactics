@@ -239,6 +239,12 @@ Enemigos de prototipo: Goblin (Saqueador, melee) y Limo (Bestia, melee lento y r
 - **Tótem de fuego:** estructura (no juega turno, no cuenta para ganar/perder, el enemigo puede destruirlo; uno por chamán, lanzar otro destruye el anterior). **Aura** de radio 2: aliados con *Fervor* (+20% daño, +4% vida por turno), enemigos con *Humo asfixiante* (−1 PM, −15% velocidad, −3% vida por turno).
 - Nuevas mecánicas genéricas: `SkillData.summon`, `UnitData.is_structure`, `UnitData.aura` (`AuraData`), estados positivos (`damage_percent_bonus`, `heal_percent_per_turn`, `silent`).
 
+**[v0.5] Sigrid, Bárbara humana nórdica** (sprite de Neku + hacha a dos manos añadida): ira; agresiva y arriesgada.
+- *Tajo salvaje* (2 golpes rápidos, roba 15%) → ★ *Carnicería* (3 golpes, roba 25%) · *Hacha voladora* (2-4, empuja) → ★ *Tormenta de acero* (cruz) · *Remolino sangriento* (8 casillas, roba 30%, se vuelve **Temeraria**: +25% daño, −50% defensa) → ★ *Danza de la masacre* (2 giros) · *Salto aplastante* (salta 2-4 ignorando alturas, golpea alrededor y **lanza por los aires** = pierden el turno) → ★ *Caída del cielo* (3x3).
+- Mecánicas genéricas nuevas: `SkillData.strikes` (golpes múltiples), `lifesteal_percent`, `self_status`; estados con `defense_percent_bonus` y tipo `KNOCKUP` (animación de salto).
+
+**[Decidido v0.5] Plantel y grupo:** `RunConfig.roster` (6 héroes: Kael, Pablo, Nayra, Nyx, Sigrid, Lyra) y `party_size` 4. En el menú se eligen 4 haciendo clic en sus tarjetas; el combate rápido usa el mismo grupo.
+
 **[v0.3] Enemigos por zona:** Cueva (Goblin, Murciélago, Limo; miniboss **Ogro de las cavernas**), Bosque (Lobo, Goblin arquero, Jabalí, Goblin; miniboss **Ent anciano**), Desierto (Escorpión, Bandido, Momia; miniboss **Gusano de arena**, que emerge a tu espalda).
 
 ## 7. Compañeros

@@ -8,4 +8,4 @@
 script = ExtResource("1_script")
 ally_status = ExtResource("2_ally")
 enemy_status = ExtResource("3_enemy")
-color = Color(1, 0.5, 0.15, 0.22)
+color = Color(1, 0.42, 0.1, 0.5)

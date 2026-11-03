@@ -6,7 +6,7 @@ extends Resource
 ## Re-applying a status refreshes its duration (it does not stack).
 
 ## Visual family, used by the presentation to pick tint and icon.
-enum Kind { BURN, POISON, SLOW, STUN, SILENCE, OTHER }
+enum Kind { BURN, POISON, SLOW, STUN, SILENCE, OTHER, KNOCKUP }
 
 @export var id: StringName = &""
 @export var display_name: String = ""
@@ -23,6 +23,8 @@ enum Kind { BURN, POISON, SLOW, STUN, SILENCE, OTHER }
 @export_group("Bonuses")
 ## Extra damage dealt while active (percentage).
 @export_range(-90, 300) var damage_percent_bonus: int = 0
+## Defense change while active (percentage, negative = more exposed).
+@export_range(-100, 300) var defense_percent_bonus: int = 0
 ## HP recovered at the start of each turn, as % of max HP.
 @export_range(0, 100) var heal_percent_per_turn: int = 0
 

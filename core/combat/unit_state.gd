@@ -70,6 +70,14 @@ func is_structure() -> bool:
 	return data.is_structure
 
 
+## Defense after statuses.
+func get_defense() -> int:
+	var percent := 0
+	for status in statuses:
+		percent += status.defense_percent_bonus
+	return maxi(roundi(defense * (1.0 + percent / 100.0)), 0)
+
+
 ## Extra damage % from active statuses (auras, buffs, debuffs).
 func get_damage_bonus_percent() -> int:
 	var total := 0

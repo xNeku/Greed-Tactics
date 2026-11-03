@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+[ext_resource type="Resource" path="res://content/statuses/reckless.tres" id="3_self"]
+[ext_resource type="Resource" path="res://content/skills/barbarian/massacre_dance.tres" id="4_emp"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"blood_whirl"
+display_name = "Remolino sangriento"
+description = "Gira con el hacha contra las 8 casillas de alrededor y roba un 30% de vida. Se vuelve Temeraria (+daño, -defensa)."
+skill_type = 2
+tags = Array[StringName]([&"area", &"melee", &"hacha"])
+rage_cost = 25
+target_rule = 3
+range_min = 0
+range_max = 0
+area_shape = 2
+area_size = 1
+power = 11
+lifesteal_percent = 30
+self_status = ExtResource("3_self")
+vfx_style = 5
+vfx_color = Color(0.9, 0.92, 1, 1)
+empowered_variant = ExtResource("4_emp")
+empowered_rage_threshold = 70

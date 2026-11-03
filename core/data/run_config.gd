@@ -6,7 +6,11 @@ extends Resource
 ## [member modifier_phase_interval]-th phase rewards a modifier (1 of 3) + XP,
 ## the others reward gold + XP.
 
+## Default party (used when the player does not pick one).
 @export var heroes: Array[UnitData] = []
+## Every hero the player can pick from on the main menu.
+@export var roster: Array[UnitData] = []
+@export_range(1, 6) var party_size: int = 4
 ## Zones a stage can be themed with. Each stage gets a different one when possible.
 @export var zones: Array[ZoneData] = []
 @export var modifier_pool: Array[ModifierData] = []

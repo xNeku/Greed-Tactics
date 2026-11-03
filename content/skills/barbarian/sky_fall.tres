@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+[ext_resource type="Resource" path="res://content/statuses/knockup.tres" id="2_status"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"sky_fall"
+display_name = "Caída del cielo ★"
+description = "Mutación con 50+ de ira: salto altísimo (2-5) que golpea un 3x3 y lanza por los aires."
+skill_type = 3
+tags = Array[StringName]([&"movimiento", &"melee", &"salto"])
+cooldown = 2
+target_rule = 2
+range_min = 2
+range_max = 5
+vertical_reach = 9
+area_shape = 2
+area_size = 1
+power = 14
+motion = 1
+status = ExtResource("2_status")
+vfx_style = 5
+vfx_color = Color(1, 0.3, 0.3, 1)

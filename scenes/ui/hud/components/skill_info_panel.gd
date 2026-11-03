@@ -45,6 +45,10 @@ func show_skill(skill: EffectiveSkill) -> void:
 		effects.append(MOTION_TEXT[skill.motion])
 	for app in skill.statuses:
 		effects.append("%s %d%% (%d t)" % [app.status.display_name, app.chance, app.duration])
+	if skill.strikes > 1:
+		effects.append("%d golpes" % skill.strikes)
+	if skill.self_status != null:
+		effects.append("Se aplica %s" % skill.self_status.display_name)
 	if skill.knockback > 0:
 		effects.append("Empuja %d" % skill.knockback)
 	if skill.bounce_hops > 0:

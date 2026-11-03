@@ -8,7 +8,12 @@ const RESOURCE_TEXT := {
 	UnitData.ResourceKind.RAGE: "Ira",
 }
 
+## Emitted on click when [member selectable].
+signal pressed
+
 @export var show_description := false
+## Clickable card (party selection on the main menu).
+@export var selectable := false
 
 @onready var _portrait: TextureRect = %Portrait
 @onready var _name_label: Label = %NameLabel
@@ -16,6 +21,17 @@ const RESOURCE_TEXT := {
 @onready var _hp_bar: ProgressBar = %HpBar
 @onready var _hp_label: Label = %HpLabel
 @onready var _description_label: Label = %DescriptionLabel
+
+
+func _gui_input(event: InputEvent) -> void:
+	if selectable and event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		pressed.emit()
+		accept_event()
+
+
+func set_selected(value: bool) -> void:
+	theme_type_variation = &"SelectedCard" if value else &""
+	modulate = Color.WHITE if value else Color(1, 1, 1, 0.55)
 
 
 ## [param hp] < 0 hides the HP bar (class showcase).

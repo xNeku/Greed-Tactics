@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="StatusData" format=3]
+
+[ext_resource type="Script" path="res://core/data/status_data.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/sprites/status/knockup.png" id="2_icon"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"knockup"
+display_name = "Por los aires"
+description = "Lanzado por los aires: pierde su próximo turno."
+kind = 6
+default_duration = 1
+skips_turn = true
+color = Color(1, 0.85, 0.4, 1)
+icon = ExtResource("2_icon")

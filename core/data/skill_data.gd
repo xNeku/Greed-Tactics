@@ -73,6 +73,12 @@ enum Motion {
 @export_range(0, 5) var knockback: int = 0
 ## Extra crit chance (percentage points) for this skill.
 @export_range(0, 100) var crit_bonus: int = 0
+## Times each target is hit (fast multi-hits). Each strike rolls separately.
+@export_range(1, 6) var strikes: int = 1
+## % of the damage dealt healed back to the user.
+@export_range(0, 100) var lifesteal_percent: int = 0
+## Status the user puts on itself when using the skill (frenzy, guard...).
+@export var self_status: StatusData
 
 @export_group("Summon")
 ## UnitData placed on the target cell (must be an EMPTY_CELL skill). Using it

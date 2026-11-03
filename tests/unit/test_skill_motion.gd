@@ -132,3 +132,40 @@ func test_kill_refunds_ap_once_per_turn() -> void:
 	var result := combat.use_skill(stab, a.cell)
 	assert_eq(result.refunded_ap, 1)
 	assert_eq(user.pa, before)
+
+
+func test_multi_strike_hits_several_times() -> void:
+	var foe := _foe(Vector2i(2, 4))
+	var cleave := _skill(SkillData.Motion.NONE, SkillData.TargetRule.ANY, 1, 10)
+	cleave.strikes = 3
+	combat.start_next_turn()
+	var preview := combat.preview_skill(user, cleave, user.cell, foe.cell)[0]
+	assert_eq(preview.strikes, 3)
+	var result := combat.use_skill(cleave, foe.cell)
+	assert_eq(result.hits.size(), 3)
+	assert_eq(foe.hp, foe.max_hp - preview.damage * 3)
+
+
+func test_skill_lifesteal_heals_without_modifiers() -> void:
+	var foe := _foe(Vector2i(2, 4))
+	var bite := _skill(SkillData.Motion.NONE, SkillData.TargetRule.ANY, 1, 30)
+	bite.lifesteal_percent = 50
+	user.hp = 10
+	combat.start_next_turn()
+	var result := combat.use_skill(bite, foe.cell)
+	assert_true(result.hits[0].healed > 0)
+
+
+func test_self_status_and_defense_penalty() -> void:
+	var reckless := StatusData.new()
+	reckless.default_duration = 2
+	reckless.defense_percent_bonus = -50
+	var whirl := _skill(SkillData.Motion.NONE, SkillData.TargetRule.ANY, 1, 10)
+	whirl.self_status = reckless
+	user.data.defense = 10
+	user.defense = 10
+	_foe(Vector2i(2, 4))
+	combat.start_next_turn()
+	combat.use_skill(whirl, Vector2i(2, 4))
+	assert_true(user.has_status(reckless))
+	assert_eq(user.get_defense(), 5)

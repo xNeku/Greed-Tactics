@@ -15,6 +15,9 @@ extends RefCounted
 ##   4. Ends the turn facing the nearest opponent.
 
 const MOVE_COST_WEIGHT := 0.05
+## How much the danger of the landing cell counts when the unit is attacking.
+## Lower than 1 so cautious units still shoot instead of kiting forever.
+const ATTACK_POSITION_WEIGHT := 0.35
 
 var _default_profile := AiProfile.new()
 
@@ -75,7 +78,7 @@ func best_attack_from(combat: CombatState, unit: UnitState, from_cell: Vector2i,
 				continue
 			value -= profile.resource_cost_weight * (effective.rage_cost * 0.1 + effective.mp_cost * 0.2 + effective.cooldown * 1.5)
 			var landing := combat.get_landing_cell(unit, effective, from_cell, cell)
-			var score := value + position_value(combat, unit, landing, threat, profile)
+			var score := value + ATTACK_POSITION_WEIGHT * position_value(combat, unit, landing, threat, profile)
 			if value > 0.0 and (best.is_empty() or score > best.score):
 				best = {"skill": skill, "cell": cell, "score": score, "landing": landing}
 	return best
@@ -84,8 +87,8 @@ func best_attack_from(combat: CombatState, unit: UnitState, from_cell: Vector2i,
 func _hit_value(unit: UnitState, preview: AttackPreview, profile: AiProfile) -> float:
 	var target := preview.target
 	var chance := preview.hit_chance / 100.0
-	var value := preview.damage * chance
-	if preview.damage >= target.hp:
+	var value := preview.get_total_damage() * chance
+	if preview.get_total_damage() >= target.hp:
 		value += profile.kill_bonus * chance
 	else:
 		value += profile.focus_weight * (1.0 - float(target.hp) / target.max_hp) * chance

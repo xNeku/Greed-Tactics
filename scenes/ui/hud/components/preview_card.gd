@@ -18,9 +18,10 @@ func show_preview(preview: AttackPreview) -> void:
 	var target := preview.target
 	_title_label.text = "%s • %s" % [target.display_name, preview.get_side_name()]
 	_title_label.modulate = BACK_COLOR if preview.side == GridRules.AttackSide.BACK else Color.WHITE
-	var lethal := preview.damage >= target.hp
-	_damage_label.text = "Daño %d (crít %d) · HP %d → %d%s" % [
-		preview.damage, preview.crit_damage, target.hp, preview.get_hp_after(), "  ¡LETAL!" if lethal else ""]
+	var lethal := preview.get_total_damage() >= target.hp
+	var per_strike := "×%d" % preview.strikes if preview.strikes > 1 else ""
+	_damage_label.text = "Daño %d%s (crít %d) · HP %d → %d%s" % [
+		preview.damage, per_strike, preview.crit_damage, target.hp, preview.get_hp_after(), "  ¡LETAL!" if lethal else ""]
 	_damage_label.modulate = LETHAL_COLOR if lethal else Color.WHITE
 	_chance_label.text = "Golpe %d%%   Crít %d%%" % [preview.hit_chance, preview.crit_chance]
 

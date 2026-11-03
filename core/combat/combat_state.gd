@@ -333,7 +333,11 @@ func use_skill(skill: SkillData, target_cell: Vector2i) -> SkillResult:
 
 	var already_hit: Array[UnitState] = []
 	for target in targets:
-		_resolve_hit(result, target, user.cell, SkillResult.HitSource.PRIMARY, already_hit)
+		for strike in effective.strikes:
+			if target.is_alive():
+				_resolve_hit(result, target, user.cell, SkillResult.HitSource.PRIMARY, already_hit)
+	if effective.self_status != null:
+		user.add_status(effective.self_status, effective.self_status.default_duration)
 	_resolve_bounces(result, already_hit)
 	_resolve_kill_refund(result)
 	if effective.summon != null:

@@ -14,6 +14,8 @@ var hit_chance: int = 100
 var crit_chance: int = 0
 ## Extra hops after this hit (bounce modifier).
 var bounces: int = 0
+## Times the target is hit (damage is per strike).
+var strikes: int = 1
 var knockback: int = 0
 ## Where the knockback would leave the target (== its cell if not pushed).
 var push_to: Vector2i
@@ -23,8 +25,12 @@ var push_blocked_at: Vector2i = Vector2i(-1, -1)
 var statuses: Array[StatusApplication] = []
 
 
+func get_total_damage() -> int:
+	return damage * strikes
+
+
 func get_hp_after() -> int:
-	return maxi(target.hp - damage, 0)
+	return maxi(target.hp - get_total_damage(), 0)
 
 
 func get_side_name() -> String:

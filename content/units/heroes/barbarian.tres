@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Script" path="res://core/data/unit_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="2_c75y0"]
+[ext_resource type="Texture2D" path="res://assets/sprites/units/barbarian.png" id="2_sprite"]
+[ext_resource type="Texture2D" path="res://assets/sprites/units/barbarian_side.png" id="3_side"]
+[ext_resource type="Resource" path="res://content/skills/barbarian/savage_cleave.tres" id="4_s"]
+[ext_resource type="Resource" path="res://content/skills/barbarian/axe_hurl.tres" id="5_s"]
+[ext_resource type="Resource" path="res://content/skills/barbarian/blood_whirl.tres" id="6_s"]
+[ext_resource type="Resource" path="res://content/skills/barbarian/crushing_leap.tres" id="7_s"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"barbarian"
+display_name = "Sigrid"
+short_name = "SIG"
+race = "Humana nórdica"
+unit_class = "Bárbara"
+sprite = ExtResource("2_sprite")
+sprite_side = ExtResource("3_side")
+description = "Bárbara nórdica con hacha a dos manos. Agresiva y arriesgada: golpes rápidos que roban vida, saltos que lanzan por los aires y una defensa que baja cuando se desata. Usa ira."
+resource_kind = 2
+max_hp = 125
+speed = 11
+attack = 18
+defense = 2
+evasion = 8
+crit_chance = 10
+hp_per_level = 11
+attack_per_level = 3
+skills = Array[ExtResource("2_c75y0")]([ExtResource("4_s"), ExtResource("5_s"), ExtResource("6_s"), ExtResource("7_s")])
