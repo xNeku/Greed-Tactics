@@ -18,7 +18,7 @@ const RAGE_COLOR := Color(1.0, 0.45, 0.35)
 @export var damage_popup_scene: PackedScene
 
 @onready var _body: Node3D = $Body
-@onready var _sprite: Sprite3D = $Body/Sprite
+@onready var _sprite: AnimatedSprite3D = $Body/Sprite
 @onready var _info_label: Label3D = $Body/InfoLabel
 @onready var _ring: GeometryInstance3D = $Ring
 @onready var _facing_pivot: Node3D = $FacingPivot
@@ -28,6 +28,8 @@ var unit: UnitState
 var _map: BattleMapView
 var _camera: Camera3D
 var _facing_tween: Tween
+var _state: StringName = &"idle"
+var _view: StringName = &"front"
 var _label_base_y := 0.0
 var _icons_base_y := 0.0
 ## Sprite colour when not flashing: white, or tinted by the strongest status.
@@ -39,7 +41,9 @@ func setup(p_unit: UnitState, map_view: BattleMapView, camera: Camera3D) -> void
 	_map = map_view
 	_camera = camera
 	name = "Unit%d_%s" % [unit.id, unit.data.id]
-	_set_texture(unit.data.sprite)
+	_sprite.sprite_frames = _build_frames()
+	_sprite.animation_finished.connect(_on_animation_finished)
+	_play_state(&"idle")
 	_sprite.pixel_size *= unit.data.sprite_scale
 	_info_label.position.y *= unit.data.sprite_scale
 	_status_icons.position.y *= unit.data.sprite_scale
@@ -106,6 +110,7 @@ func get_head_position() -> Vector3:
 func play_move(from_cell: Vector2i, path: Array[Vector2i]) -> void:
 	if path.is_empty():
 		return
+	_play_state(&"walk")
 	var tween := create_tween()
 	var previous := from_cell
 	var last_position := _map.cell_to_world(from_cell)
@@ -120,6 +125,7 @@ func play_move(from_cell: Vector2i, path: Array[Vector2i]) -> void:
 		previous = cell
 		last_position = target
 	await tween.finished
+	_play_state(&"idle")
 	sync_to_state()
 
 
@@ -163,6 +169,7 @@ func play_attack(target_cell: Vector2i) -> void:
 	var direction := (_map.cell_to_world(target_cell) - global_position)
 	direction.y = 0.0
 	var lunge := direction.normalized() * 0.3 if direction.length() > 0.01 else Vector3.ZERO
+	_play_state(&"attack")
 	var tween := create_tween()
 	tween.tween_property(_body, "position", lunge, 0.08).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	tween.tween_property(_body, "position", Vector3.ZERO, 0.14).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
@@ -179,6 +186,7 @@ func play_hit(hit: SkillResult.Hit) -> void:
 		return
 	_spawn_popup(("%d!" if hit.critical else "%d") % hit.damage, CRIT_COLOR if hit.critical else DAMAGE_COLOR)
 	refresh_info()
+	_play_state(&"hit")
 	var flash := create_tween()
 	for i in 2:
 		flash.tween_property(_sprite, "modulate", Color(1.0, 0.35, 0.35), 0.06)
@@ -187,6 +195,7 @@ func play_hit(hit: SkillResult.Hit) -> void:
 
 
 func play_defeat() -> void:
+	_play_state(&"hit")
 	var tween := create_tween().set_parallel()
 	tween.tween_property(_sprite, "modulate:a", 0.0, 0.4)
 	tween.tween_property(_body, "position:y", -0.2, 0.4)
@@ -255,6 +264,55 @@ func _spawn_popup(text: String, color: Color, height_offset: float = 0.0) -> voi
 	popup.show_text(text, color)
 
 
+#region Sprite animation
+
+## Plays [param state] (idle / walk / attack / hit) in the current view.
+func _play_state(state: StringName) -> void:
+	_state = state
+	_apply_animation()
+
+
+func _apply_animation() -> void:
+	var frames := _sprite.sprite_frames
+	var wanted := StringName("%s_%s" % [_state, _view])
+	for candidate in [wanted, StringName("%s_front" % _state), StringName("idle_%s" % _view), &"idle_front"]:
+		if frames.has_animation(candidate):
+			if _sprite.animation != candidate or not _sprite.is_playing():
+				_sprite.play(candidate)
+				_fit_offset()
+			return
+
+
+func _on_animation_finished() -> void:
+	# One-shot animations (attack, hit) go back to idle.
+	if _state != &"idle" and _state != &"walk":
+		_play_state(&"idle")
+
+
+## Animations from UnitData.sprite_frames, or a minimal set made from the
+## static sprites (idle_front / idle_side).
+func _build_frames() -> SpriteFrames:
+	if unit.data.sprite_frames != null:
+		return unit.data.sprite_frames
+	var frames := SpriteFrames.new()
+	frames.rename_animation(&"default", &"idle_front")
+	if unit.data.sprite != null:
+		frames.add_frame(&"idle_front", unit.data.sprite)
+	if unit.data.sprite_side != null:
+		frames.add_animation(&"idle_side")
+		frames.add_frame(&"idle_side", unit.data.sprite_side)
+	return frames
+
+
+## Feet on the unit origin whatever the frame height.
+func _fit_offset() -> void:
+	var texture := _sprite.sprite_frames.get_frame_texture(_sprite.animation, 0)
+	if texture != null:
+		_sprite.offset.y = texture.get_height() * 0.5
+
+#endregion
+
+
 ## Picks the view and the flip from where the unit faces on screen:
 ## towards the camera = front view, away from it = side view (if the unit
 ## has one) flipped to the side it walks to. Units without a side view use
@@ -265,25 +323,16 @@ func _update_sprite_flip() -> void:
 	var facing := -_facing_pivot.global_basis.z
 	var screen_x := facing.dot(_camera.global_basis.x)
 	var away := facing.dot(-_camera.global_basis.z) > 0.0
-	if unit.data.sprite_side == null:
+	var has_side := _sprite.sprite_frames.has_animation(&"idle_side")
+	var view := &"side" if away and has_side else &"front"
+	if view != _view:
+		_view = view
+		_apply_animation()
+	if view == &"side" or not has_side:
 		if absf(screen_x) > 0.05:
 			_sprite.flip_h = screen_x < 0.0
-		return
-	if away:
-		_set_texture(unit.data.sprite_side)
-		_sprite.flip_h = screen_x < 0.0
 	else:
-		_set_texture(unit.data.sprite)
 		_sprite.flip_h = false
-
-
-## Feet on the unit origin whatever the texture height.
-func _set_texture(texture: Texture2D) -> void:
-	if _sprite.texture == texture:
-		return
-	_sprite.texture = texture
-	if texture != null:
-		_sprite.offset.y = texture.get_height() * 0.5
 
 
 ## The sprite is a vertical (Y-fixed) billboard and the camera looks down at

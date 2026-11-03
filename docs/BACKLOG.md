@@ -10,6 +10,9 @@ El estado por hito está en [`ROADMAP.md`](ROADMAP.md).
 
 | ID | Tarea | Hito | Prio | Estado |
 |---|---|---|---|---|
+| GT-250 | Investigar bloqueo raro en simulación (combate de miniboss que no termina en 400 turnos; el test ya imprime posiciones si pasa) | M1 | P1 | ⬜ |
+| GT-251 | Animaciones de Pablo (y del resto cuando lleguen sus sprites) con `art/src` + `tools/build_sprite_frames.gd` | M4 | P1 | ⬜ |
+| GT-252 | Pablo sin arco visible en el sprite: decidir con Neku si lo lleva a la espalda o en la mano | M4 | P2 | ⬜ |
 | GT-230 | Validar el feel v0.4 jugando: flechas, zona roja, efectos, estados y dificultad de la IA | M1 | P0 | 🔍 |
 | GT-231 | Ocultar o hacer transparentes los árboles/muros que tapan unidades o la casilla bajo el ratón | M1 | P1 | ⬜ |
 | GT-232 | Animación de "cast" del usuario (brillo/pose) y anticipación del enemigo antes de golpear | M1 | P2 | ⬜ |
@@ -68,5 +71,8 @@ El estado por hito está en [`ROADMAP.md`](ROADMAP.md).
 | GT-220 | Flechas de previsión en parábola (verde/roja/naranja/amarilla/gris) y marca de bloqueo; movimiento a medias | M1 | 2026-11-03 |
 | GT-221 | Efectos visuales placeholder (proyectil, parábola, tajo, nova, explosiones por casilla), sacudida de cámara | M1 | 2026-11-03 |
 | GT-240 | Sprite del guerrero (Kael) de Neku: vectorizado pixel perfect desde JPG, sin barriga, vendas, cinturón; vistas frente y lado | M4 | 2026-11-03 |
+| GT-241 | Kael camorrista: kit a puños, sprites de frente/lado y animaciones (idle, andar, puñetazo, golpe) | M4 | 2026-11-03 |
+| GT-242 | Sprite de Pablo de Neku: más delgado, moño frontal, aros dorados, tatuajes tribales; frente + lado | M4 | 2026-11-03 |
+| GT-243 | Terrenos con textura procedural, decoración, niebla, sol, glow, partículas por zona, viñeta | M5 | 2026-11-03 |
 | GT-213 | Tests: 91 unitarios + simulación de runs + recorrido end-to-end de pantallas | M1 | 2026-11-02 |
 | GT-100…113 | Base M0 (proyecto, datos, grid, combate, HUD, cámara, IA, tests, CI) | M0 | 2026-11-02 |

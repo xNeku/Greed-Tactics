@@ -34,6 +34,9 @@ func _initialize() -> void:
 			if not _play(combat):
 				stuck = true
 				print("  STUCK in %s" % run.get_title())
+				for unit in combat.get_living_units():
+					print("    %s %s hp %d/%d at %s h%d" % ["P" if unit.team == UnitState.Team.PLAYER else "E",
+						unit.display_name, unit.hp, unit.max_hp, unit.cell, combat.grid.get_height(unit.cell)])
 				break
 			var hp: Array[int] = []
 			var enemies: Array[UnitData] = []

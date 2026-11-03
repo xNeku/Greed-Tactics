@@ -10,7 +10,11 @@ shader = ExtResource("2_terrain")
 shader_parameter/checker_strength = null
 shader_parameter/grid_line_width = null
 shader_parameter/grid_line_darken = null
-shader_parameter/side_gradient = null
+shader_parameter/bevel_width = null
+shader_parameter/bevel_light = null
+shader_parameter/cell_variation = null
+shader_parameter/side_ao = null
+shader_parameter/strata_strength = null
 
 [sub_resource type="BoxMesh" id="BoxMesh_solid"]
 material = SubResource("ShaderMaterial_terrain")

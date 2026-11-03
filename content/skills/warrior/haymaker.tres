@@ -5,10 +5,10 @@
 
 [resource]
 script = ExtResource("1_script")
-id = &"brutal_strike"
-display_name = "Golpe brutal ★"
-description = "Mutación con 50+ de ira: golpe devastador con más crítico."
-tags = Array[StringName]([&"basico", &"melee", &"hacha"])
+id = &"haymaker"
+display_name = "Gancho brutal ★"
+description = "Mutación con 50+ de ira: un gancho que puede dejar aturdido (35%)."
+tags = Array[StringName]([&"basico", &"melee", &"puño"])
 power = 26
 crit_bonus = 10
 status = ExtResource("90_status")

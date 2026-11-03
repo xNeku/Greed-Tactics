@@ -7,6 +7,7 @@
 [ext_resource type="Resource" path="res://content/skills/archer/aimed_shot.tres" id="4_aimed_shot"]
 [ext_resource type="Resource" path="res://content/skills/archer/arrow_rain.tres" id="5_arrow_rain"]
 [ext_resource type="Resource" path="res://content/skills/archer/roll.tres" id="6_roll"]
+[ext_resource type="Texture2D" path="res://assets/sprites/units/pablo_side.png" id="80_side"]
 
 [resource]
 script = ExtResource("1_script")
@@ -16,6 +17,7 @@ short_name = "PAB"
 race = "Humano"
 unit_class = "Arquero"
 sprite = ExtResource("2_pablo")
+sprite_side = ExtResource("80_side")
 description = "Arquero. No usa maná ni ira: sus habilidades fuertes tienen enfriamiento."
 max_hp = 90
 speed = 11

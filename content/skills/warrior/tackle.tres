@@ -1,13 +1,13 @@
 [gd_resource type="Resource" script_class="SkillData" format=3]
 
 [ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
-[ext_resource type="Resource" path="res://content/skills/warrior/unstoppable_charge.tres" id="2_unstoppable_charge"]
+[ext_resource type="Resource" path="res://content/skills/warrior/bull_rush.tres" id="2_unstoppable_charge"]
 
 [resource]
 script = ExtResource("1_script")
-id = &"charge"
-display_name = "Carga"
-description = "Corre en línea recta hacia un enemigo (2-4) y lo golpea. Genera ira."
+id = &"tackle"
+display_name = "Placaje"
+description = "Corre en línea recta hacia un enemigo (2-4) y lo derriba de un placaje. Genera ira."
 skill_type = 3
 tags = Array[StringName]([&"movimiento", &"melee"])
 cooldown = 2

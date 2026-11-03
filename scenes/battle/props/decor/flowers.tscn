@@ -1,0 +1,60 @@
+[gd_scene format=3]
+
+[sub_resource type="CylinderMesh" id="stem"]
+top_radius = 0.01
+bottom_radius = 0.01
+height = 0.14
+radial_segments = 4
+rings = 1
+
+[sub_resource type="StandardMaterial3D" id="p1"]
+albedo_color = Color(1, 0.85, 0.35, 1)
+
+[sub_resource type="SphereMesh" id="petal1"]
+material = SubResource("p1")
+radius = 0.035
+height = 0.05
+radial_segments = 6
+rings = 3
+
+[sub_resource type="StandardMaterial3D" id="p2"]
+albedo_color = Color(0.95, 0.5, 0.7, 1)
+
+[sub_resource type="SphereMesh" id="petal2"]
+material = SubResource("p2")
+radius = 0.035
+height = 0.05
+radial_segments = 6
+rings = 3
+
+[node name="Flowers" type="Node3D"]
+
+[node name="S1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.07, 0)
+cast_shadow = 0
+mesh = SubResource("stem")
+
+[node name="F1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0)
+cast_shadow = 0
+mesh = SubResource("petal1")
+
+[node name="S2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.08, 0.06, 0.04)
+cast_shadow = 0
+mesh = SubResource("stem")
+
+[node name="F2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.08, 0.13, 0.04)
+cast_shadow = 0
+mesh = SubResource("petal2")
+
+[node name="S3" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06, 0.05, -0.05)
+cast_shadow = 0
+mesh = SubResource("stem")
+
+[node name="F3" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06, 0.11, -0.05)
+cast_shadow = 0
+mesh = SubResource("petal1")

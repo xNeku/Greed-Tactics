@@ -4,11 +4,11 @@
 
 [resource]
 script = ExtResource("1_script")
-id = &"bloody_whirlwind"
-display_name = "Torbellino sangriento ★"
-description = "Mutación con 70+ de ira: golpea las 8 casillas de alrededor y empuja."
+id = &"brawl"
+display_name = "Trifulca ★"
+description = "Mutación con 70+ de ira: pelea de bar contra las 8 casillas de alrededor, empujando."
 skill_type = 2
-tags = Array[StringName]([&"area", &"melee", &"hacha"])
+tags = Array[StringName]([&"area", &"melee", &"puño"])
 rage_cost = 25
 target_rule = 3
 range_min = 0

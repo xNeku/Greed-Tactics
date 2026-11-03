@@ -1,0 +1,45 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="g"]
+albedo_color = Color(0.36, 0.66, 0.32, 1)
+
+[sub_resource type="CylinderMesh" id="blade"]
+material = SubResource("g")
+top_radius = 0.0
+bottom_radius = 0.03
+height = 0.22
+radial_segments = 4
+rings = 1
+
+[sub_resource type="StandardMaterial3D" id="g2"]
+albedo_color = Color(0.46, 0.76, 0.36, 1)
+
+[sub_resource type="CylinderMesh" id="blade2"]
+material = SubResource("g2")
+top_radius = 0.0
+bottom_radius = 0.025
+height = 0.17
+radial_segments = 4
+rings = 1
+
+[node name="GrassTuft" type="Node3D"]
+
+[node name="A" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.9689, 0.2474, 0, -0.2474, 0.9689, 0, 0, 0, 1, 0, 0.1, 0)
+cast_shadow = 0
+mesh = SubResource("blade")
+
+[node name="B" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.9394, -0.3429, 0, 0.3429, 0.9394, 0, 0, 0, 1, 0.05, 0.08, 0.03)
+cast_shadow = 0
+mesh = SubResource("blade2")
+
+[node name="C" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.995, -0.0998, 0, 0.0998, 0.995, 0, 0, 0, 1, -0.05, 0.09, -0.02)
+cast_shadow = 0
+mesh = SubResource("blade")
+
+[node name="D" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.8776, 0.4794, 0, -0.4794, 0.8776, 0, 0, 0, 1, 0.02, 0.07, -0.05)
+cast_shadow = 0
+mesh = SubResource("blade2")

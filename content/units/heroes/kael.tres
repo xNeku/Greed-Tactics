@@ -3,11 +3,12 @@
 [ext_resource type="Script" path="res://core/data/unit_data.gd" id="1_script"]
 [ext_resource type="Script" path="res://core/data/skill_data.gd" id="2_gymct"]
 [ext_resource type="Texture2D" path="res://assets/sprites/units/kael.png" id="2_kael"]
-[ext_resource type="Resource" path="res://content/skills/warrior/strike.tres" id="3_strike"]
-[ext_resource type="Resource" path="res://content/skills/warrior/axe_throw.tres" id="4_axe_throw"]
-[ext_resource type="Resource" path="res://content/skills/warrior/whirlwind.tres" id="5_whirlwind"]
-[ext_resource type="Resource" path="res://content/skills/warrior/charge.tres" id="6_charge"]
+[ext_resource type="Resource" path="res://content/skills/warrior/punch.tres" id="3_strike"]
+[ext_resource type="Resource" path="res://content/skills/warrior/rubble_throw.tres" id="4_axe_throw"]
+[ext_resource type="Resource" path="res://content/skills/warrior/flurry.tres" id="5_whirlwind"]
+[ext_resource type="Resource" path="res://content/skills/warrior/tackle.tres" id="6_charge"]
 [ext_resource type="Texture2D" path="res://assets/sprites/units/kael_side.png" id="80_side"]
+[ext_resource type="SpriteFrames" path="res://content/units/heroes/kael_frames.tres" id="81_frames"]
 
 [resource]
 script = ExtResource("1_script")
@@ -15,10 +16,11 @@ id = &"kael"
 display_name = "Kael"
 short_name = "KAE"
 race = "Humano"
-unit_class = "Guerrero"
+unit_class = "Camorrista"
 sprite = ExtResource("2_kael")
 sprite_side = ExtResource("80_side")
-description = "Guerrero de primera línea. Usa ira: la gana pegando y recibiendo golpes, pega más cuanta más tiene y sus habilidades mutan al superar cierto umbral."
+sprite_frames = ExtResource("81_frames")
+description = "Camorrista de taberna: pelea a puños desnudos. Usa ira: la gana pegando y recibiendo golpes, pega más cuanta más tiene y sus golpes mutan al superar cierto umbral."
 resource_kind = 2
 max_hp = 130
 speed = 9

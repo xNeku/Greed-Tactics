@@ -1,4 +1,4 @@
-# GDD - Greed Tactics · Tactics Roguelite Isométrico (v0.4)
+# GDD - Greed Tactics · Tactics Roguelite Isométrico (v0.5)
 
 Nov 2, 2026 · @Neku
 
@@ -227,7 +227,7 @@ Enemigos de prototipo: Goblin (Saqueador, melee) y Limo (Bestia, melee lento y r
 
 | Personaje | Clase | Recurso | Básica | Lanzamiento | Área | Movimiento |
 |---|---|---|---|---|---|---|
-| Kael | Guerrero | Ira | Golpe → ★ Golpe brutal (50) | Hacha arrojadiza → ★ Hacha giratoria (60) | Torbellino → ★ Torbellino sangriento (70) | Carga → ★ Carga imparable (50) |
+| Kael | Camorrista (v0.5) | Ira | Puñetazo → ★ Gancho brutal (50) | Lanzar escombros → ★ Pedrusco (60) | Ráfaga de golpes → ★ Trifulca (70) | Placaje → ★ Embestida de toro (50) |
 | Nyx | Asesina | Ira | Puñalada → ★ Puñalada letal (50) | Dagas → ★ Lluvia de dagas (60) | Danza de cuchillas → ★ Danza mortal (70) | Paso sombrío → ★ Ejecución sombría (50) |
 | Lyra | Maga | Maná | Proyectil arcano (gratis) | Lanza de hielo (empuja) | Bola de fuego | Parpadeo (teletransporte) |
 | Pablo | Arquero | Enfriamientos | Disparo (2-5) | Tiro certero (3-7, CD 2) | Lluvia de flechas (3x3, CD 3) | Voltereta (0 PA, CD 2) |
@@ -447,6 +447,8 @@ Cada hito tiene un criterio de salida. No se pasa al siguiente sin cumplirlo.
 - **[v0.4] Dificultad:** "el juego tiene que ser jodido". Con la IA táctica jugando por el jugador, la run se gana ~40% de las veces (los minibosses son el gran filtro) y los combates duran 30-90 turnos de unidad. Validar a mano; se ajusta en `content/run/default_run.tres` (nivel base 3, +2 niveles por fase, +3 por etapa, +25% de estadísticas por etapa, 4-5 enemigos por fase, miniboss + 3).
 
 ## Changelog
+
+- **v0.5 (Nov 3, 2026)** — Personalidad: Kael pasa a ser **Camorrista** (pelea a puños: Puñetazo, Lanzar escombros, Ráfaga de golpes, Placaje y sus mutaciones Gancho brutal, Pedrusco, Trifulca, Embestida de toro; mod. *Nudillos de hierro*). Sprites de Neku para Kael y Pablo (frente + lado) y **animaciones** de Kael (reposo, andar, puñetazo, golpe recibido) con `SpriteFrames`. Terrenos con textura procedural por tipo (hierba con laterales de tierra, roca agrietada, dunas, sendero con guijarros, cueva húmeda), bisel y oclusión; decoración (matojos, flores, guijarros, arbustos secos, setas luminosas); niebla, ángulo de sol, glow y partículas por zona (luciérnagas, polvo, motas); cristales que iluminan; viñeta.
 
 - **v0.4 (Nov 3, 2026)** — Game feel: flechas de previsión en parábola (movimiento, ataque, empuje, rebotes, movimiento a medias), zona de daño en rojo, aterrizaje en verde, marca de bloqueo; efectos visuales placeholder por habilidad; 5 estados alterados con tinte e iconos; ficha de previsión ampliada y panel de habilidad; IA táctica con mapa de amenaza y perfiles; dificultad subida.
 

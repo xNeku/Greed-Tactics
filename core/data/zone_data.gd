@@ -47,6 +47,15 @@ enum Layout {
 @export_range(0.0, 2.0) var ambient_energy: float = 0.5
 @export var sun_color: Color = Color(1.0, 0.98, 0.94)
 @export_range(0.0, 3.0) var sun_energy: float = 0.8
+## Sun direction (degrees: pitch, yaw). Low pitch = long shadows.
+@export var sun_rotation_degrees: Vector2 = Vector2(-50.0, -35.0)
+@export var fog_color: Color = Color(0.5, 0.55, 0.7)
+## 0 = no fog.
+@export_range(0.0, 0.1) var fog_density: float = 0.0
+## Bloom on bright and emissive things (crystals, VFX).
+@export_range(0.0, 2.0) var glow_intensity: float = 0.5
+## Particles floating over the map (fireflies, dust...). Sized to the map.
+@export var ambient_particles: PackedScene
 
 @export_group("Enemies")
 @export var enemy_pool: Array[UnitData] = []

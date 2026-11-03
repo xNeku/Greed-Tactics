@@ -25,6 +25,12 @@ enum ResourceKind {
 ## Optional side view facing RIGHT, used while the unit walks away from the
 ## camera. Feet on the bottom edge, same pixel density as [member sprite].
 @export var sprite_side: Texture2D
+## Optional animations. Names: <state>_<view>, state = idle / walk / attack /
+## hit, view = front / side (e.g. "walk_side"). Missing ones fall back to
+## the idle of that view, then to the static sprites. Frames face RIGHT and
+## share one canvas with the feet on its bottom row.
+## Build them with tools/build_sprite_frames.gd from a sheet + JSON.
+@export var sprite_frames: SpriteFrames
 ## Multiplier for the sprite size (bosses are bigger).
 @export_range(0.5, 3.0) var sprite_scale: float = 1.0
 @export_multiline var description: String = ""

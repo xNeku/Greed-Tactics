@@ -1,0 +1,64 @@
+{
+  "cell": [
+    26,
+    30
+  ],
+  "animations": [
+    {
+      "name": "idle_front",
+      "row": 0,
+      "frames": 2,
+      "fps": 2.2,
+      "loop": true
+    },
+    {
+      "name": "idle_side",
+      "row": 1,
+      "frames": 2,
+      "fps": 2.2,
+      "loop": true
+    },
+    {
+      "name": "walk_front",
+      "row": 2,
+      "frames": 4,
+      "fps": 8.0,
+      "loop": true
+    },
+    {
+      "name": "walk_side",
+      "row": 3,
+      "frames": 4,
+      "fps": 8.0,
+      "loop": true
+    },
+    {
+      "name": "attack_front",
+      "row": 4,
+      "frames": 3,
+      "fps": 10.0,
+      "loop": false
+    },
+    {
+      "name": "attack_side",
+      "row": 5,
+      "frames": 3,
+      "fps": 10.0,
+      "loop": false
+    },
+    {
+      "name": "hit_front",
+      "row": 6,
+      "frames": 1,
+      "fps": 4.0,
+      "loop": false
+    },
+    {
+      "name": "hit_side",
+      "row": 7,
+      "frames": 1,
+      "fps": 4.0,
+      "loop": false
+    }
+  ]
+}

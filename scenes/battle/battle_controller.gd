@@ -57,8 +57,8 @@ func _ready() -> void:
 	if not _prepare_setup():
 		return
 	combat = CombatState.from_setup(setup, rules)
-	_apply_zone_look(setup.zone)
 	_map_view.build(combat.grid)
+	_apply_zone_look(setup.zone)
 	_highlighter.setup(_map_view)
 	_camera_rig.set_bounds(_map_view.get_bounds())
 	_camera_rig.focus_on(_map_view.get_center(), true)
@@ -264,6 +264,16 @@ func _apply_zone_look(zone: ZoneData) -> void:
 	environment.ambient_light_energy = zone.ambient_energy
 	_sun.light_color = zone.sun_color
 	_sun.light_energy = zone.sun_energy
+	_sun.rotation_degrees = Vector3(zone.sun_rotation_degrees.x, zone.sun_rotation_degrees.y, 0.0)
+	environment.fog_enabled = zone.fog_density > 0.0
+	environment.fog_light_color = zone.fog_color
+	environment.fog_density = zone.fog_density
+	environment.glow_enabled = zone.glow_intensity > 0.0
+	environment.glow_intensity = zone.glow_intensity
+	if zone.ambient_particles != null:
+		var particles: AmbientParticles = zone.ambient_particles.instantiate()
+		add_child(particles)
+		particles.cover(_map_view.get_bounds())
 
 
 func _spawn_views() -> void:

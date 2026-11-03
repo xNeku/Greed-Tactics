@@ -100,7 +100,9 @@ func _fill(multimesh: MultiMesh, cells: Array[Vector2i]) -> void:
 		if multimesh.use_colors:
 			multimesh.set_instance_color(i, terrain.side_color.srgb_to_linear())
 		if multimesh.use_custom_data:
-			multimesh.set_instance_custom_data(i, terrain.top_color.srgb_to_linear())
+			var top := terrain.top_color.srgb_to_linear()
+			top.a = terrain.surface / 10.0
+			multimesh.set_instance_custom_data(i, top)
 
 
 ## Instances TerrainData.prop_scene on every cell that has one, with a
@@ -119,3 +121,22 @@ func _place_props() -> void:
 		prop.position = Vector3(cell.x * TILE_SIZE, get_surface_height(cell), cell.y * TILE_SIZE)
 		prop.rotation.y = rng.randf() * TAU
 		prop.scale = Vector3.ONE * rng.randf_range(terrain.prop_min_scale, terrain.prop_max_scale)
+	_place_decor()
+
+
+## Small decorations on walkable cells (they never block anything).
+func _place_decor() -> void:
+	for cell in _grid.get_cells():
+		var terrain := _grid.get_terrain(cell)
+		if terrain == null or terrain.decor_scenes.is_empty() or terrain.prop_scene != null:
+			continue
+		var rng := RandomNumberGenerator.new()
+		rng.seed = hash(cell) ^ 0x5bd1e995
+		if rng.randf() >= terrain.decor_density:
+			continue
+		var decor: Node3D = terrain.decor_scenes[rng.randi_range(0, terrain.decor_scenes.size() - 1)].instantiate()
+		_props.add_child(decor)
+		var jitter := Vector2(rng.randf_range(-0.3, 0.3), rng.randf_range(-0.3, 0.3)) * TILE_SIZE
+		decor.position = Vector3(cell.x * TILE_SIZE + jitter.x, get_surface_height(cell), cell.y * TILE_SIZE + jitter.y)
+		decor.rotation.y = rng.randf() * TAU
+		decor.scale = Vector3.ONE * rng.randf_range(0.8, 1.2)

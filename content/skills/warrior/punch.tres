@@ -1,14 +1,14 @@
 [gd_resource type="Resource" script_class="SkillData" format=3]
 
 [ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
-[ext_resource type="Resource" path="res://content/skills/warrior/brutal_strike.tres" id="2_brutal_strike"]
+[ext_resource type="Resource" path="res://content/skills/warrior/haymaker.tres" id="2_brutal_strike"]
 
 [resource]
 script = ExtResource("1_script")
-id = &"strike"
-display_name = "Golpe"
-description = "Golpe con el hacha a una casilla adyacente. Genera ira."
-tags = Array[StringName]([&"basico", &"melee", &"hacha"])
+id = &"punch"
+display_name = "Puñetazo"
+description = "Directo al mentón de un adyacente. Genera ira."
+tags = Array[StringName]([&"basico", &"melee", &"puño"])
 power = 12
 vfx_color = Color(0.9, 0.92, 1, 1)
 empowered_variant = ExtResource("2_brutal_strike")

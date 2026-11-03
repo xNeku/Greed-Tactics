@@ -14,6 +14,7 @@
 [ext_resource type="Script" path="res://core/data/terrain_data.gd" id="10_v0n4p"]
 [ext_resource type="Resource" path="res://content/units/enemies/mummy.tres" id="11_mummy"]
 [ext_resource type="Resource" path="res://content/units/enemies/sandworm.tres" id="12_sandworm"]
+[ext_resource type="PackedScene" path="res://scenes/battle/atmosphere/desert_dust.tscn" id="71_particles"]
 
 [resource]
 script = ExtResource("1_script")
@@ -34,7 +35,12 @@ liquid_amount = 0.05
 background_color = Color(0.14, 0.11, 0.1, 1)
 ambient_color = Color(1, 0.93, 0.82, 1)
 ambient_energy = 0.55
-sun_color = Color(1, 0.92, 0.76, 1)
-sun_energy = 1.0
+sun_color = Color(1, 0.95, 0.82, 1)
+sun_energy = 1.15
+sun_rotation_degrees = Vector2(-64, -18)
+fog_color = Color(0.95, 0.8, 0.6, 1)
+fog_density = 0.01
+glow_intensity = 0.3
+ambient_particles = ExtResource("71_particles")
 enemy_pool = Array[ExtResource("2_qoq3g")]([ExtResource("9_scorpion"), ExtResource("10_bandit"), ExtResource("11_mummy")])
 miniboss_pool = Array[ExtResource("2_qoq3g")]([ExtResource("12_sandworm")])

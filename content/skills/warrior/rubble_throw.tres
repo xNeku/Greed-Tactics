@@ -1,21 +1,21 @@
 [gd_resource type="Resource" script_class="SkillData" format=3]
 
 [ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
-[ext_resource type="Resource" path="res://content/skills/warrior/spinning_axe.tres" id="2_spinning_axe"]
+[ext_resource type="Resource" path="res://content/skills/warrior/boulder_toss.tres" id="2_spinning_axe"]
 
 [resource]
 script = ExtResource("1_script")
-id = &"axe_throw"
-display_name = "Hacha arrojadiza"
-description = "Lanza un hacha a 2-3 casillas."
+id = &"rubble_throw"
+display_name = "Lanzar escombros"
+description = "Arranca un trozo de suelo y lo lanza a 2-3 casillas."
 skill_type = 1
-tags = Array[StringName]([&"lanzamiento", &"proyectil", &"hacha"])
+tags = Array[StringName]([&"lanzamiento", &"proyectil", &"puño"])
 rage_cost = 15
 range_min = 2
 range_max = 3
 vertical_reach = 2
 power = 13
 vfx_style = 3
-vfx_color = Color(0.9, 0.92, 1, 1)
+vfx_color = Color(0.8, 0.68, 0.5, 1)
 empowered_variant = ExtResource("2_spinning_axe")
 empowered_rage_threshold = 60

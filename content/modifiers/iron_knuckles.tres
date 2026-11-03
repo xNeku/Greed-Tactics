@@ -4,9 +4,9 @@
 
 [resource]
 script = ExtResource("1_script")
-id = &"heavy_axe"
-display_name = "Hacha pesada"
-description = "+20% de daño a las habilidades de hacha."
-target_tag = &"hacha"
+id = &"iron_knuckles"
+display_name = "Nudillos de hierro"
+description = "+20% de daño a las habilidades de puño."
+target_tag = &"puño"
 effect = 4
 value = 20

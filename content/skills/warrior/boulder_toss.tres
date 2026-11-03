@@ -4,11 +4,11 @@
 
 [resource]
 script = ExtResource("1_script")
-id = &"spinning_axe"
-display_name = "Hacha giratoria ★"
-description = "Mutación con 60+ de ira: el hacha estalla y alcanza a los adyacentes al objetivo."
+id = &"boulder_toss"
+display_name = "Pedrusco ★"
+description = "Mutación con 60+ de ira: lanza un pedrusco que revienta sobre el objetivo y los adyacentes."
 skill_type = 1
-tags = Array[StringName]([&"lanzamiento", &"proyectil", &"hacha"])
+tags = Array[StringName]([&"lanzamiento", &"proyectil", &"puño"])
 rage_cost = 15
 range_min = 2
 range_max = 4
@@ -16,5 +16,5 @@ vertical_reach = 2
 area_shape = 1
 area_size = 1
 power = 15
-vfx_style = 3
-vfx_color = Color(1, 0.35, 0.3, 1)
+vfx_style = 4
+vfx_color = Color(0.8, 0.68, 0.5, 1)

@@ -1,0 +1,43 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="r"]
+albedo_color = Color(0.6, 0.58, 0.55, 1)
+
+[sub_resource type="SphereMesh" id="a"]
+material = SubResource("r")
+radius = 0.05
+height = 0.06
+radial_segments = 6
+rings = 3
+
+[sub_resource type="StandardMaterial3D" id="r2"]
+albedo_color = Color(0.48, 0.46, 0.44, 1)
+
+[sub_resource type="SphereMesh" id="b"]
+material = SubResource("r2")
+radius = 0.035
+height = 0.045
+radial_segments = 6
+rings = 3
+
+[node name="Pebbles" type="Node3D"]
+
+[node name="A" type="MeshInstance3D" parent="."]
+transform = Transform3D(1.3, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0)
+cast_shadow = 0
+mesh = SubResource("a")
+
+[node name="B" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.1, 0.015, 0.05)
+cast_shadow = 0
+mesh = SubResource("b")
+
+[node name="C" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06, 0.015, 0.08)
+cast_shadow = 0
+mesh = SubResource("b")
+
+[node name="D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.8, 0, 0, 0, 1.2, 0.05, 0.02, -0.1)
+cast_shadow = 0
+mesh = SubResource("a")

@@ -45,7 +45,9 @@
 - **Habilidades:** `SkillData` con tipo de la plantilla y etiquetas en minúsculas sin tildes (`basico`, `lanzamiento`, `area`, `movimiento`, `proyectil`, `melee`, `fuego`, `hielo`, `arcano`, `flecha`, `daga`, `hacha`, `sombra`...). Las mutaciones por ira llevan ★ en el nombre y el mismo tipo que la original.
 - **Modificadores:** `ModifierData` con id único en `snake_case`; las incompatibilidades se referencian por id.
 - **Zonas:** `ZoneData`; los símbolos de terreno deben ser únicos dentro de la zona (hay test).
-- **Sprites:** se regeneran con `python3 tools/generate_placeholder_sprites.py` (ASCII art, con intercambio de paleta `art_of` y espejo `flip`).
+- **Sprites de Neku:** se reconstruyen pixel perfect y se guardan como `<id>.png` (frente) y `<id>_side.png` (lado, mirando a la derecha), pies en el borde inferior. Los retoques viven en `art/src/<id>_sprites.py`.
+- **Animaciones:** `art/src/<id>_animations.py` genera `<id>_sheet.png` + `.json`; `godot --headless --script res://tools/build_sprite_frames.gd -- <sheet.png> <salida.tres>` crea el `SpriteFrames` que se asigna a `UnitData.sprite_frames`. Nombres: `<estado>_<vista>` (idle/walk/attack/hit × front/side).
+- **Sprites provisionales:** se regeneran con `python3 tools/generate_placeholder_sprites.py` (ASCII art, con intercambio de paleta `art_of` y espejo `flip`).
 
 ## Git
 

@@ -1,11 +1,15 @@
 [gd_resource type="Resource" script_class="TerrainData" format=3]
 
 [ext_resource type="Script" path="res://core/data/terrain_data.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/battle/props/decor/glow_mushrooms.tscn" id="70_0"]
 
 [resource]
 script = ExtResource("1_script")
 id = &"cave_floor_dark"
 display_name = "Roca húmeda"
 symbol = "x"
+surface = 5
 top_color = Color(0.46, 0.48, 0.6, 1)
 side_color = Color(0.34, 0.35, 0.45, 1)
+decor_scenes = Array[PackedScene]([ExtResource("70_0")])
+decor_density = 0.1

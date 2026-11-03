@@ -14,6 +14,7 @@
 [ext_resource type="Resource" path="res://content/units/enemies/goblin.tres" id="11_goblin"]
 [ext_resource type="Script" path="res://core/data/terrain_data.gd" id="11_wt4x8"]
 [ext_resource type="Resource" path="res://content/units/enemies/treant.tres" id="12_treant"]
+[ext_resource type="PackedScene" path="res://scenes/battle/atmosphere/fireflies.tscn" id="71_particles"]
 
 [resource]
 script = ExtResource("1_script")
@@ -29,7 +30,12 @@ min_size = Vector2i(19, 14)
 height_frequency = 0.09
 background_color = Color(0.09, 0.12, 0.13, 1)
 ambient_color = Color(0.85, 0.95, 0.9, 1)
-sun_color = Color(1, 0.97, 0.88, 1)
-sun_energy = 0.85
+sun_color = Color(1, 0.92, 0.78, 1)
+sun_energy = 0.95
+sun_rotation_degrees = Vector2(-40, -30)
+fog_color = Color(0.55, 0.7, 0.62, 1)
+fog_density = 0.012
+glow_intensity = 0.4
+ambient_particles = ExtResource("71_particles")
 enemy_pool = Array[ExtResource("2_1gu88")]([ExtResource("8_wolf"), ExtResource("9_goblin_archer"), ExtResource("10_boar"), ExtResource("11_goblin")])
 miniboss_pool = Array[ExtResource("2_1gu88")]([ExtResource("12_treant")])

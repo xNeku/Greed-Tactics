@@ -9,6 +9,7 @@ id = &"cactus"
 display_name = "Cactus"
 symbol = "c"
 walkable = false
+surface = 3
 top_color = Color(0.93, 0.8, 0.55, 1)
 side_color = Color(0.78, 0.62, 0.4, 1)
 prop_scene = ExtResource("2_cactus")
