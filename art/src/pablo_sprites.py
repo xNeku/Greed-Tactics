@@ -1,4 +1,6 @@
 import sys
+# NOTE (v0.6.1): Neku retouched the result in the hero workshop; assets/ is now the
+# source of truth. Re-running this script would undo those edits.
 from PIL import Image
 D=sys.argv[1]
 PAL={'#':(1,1,1),'a':(37,37,37),'b':(77,54,45),'c':(145,89,60),'d':(178,118,82),'e':(111,31,27),'f':(154,48,43),

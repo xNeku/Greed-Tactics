@@ -1,4 +1,6 @@
 import sys
+# NOTE (v0.6.1): Neku retouched kael.png / kael_side.png in the hero workshop;
+# assets/ is now the source of truth. Re-running this script would undo those edits.
 from PIL import Image
 D=sys.argv[1]
 PAL={'#':(1,1,1),'a':(82,55,44),'b':(112,78,62),'c':(198,139,106),'d':(168,54,52),'e':(163,102,74),

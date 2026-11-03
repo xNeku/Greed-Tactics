@@ -1,4 +1,6 @@
 """Sigrid (barbarian): Neku's views, no weapon (Neku will send the two-handed axes)."""
+# NOTE (v0.6.1): Neku retouched the result in the hero workshop; assets/ is now the
+# source of truth. Re-running this script would undo those edits.
 import sys
 from PIL import Image
 D=sys.argv[1]  # folder with barb_view0.png (front) and barb_view1.png (side)
