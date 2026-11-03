@@ -19,7 +19,8 @@ pal({
   d: "#4c4666", D: "#302b46", x: "#726a94", R: "#d23040", i: "#c8a0f0",
 })
 
-sprite("kael", { outline: "k" }, `
+// Kael en dos piezas (torso y piernas) para poder animar la respiración.
+sprite("_kael_top", `
   ......j..j.j........w.
   .....jhhjhhhj......wW.
   ....hhhjjhhhhhh....wW.
@@ -39,11 +40,22 @@ sprite("kael", { outline: "k" }, `
   ..cccmAaaaaaaAAsSS.b..
   ..cccbbbbgbbbbbbb..b..
   ..CccmAaaaaaAAm.......
-  ..CCcmAaaaaaAAm.......
+  ..CCcmAaaaaaAAm.......`)
+sprite("_kael_legs", `
   ...CCcpppppppppp......
   ....CCppp...pppp......
   .....oooo...oooo......
   ....ooooo...ooooo.....`)
+sprite("kael", { outline: "k", w: 22, h: 24 }, stamp("_kael_legs", 0, 20), stamp("_kael_top", 0, 0))
+
+// Idle de prueba: respira (torso baja 1 px) y parpadea. 22x24 + contorno = 24x26.
+anim("idle", { outline: "k", w: 22, h: 24 },
+  stamp("_kael_legs", 0, 20),
+  frame({ ms: 450 }, stamp("_kael_top", 0, 0)),
+  frame({ ms: 450 }, stamp("_kael_top", 0, 1)),
+  frame({ ms: 450 }, stamp("_kael_top", 0, 0)),
+  frame({ ms: 150 }, stamp("_kael_top", 0, 0), grid(10, 8, "ss\nee"), grid(15, 8, "ss\nee")))
+sheet("kael_sheet", ["idle"], { pad: 1 })
 
 sprite("pablo", { outline: "k" }, `
   .......vvvv...........
