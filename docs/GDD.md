@@ -257,6 +257,8 @@ Enemigos de prototipo: Goblin (Saqueador, melee) y Limo (Bestia, melee lento y r
 - **Retroceso** (`SkillData.recoil`): tras disparar sale despedida N casillas en dirección contraria al objetivo; se para ante obstáculos, unidades o muros. La previsión dibuja la flecha verde y la casilla final; la IA puntúa la casilla final.
 - *Quemarropa* (1-2, retroceso 1) · *Doble cañón* (línea 1-3, 2 tiros, retroceso 2, queda Temeraria) · *Abanico de plomo* (cruz, retroceso 1) · *Salto de pólvora* (1-2, retroceso 4: entrar, pegar y largarse).
 
+**[Decidido v0.6] Taller de héroes:** artefacto privado de Neku en claude.ai (fuente `tools/hero_workshop/taller.html`). Guarda en su base de datos un documento por héroe (`heroes/<id>`): sprites de frente/lado/arma como paleta + filas (`.` = transparente), skills, pasivas, desbloqueables y arma. `tools/export_hero_sheets.gd` genera esos documentos desde el juego; Claude lee los cambios de Neku y los pasa a `assets/` y `content/`.
+
 **[Decidido v0.5] Plantel y grupo:** `RunConfig.roster` (8 héroes: Kael, Pablo, Tohil, Nyx, Sigrid, Elara, Grizka, Lyra) y `party_size` 4. En el menú se eligen 4 haciendo clic en sus tarjetas; el combate rápido usa el mismo grupo.
 
 **[Decidido v0.5.1] Personajes de Neku = jugables:** los sprites que pasa Neku son héroes del jugador, nunca enemigos. El grupo inicial son los cuatro suyos (Kael, Pablo, Tohil, Sigrid) para ir probándolos; Nyx y Lyra quedan en el plantel. Las armas las dibuja Neku: no se añaden armas inventadas a sus sprites.
