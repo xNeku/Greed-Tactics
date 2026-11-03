@@ -12,7 +12,7 @@
 [resource]
 script = ExtResource("1_script")
 id = &"shaman"
-display_name = "Nayra"
+display_name = "Tohil"
 short_name = "NAY"
 race = "Humana"
 unit_class = "Chamán de fuego"

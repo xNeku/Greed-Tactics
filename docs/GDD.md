@@ -234,16 +234,18 @@ Enemigos de prototipo: Goblin (Saqueador, melee) y Limo (Bestia, melee lento y r
 
 (El número entre paréntesis es la ira necesaria para la mutación.)
 
-**[v0.5] Nayra, Chamán de fuego** (sprite de Neku; sustituye a Lyra en el grupo inicial): maná, muchísimo alcance, poco daño; su valor son los efectos.
+**[v0.5] Tohil, Chamán de fuego** (sprite de Neku; hombre): maná, muchísimo alcance, poco daño; su valor son los efectos.
 - *Ascua* (básica, 2-6, 35% quemar) · *Lanzar tótem* (2-7, invoca un **Tótem de fuego**) · *Lluvia de brasas* (área 3-8, 70% quemar) · *Paso de humo* (teletransporte 2-5 que ralentiza a los adyacentes al llegar).
 - **Tótem de fuego:** estructura (no juega turno, no cuenta para ganar/perder, el enemigo puede destruirlo; uno por chamán, lanzar otro destruye el anterior). **Aura** de radio 2: aliados con *Fervor* (+20% daño, +4% vida por turno), enemigos con *Humo asfixiante* (−1 PM, −15% velocidad, −3% vida por turno).
 - Nuevas mecánicas genéricas: `SkillData.summon`, `UnitData.is_structure`, `UnitData.aura` (`AuraData`), estados positivos (`damage_percent_bonus`, `heal_percent_per_turn`, `silent`).
 
-**[v0.5] Sigrid, Bárbara humana nórdica** (sprite de Neku + hacha a dos manos añadida): ira; agresiva y arriesgada.
+**[v0.5] Sigrid, Bárbara humana nórdica** (sprite de Neku; sin arma visible hasta que Neku pase las hachas a dos manos): ira; agresiva y arriesgada.
 - *Tajo salvaje* (2 golpes rápidos, roba 15%) → ★ *Carnicería* (3 golpes, roba 25%) · *Hacha voladora* (2-4, empuja) → ★ *Tormenta de acero* (cruz) · *Remolino sangriento* (8 casillas, roba 30%, se vuelve **Temeraria**: +25% daño, −50% defensa) → ★ *Danza de la masacre* (2 giros) · *Salto aplastante* (salta 2-4 ignorando alturas, golpea alrededor y **lanza por los aires** = pierden el turno) → ★ *Caída del cielo* (3x3).
 - Mecánicas genéricas nuevas: `SkillData.strikes` (golpes múltiples), `lifesteal_percent`, `self_status`; estados con `defense_percent_bonus` y tipo `KNOCKUP` (animación de salto).
 
-**[Decidido v0.5] Plantel y grupo:** `RunConfig.roster` (6 héroes: Kael, Pablo, Nayra, Nyx, Sigrid, Lyra) y `party_size` 4. En el menú se eligen 4 haciendo clic en sus tarjetas; el combate rápido usa el mismo grupo.
+**[Decidido v0.5] Plantel y grupo:** `RunConfig.roster` (6 héroes: Kael, Pablo, Tohil, Nyx, Sigrid, Lyra) y `party_size` 4. En el menú se eligen 4 haciendo clic en sus tarjetas; el combate rápido usa el mismo grupo.
+
+**[Decidido v0.5.1] Personajes de Neku = jugables:** los sprites que pasa Neku son héroes del jugador, nunca enemigos. El grupo inicial son los cuatro suyos (Kael, Pablo, Tohil, Sigrid) para ir probándolos; Nyx y Lyra quedan en el plantel. Las armas las dibuja Neku: no se añaden armas inventadas a sus sprites.
 
 **[v0.3] Enemigos por zona:** Cueva (Goblin, Murciélago, Limo; miniboss **Ogro de las cavernas**), Bosque (Lobo, Goblin arquero, Jabalí, Goblin; miniboss **Ent anciano**), Desierto (Escorpión, Bandido, Momia; miniboss **Gusano de arena**, que emerge a tu espalda).
 
@@ -459,6 +461,7 @@ Cada hito tiene un criterio de salida. No se pasa al siguiente sin cumplirlo.
 
 ## Changelog
 
+- **v0.5.1 (Nov 3, 2026)** — Correcciones de Neku: Pablo sin tatuajes tribales y con los aros pegados a la oreja; Sigrid sin el hacha añadida (las armas las pasará Neku); el chamán es hombre y se llama **Tohil**; grupo inicial = Kael, Pablo, Tohil, Sigrid.
 - **v0.5 (Nov 3, 2026)** — Personalidad: Kael pasa a ser **Camorrista** (pelea a puños: Puñetazo, Lanzar escombros, Ráfaga de golpes, Placaje y sus mutaciones Gancho brutal, Pedrusco, Trifulca, Embestida de toro; mod. *Nudillos de hierro*). Sprites de Neku para Kael y Pablo (frente + lado) y **animaciones** de Kael (reposo, andar, puñetazo, golpe recibido) con `SpriteFrames`. Terrenos con textura procedural por tipo (hierba con laterales de tierra, roca agrietada, dunas, sendero con guijarros, cueva húmeda), bisel y oclusión; decoración (matojos, flores, guijarros, arbustos secos, setas luminosas); niebla, ángulo de sol, glow y partículas por zona (luciérnagas, polvo, motas); cristales que iluminan; viñeta.
 
 - **v0.4 (Nov 3, 2026)** — Game feel: flechas de previsión en parábola (movimiento, ataque, empuje, rebotes, movimiento a medias), zona de daño en rojo, aterrizaje en verde, marca de bloqueo; efectos visuales placeholder por habilidad; 5 estados alterados con tinte e iconos; ficha de previsión ampliada y panel de habilidad; IA táctica con mapa de amenaza y perfiles; dificultad subida.

@@ -41,7 +41,7 @@
 
 [resource]
 script = ExtResource("1_script")
-heroes = Array[ExtResource("1_gddn6")]([ExtResource("60_kael"), ExtResource("60_pablo"), ExtResource("60_shaman"), ExtResource("60_nyx")])
+heroes = Array[ExtResource("1_gddn6")]([ExtResource("60_kael"), ExtResource("60_pablo"), ExtResource("60_shaman"), ExtResource("60_barbarian")])
 roster = Array[ExtResource("1_gddn6")]([ExtResource("60_kael"), ExtResource("60_pablo"), ExtResource("60_shaman"), ExtResource("60_nyx"), ExtResource("60_barbarian"), ExtResource("60_lyra")])
 zones = Array[ExtResource("30_pv23l")]([ExtResource("6_cave"), ExtResource("7_forest"), ExtResource("8_desert")])
 modifier_pool = Array[ExtResource("6_4qtvf")]([ExtResource("9_eagle_eye"), ExtResource("10_sharpened"), ExtResource("11_drilled_basics"), ExtResource("12_wide_area"), ExtResource("13_ricochet"), ExtResource("14_detonation"), ExtResource("15_backstabber"), ExtResource("16_ambush"), ExtResource("17_bloodthirst"), ExtResource("18_shove"), ExtResource("19_efficiency"), ExtResource("20_burning_rage"), ExtResource("21_momentum"), ExtResource("22_seismic_landing"), ExtResource("23_critical_burst"), ExtResource("24_finisher"), ExtResource("25_gunpowder"), ExtResource("26_deep_freeze"), ExtResource("27_hawk_eye"), ExtResource("28_steel_dance"), ExtResource("29_heavy_axe"), ExtResource("30_arcane_focus"), ExtResource("95_0"), ExtResource("95_1"), ExtResource("95_2")])

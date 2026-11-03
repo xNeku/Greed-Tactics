@@ -22,16 +22,17 @@ func test_four_playable_classes_with_the_skill_template() -> void:
 
 func test_resources_per_class() -> void:
 	var kinds := {}
-	for hero in _config().heroes:
+	for hero in _config().roster:
 		kinds[hero.unit_class] = hero.resource_kind
 	assert_eq(kinds["Camorrista"], UnitData.ResourceKind.RAGE)
 	assert_eq(kinds["Asesina"], UnitData.ResourceKind.RAGE)
+	assert_eq(kinds["Maga"], UnitData.ResourceKind.MANA)
 	assert_eq(kinds["Chamán de fuego"], UnitData.ResourceKind.MANA)
 	assert_eq(kinds["Arquero"], UnitData.ResourceKind.NONE)
 
 
 func test_rage_classes_have_mutations_and_no_mana_costs() -> void:
-	for hero in _config().heroes:
+	for hero in _config().roster:
 		if hero.resource_kind != UnitData.ResourceKind.RAGE:
 			continue
 		var mutations := 0
