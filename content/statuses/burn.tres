@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="StatusData" format=3]
+
+[ext_resource type="Script" path="res://core/data/status_data.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/sprites/status/burn.png" id="2_icon"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"burn"
+display_name = "Quemado"
+description = "Pierde un 8% de su vida máxima al empezar cada turno."
+kind = 0
+damage_percent_per_turn = 8
+color = Color(1, 0.45, 0.25, 1)
+icon = ExtResource("2_icon")

@@ -17,3 +17,4 @@ area_shape = 2
 area_size = 1
 power = 20
 knockback = 1
+vfx_color = Color(1, 0.35, 0.3, 1)

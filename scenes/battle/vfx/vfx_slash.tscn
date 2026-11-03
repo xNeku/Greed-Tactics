@@ -1,0 +1,19 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/battle/vfx/vfx_slash.gd" id="1_script"]
+[ext_resource type="Shader" path="res://assets/shaders/vfx_slash.gdshader" id="2_slash"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_slash"]
+render_priority = 12
+shader = ExtResource("2_slash")
+
+[sub_resource type="QuadMesh" id="QuadMesh_slash"]
+material = SubResource("ShaderMaterial_slash")
+size = Vector2(1.5, 1.1)
+
+[node name="VfxSlash" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="Arc" type="MeshInstance3D" parent="."]
+cast_shadow = 0
+mesh = SubResource("QuadMesh_slash")

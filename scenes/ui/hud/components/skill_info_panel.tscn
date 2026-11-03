@@ -1,0 +1,57 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/ui/hud/components/skill_info_panel.gd" id="1_panel"]
+
+[node name="SkillInfoPanel" type="PanelContainer"]
+custom_minimum_size = Vector2(340, 0)
+mouse_filter = 2
+script = ExtResource("1_panel")
+
+[node name="Lines" type="VBoxContainer" parent="."]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 3
+
+[node name="NameLabel" type="Label" parent="Lines"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+text = "Habilidad"
+
+[node name="TypeLabel" type="Label" parent="Lines"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"CaptionLabel"
+text = "Tipo · coste"
+autowrap_mode = 3
+
+[node name="DescriptionLabel" type="Label" parent="Lines"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(310, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "Descripción"
+autowrap_mode = 3
+
+[node name="StatsLabel" type="Label" parent="Lines"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Alcance"
+autowrap_mode = 3
+
+[node name="EffectsLabel" type="Label" parent="Lines"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.75, 0.4, 1)
+theme_override_font_sizes/font_size = 14
+text = "Efectos"
+autowrap_mode = 3
+
+[node name="ModifiersLabel" type="Label" parent="Lines"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "Modificadores"
+autowrap_mode = 3

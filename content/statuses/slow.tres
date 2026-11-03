@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="StatusData" format=3]
+
+[ext_resource type="Script" path="res://core/data/status_data.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/sprites/status/slow.png" id="2_icon"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"slow"
+display_name = "Ralentizado"
+description = "-2 PM y un 35% menos de velocidad (actúa menos)."
+kind = 2
+move_penalty = 2
+speed_percent_penalty = 35
+color = Color(0.4, 0.7, 1, 1)
+icon = ExtResource("2_icon")

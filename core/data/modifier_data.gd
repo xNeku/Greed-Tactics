@@ -29,10 +29,12 @@ enum Effect {
 	LIFESTEAL,       ## Behaviour: heal the user value % of the damage dealt.
 	# On kill
 	REFUND_AP,       ## Behaviour: get value PA back (limit = times per turn).
+	# Stage 3 (added in v0.4, kept last so saved data keeps its numbers)
+	APPLY_STATUS,    ## Behaviour: value % chance to apply [member status] for limit turns.
 }
 
 const BEHAVIOR_EFFECTS: Array[Effect] = [
-	Effect.BOUNCE, Effect.EXPLODE, Effect.KNOCKBACK, Effect.LIFESTEAL, Effect.REFUND_AP,
+	Effect.BOUNCE, Effect.EXPLODE, Effect.KNOCKBACK, Effect.LIFESTEAL, Effect.REFUND_AP, Effect.APPLY_STATUS,
 ]
 
 @export var id: StringName = &""
@@ -45,6 +47,8 @@ const BEHAVIOR_EFFECTS: Array[Effect] = [
 @export var value: int = 1
 ## Cap for behaviours (hops, radius, times per turn). Ignored by numeric effects.
 @export var limit: int = 1
+## Status for APPLY_STATUS.
+@export var status: StatusData
 ## Ids of modifiers that cannot coexist with this one (incompatibility table).
 @export var incompatible_with: Array[StringName] = []
 ## Relative chance to be offered.

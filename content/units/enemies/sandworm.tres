@@ -5,6 +5,7 @@
 [ext_resource type="Script" path="res://core/data/skill_data.gd" id="2_y82lu"]
 [ext_resource type="Resource" path="res://content/skills/enemies/worm_bite.tres" id="3_worm_bite"]
 [ext_resource type="Resource" path="res://content/skills/enemies/worm_burrow.tres" id="4_worm_burrow"]
+[ext_resource type="Resource" path="res://content/ai/boss.tres" id="91_ai"]
 
 [resource]
 script = ExtResource("1_script")
@@ -22,5 +23,6 @@ defense = 5
 hp_per_level = 24
 attack_per_level = 3
 skills = Array[ExtResource("2_y82lu")]([ExtResource("3_worm_bite"), ExtResource("4_worm_burrow")])
+ai_profile = ExtResource("91_ai")
 xp_reward = 60
 gold_reward = 25

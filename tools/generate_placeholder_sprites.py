@@ -387,6 +387,31 @@ SPRITES["goblin_archer"] = {"art_of": "pablo", "palette": dict(SPRITES["pablo"][
     "t": (90, 70, 50), "T": (64, 50, 34)})}
 
 
+# Status icons (assets/sprites/status/), 10x10 + outline.
+ICONS = {
+    "burn": {"palette": {"r": (230, 70, 40), "o": (255, 150, 40), "y": (255, 230, 110)}, "art": [
+        "....r.....", "...rr.....", "...rro....", "..rroo.r..", "..roooorr.",
+        ".rrooyoor.", ".rooyyoor.", ".rooyyyor.", "..rooyor..", "...rrrr...",
+    ]},
+    "poison": {"palette": {"g": (90, 200, 70), "G": (50, 140, 50), "l": (190, 255, 150)}, "art": [
+        "....g.....", "...ggg....", "...ggg....", "..ggGgg...", ".gggGggg..",
+        ".ggGlGgg..", ".gglllgg..", ".ggGlGgg..", "..ggggg...", "...ggg....",
+    ]},
+    "slow": {"palette": {"b": (110, 180, 255), "w": (235, 245, 255)}, "art": [
+        "....b....", ".b..b..b.", "..b.b.b..", "...bbb...", "bbbbwbbbb",
+        "...bbb...", "..b.b.b..", ".b..b..b.", "....b....",
+    ]},
+    "stun": {"palette": {"y": (255, 220, 70)}, "art": [
+        "..y.......", ".yyy...y..", "..y...yyy.", ".......y..", "....y.....",
+        "...yyy....", "....y.....",
+    ]},
+    "silence": {"palette": {"w": (235, 230, 250), "r": (220, 60, 80)}, "art": [
+        ".wwwwwww.", "wwrwwwrww", "wwwrwrwww", "wwwwrwwww", "wwwrwrwww",
+        "wwrwwwrww", ".wwwwwww.", "..ww.....", ".w.......",
+    ]},
+}
+
+
 def render(spec: dict) -> Image.Image:
     rows = SPRITES[spec["art_of"]]["art"] if "art_of" in spec else spec["art"]
     width = max(len(r) for r in rows) + 2
@@ -419,6 +444,12 @@ def main() -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     for name, spec in SPRITES.items():
         path = OUT_DIR / f"{name}.png"
+        render(spec).save(path)
+        print(f"wrote {path.relative_to(OUT_DIR.parent.parent.parent)}")
+    icon_dir = OUT_DIR.parent / "status"
+    icon_dir.mkdir(parents=True, exist_ok=True)
+    for name, spec in ICONS.items():
+        path = icon_dir / f"{name}.png"
         render(spec).save(path)
         print(f"wrote {path.relative_to(OUT_DIR.parent.parent.parent)}")
 

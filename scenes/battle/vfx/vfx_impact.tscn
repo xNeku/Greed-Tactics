@@ -1,0 +1,78 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/battle/vfx/vfx_impact.gd" id="1_script"]
+[ext_resource type="Shader" path="res://assets/shaders/vfx_glow.gdshader" id="2_glow"]
+[ext_resource type="Shader" path="res://assets/shaders/disc.gdshader" id="3_disc"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_glow"]
+render_priority = 12
+shader = ExtResource("2_glow")
+shader_parameter/use_uv_falloff = null
+
+[sub_resource type="SphereMesh" id="SphereMesh_flash"]
+material = SubResource("ShaderMaterial_glow")
+radius = 0.4
+height = 0.8
+radial_segments = 12
+rings = 6
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ring"]
+render_priority = 11
+shader = ExtResource("3_disc")
+shader_parameter/softness = 0.15
+shader_parameter/rim_width = 0.18
+shader_parameter/rim_brightness = 0.6
+shader_parameter/center_alpha = 0.0
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ring"]
+material = SubResource("ShaderMaterial_ring")
+size = Vector2(1, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_particle"]
+transparency = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+billboard_mode = 3
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_particle"]
+material = SubResource("StandardMaterial3D_particle")
+size = Vector2(0.12, 0.12)
+
+[sub_resource type="Gradient" id="Gradient_fade"]
+offsets = PackedFloat32Array(0, 0.6, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.6, 1, 1, 1, 0)
+
+[node name="VfxImpact" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="Flash" type="MeshInstance3D" parent="."]
+cast_shadow = 0
+mesh = SubResource("SphereMesh_flash")
+
+[node name="Ring" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_ring")
+
+[node name="Sparks" type="CPUParticles3D" parent="."]
+emitting = false
+amount = 28
+lifetime = 0.55
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("QuadMesh_particle")
+direction = Vector3(0, 1, 0)
+spread = 75.0
+gravity = Vector3(0, -7, 0)
+initial_velocity_min = 2.0
+initial_velocity_max = 4.5
+scale_amount_min = 0.6
+scale_amount_max = 1.4
+color_ramp = SubResource("Gradient_fade")
+
+[node name="Light" type="OmniLight3D" parent="."]
+light_energy = 3.0
+omni_range = 3.0

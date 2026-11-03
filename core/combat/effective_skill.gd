@@ -44,6 +44,10 @@ var explode_percent: int = 0
 var explode_radius: int = 0
 var lifesteal_percent: int = 0
 var refund_ap: int = 0
+## Statuses applied on every landed hit (skill + ALWAYS modifiers).
+var statuses: Array[StatusApplication] = []
+var vfx_style: SkillData.VfxStyle = SkillData.VfxStyle.AUTO
+var vfx_color: Color = Color.WHITE
 
 ## Modifiers whose trigger is evaluated per hit (ON_BACK_ATTACK, ON_CRIT, ON_KILL).
 var conditional: Array[ModifierData] = []
@@ -75,7 +79,26 @@ static func from_skill(base_skill: SkillData, used: SkillData) -> EffectiveSkill
 	e.motion = used.motion
 	e.knockback = used.knockback
 	e.crit_bonus = used.crit_bonus
+	if used.status != null:
+		e.statuses.append(StatusApplication.create(used.status, used.status_chance, used.status_duration))
+	e.vfx_style = used.vfx_style
+	e.vfx_color = used.vfx_color
 	return e
+
+
+## Resolves AUTO into a concrete style.
+func get_vfx_style() -> SkillData.VfxStyle:
+	if vfx_style != SkillData.VfxStyle.AUTO:
+		return vfx_style
+	if target_rule == SkillData.TargetRule.SELF:
+		return SkillData.VfxStyle.NOVA
+	if not deals_damage():
+		return SkillData.VfxStyle.NONE
+	if area_size > 0 and range_max >= 2:
+		return SkillData.VfxStyle.LOB
+	if has_tag(&"proyectil"):
+		return SkillData.VfxStyle.PROJECTILE
+	return SkillData.VfxStyle.SLASH
 
 
 func deals_damage() -> bool:

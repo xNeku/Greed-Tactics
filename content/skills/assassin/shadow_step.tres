@@ -18,4 +18,5 @@ range_max = 5
 vertical_reach = 3
 power = 9
 motion = 3
+vfx_color = Color(0.7, 0.5, 1, 1)
 empowered_variant = ExtResource("2_shadow_execution")

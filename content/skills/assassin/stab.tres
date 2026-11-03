@@ -10,4 +10,5 @@ display_name = "Puñalada"
 description = "Puñalada rápida a un adyacente. Genera ira."
 tags = Array[StringName]([&"basico", &"melee", &"daga"])
 crit_bonus = 5
+vfx_color = Color(0.9, 0.92, 1, 1)
 empowered_variant = ExtResource("2_lethal_stab")

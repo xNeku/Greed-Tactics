@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ModifierData" format=3]
+
+[ext_resource type="Script" path="res://core/data/modifier_data.gd" id="1_script"]
+[ext_resource type="Resource" path="res://content/statuses/poison.tres" id="2_status"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"poisoned_blades"
+display_name = "Hojas envenenadas"
+description = "Los golpes cuerpo a cuerpo tienen un 35% de envenenar (3 turnos)."
+target_tag = &"melee"
+effect = 12
+value = 35
+limit = 3
+status = ExtResource("2_status")
+weight = 8

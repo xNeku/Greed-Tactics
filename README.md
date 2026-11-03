@@ -3,7 +3,7 @@
 Roguelike táctico isométrico 2.5D por turnos, hecho con **Godot 4.7.2**.
 Combate rápido y legible, runs generadas por zonas y personajes que se vuelven tuyos a base de jugarlos.
 
-![estado](https://img.shields.io/badge/prototipo-v0.3%20run%20jugable-blue)
+![estado](https://img.shields.io/badge/prototipo-v0.4%20game%20feel-blue)
 
 ## Documentación
 
@@ -32,6 +32,10 @@ Combate rápido y legible, runs generadas por zonas y personajes que se vuelven 
 | Nyx | Asesina | Ira | Aparece a la espalda, críticos, dagas |
 | Lyra | Maga | Maná | Daño a distancia, bola de fuego, parpadeo |
 | Pablo | Arquero | Enfriamientos | Alcance largo, lluvia de flechas, voltereta gratis |
+
+**Antes de confirmar** ves lo que va a pasar: flecha verde para moverte (gris si te quedas a medias), roja para atacar, naranja para empujes (con ✕ si chocan), amarilla para rebotes, zona de daño en rojo y una ficha con daño, vida resultante, probabilidades y estados.
+
+**Estados:** quemado (rojo), envenenado (verde), ralentizado (azul), aturdido y silenciado (iconos).
 
 **Ira:** empieza en 0, se gana pegando y recibiendo golpes, aumenta el daño (+0,5% por punto) y se gasta en habilidades. Por encima de cierto umbral (50-70), cada habilidad **muta** en una versión mucho más fuerte (★ en el menú de comandos).
 

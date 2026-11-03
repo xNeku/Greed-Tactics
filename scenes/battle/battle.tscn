@@ -9,6 +9,8 @@
 [ext_resource type="PackedScene" path="res://scenes/battle/camera/camera_rig.tscn" id="7_camera"]
 [ext_resource type="Script" path="res://scenes/battle/player_turn_input.gd" id="8_input"]
 [ext_resource type="PackedScene" path="res://scenes/ui/hud/hud.tscn" id="9_hud"]
+[ext_resource type="PackedScene" path="res://scenes/battle/feedback/feedback_arrows.tscn" id="10_arrows"]
+[ext_resource type="PackedScene" path="res://scenes/battle/vfx/vfx_player.tscn" id="11_vfx"]
 
 [sub_resource type="Environment" id="Environment_battle"]
 background_mode = 1
@@ -43,6 +45,12 @@ directional_shadow_max_distance = 45.0
 unique_name_in_owner = true
 
 [node name="TileHighlighter" parent="." instance=ExtResource("6_highlighter")]
+unique_name_in_owner = true
+
+[node name="FeedbackArrows" parent="." instance=ExtResource("10_arrows")]
+unique_name_in_owner = true
+
+[node name="VfxPlayer" parent="." instance=ExtResource("11_vfx")]
 unique_name_in_owner = true
 
 [node name="Units" type="Node3D" parent="."]

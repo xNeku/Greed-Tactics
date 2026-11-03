@@ -18,8 +18,12 @@ class Hit:
 	## Cell the target was pushed to (== its cell before the hit if not pushed).
 	var pushed_from: Vector2i
 	var pushed_to: Vector2i
+	## Cell that stopped the push early, or (-1, -1).
+	var push_blocked_at: Vector2i = Vector2i(-1, -1)
 	## HP the user recovered from this hit (lifesteal).
 	var healed: int = 0
+	## Statuses that stuck on the target.
+	var applied_statuses: Array[StatusData] = []
 
 var user: UnitState
 var skill: EffectiveSkill

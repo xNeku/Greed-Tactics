@@ -22,6 +22,7 @@ const STAGE_NUMERIC: Array[ModifierData.Effect] = [
 ]
 const STAGE_IMPACT: Array[ModifierData.Effect] = [
 	ModifierData.Effect.EXPLODE, ModifierData.Effect.KNOCKBACK, ModifierData.Effect.LIFESTEAL,
+	ModifierData.Effect.APPLY_STATUS,
 ]
 
 
@@ -82,11 +83,15 @@ static func get_hit_bonuses(skill: EffectiveSkill, side: GridRules.AttackSide) -
 ## Returns {"explode_percent", "explode_radius", "knockback", "lifesteal"}
 ## merged with the skill's unconditional behaviours (highest wins).
 static func get_impact_effects(skill: EffectiveSkill, side: GridRules.AttackSide, critical: bool) -> Dictionary:
+	var statuses: Array[StatusApplication] = []
+	for app in skill.statuses:
+		StatusApplication.merge(statuses, StatusApplication.create(app.status, app.chance, app.duration))
 	var fx := {
 		"explode_percent": skill.explode_percent,
 		"explode_radius": skill.explode_radius,
 		"knockback": skill.knockback,
 		"lifesteal": skill.lifesteal_percent,
+		"statuses": statuses,
 	}
 	for modifier in skill.conditional:
 		var fires := (modifier.trigger == ModifierData.Trigger.ON_CRIT and critical) \
@@ -101,6 +106,9 @@ static func get_impact_effects(skill: EffectiveSkill, side: GridRules.AttackSide
 				fx.knockback = maxi(fx.knockback, modifier.value)
 			ModifierData.Effect.LIFESTEAL:
 				fx.lifesteal = maxi(fx.lifesteal, modifier.value)
+			ModifierData.Effect.APPLY_STATUS:
+				if modifier.status != null:
+					StatusApplication.merge(statuses, StatusApplication.create(modifier.status, modifier.value, modifier.limit))
 	return fx
 
 
@@ -145,3 +153,6 @@ static func _apply(skill: EffectiveSkill, modifier: ModifierData) -> void:
 			skill.knockback = maxi(skill.knockback, v)
 		ModifierData.Effect.LIFESTEAL:
 			skill.lifesteal_percent = maxi(skill.lifesteal_percent, v)
+		ModifierData.Effect.APPLY_STATUS:
+			if modifier.status != null:
+				StatusApplication.merge(skill.statuses, StatusApplication.create(modifier.status, v, modifier.limit))

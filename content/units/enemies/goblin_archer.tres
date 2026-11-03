@@ -4,6 +4,7 @@
 [ext_resource type="Script" path="res://core/data/skill_data.gd" id="2_17fcd"]
 [ext_resource type="Texture2D" path="res://assets/sprites/units/goblin_archer.png" id="2_goblin_archer"]
 [ext_resource type="Resource" path="res://content/skills/enemies/enemy_arrow.tres" id="3_enemy_arrow"]
+[ext_resource type="Resource" path="res://content/ai/ranged.tres" id="91_ai"]
 
 [resource]
 script = ExtResource("1_script")
@@ -18,4 +19,5 @@ defense = 1
 evasion = 10
 hp_per_level = 5
 skills = Array[ExtResource("2_17fcd")]([ExtResource("3_enemy_arrow")])
+ai_profile = ExtResource("91_ai")
 xp_reward = 8

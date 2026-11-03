@@ -40,6 +40,10 @@ var cooldowns: Dictionary[SkillData, int] = {}
 var modifiers: Array[ModifierData] = []
 ## How many REFUND_AP triggers happened this turn.
 var refunds_this_turn: int = 0
+## Active statuses and the turns they have left.
+var statuses: Dictionary[StatusData, int] = {}
+## Set at the start of a turn the unit cannot play (stunned, or killed by a status).
+var skip_turn: bool = false
 
 
 func _init(p_id: int, p_data: UnitData, p_team: Team, p_cell: Vector2i, p_facing: GridDir.Dir,
@@ -73,8 +77,12 @@ func uses_mana() -> bool:
 
 
 func begin_turn(rules: RulesConfig) -> void:
-	pm = move_points
+	var penalty := 0
+	for status in statuses:
+		penalty += status.move_penalty
+	pm = maxi(move_points - penalty, 0)
 	pa = action_points
+	skip_turn = false
 	refunds_this_turn = 0
 	for skill in cooldowns.keys():
 		cooldowns[skill] = maxi(cooldowns[skill] - 1, 0)
@@ -103,7 +111,8 @@ func can_afford(skill: EffectiveSkill) -> bool:
 		and pa >= skill.ap_cost \
 		and mp >= skill.mp_cost \
 		and rage >= skill.rage_cost \
-		and get_cooldown(skill.base) == 0
+		and get_cooldown(skill.base) == 0 \
+		and (not is_silenced() or skill.skill_type == SkillData.SkillType.BASIC)
 
 
 func pay_for(skill: EffectiveSkill) -> void:
@@ -124,6 +133,35 @@ func heal(amount: int) -> int:
 	var before := hp
 	hp = mini(hp + amount, max_hp)
 	return hp - before
+
+
+#region Statuses
+
+## Refreshes the status to at least [param duration] turns.
+func add_status(status: StatusData, duration: int) -> void:
+	statuses[status] = maxi(statuses.get(status, 0), duration)
+
+
+func has_status(status: StatusData) -> bool:
+	return statuses.has(status)
+
+
+func is_silenced() -> bool:
+	return statuses.keys().any(func(s: StatusData) -> bool: return s.blocks_skills)
+
+
+func is_stunned() -> bool:
+	return statuses.keys().any(func(s: StatusData) -> bool: return s.skips_turn)
+
+
+## Speed after statuses (turn order).
+func get_current_speed() -> int:
+	var penalty := 0
+	for status in statuses:
+		penalty = maxi(penalty, status.speed_percent_penalty)
+	return maxi(1, roundi(speed * (1.0 - penalty / 100.0)))
+
+#endregion
 
 
 func get_short_name() -> String:

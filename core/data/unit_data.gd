@@ -53,6 +53,10 @@ enum ResourceKind {
 ## The first BASIC one is the default attack.
 @export var skills: Array[SkillData] = []
 
+@export_group("AI")
+## Tactical weights when the AI controls this unit. Empty = default profile.
+@export var ai_profile: AiProfile
+
 @export_group("Rewards")
 @export_range(0, 999) var xp_reward: int = 10
 @export_range(0, 999) var gold_reward: int = 3

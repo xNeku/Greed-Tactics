@@ -11,6 +11,7 @@ const RAGE_MAX_DISPLAY := 100
 @onready var _mp_label: Label = %MpLabel
 @onready var _mp_bar: ProgressBar = %MpBar
 @onready var _stats_label: Label = %StatsLabel
+@onready var _status_label: Label = %StatusLabel
 
 
 ## [param is_active] shows the PM/PA left this turn instead of the unit's maximums.
@@ -38,5 +39,12 @@ func show_unit(unit: UnitState, is_active: bool) -> void:
 		_mp_bar.value = unit.rage
 	var pm := unit.pm if is_active else unit.move_points
 	var pa := unit.pa if is_active else unit.action_points
+	var statuses := PackedStringArray()
+	for status in unit.statuses:
+		statuses.append("%s (%d)" % [status.display_name, unit.statuses[status]])
+	_status_label.visible = not statuses.is_empty()
+	_status_label.text = "Estados: " + ", ".join(statuses)
+	if not unit.statuses.is_empty():
+		_status_label.modulate = unit.statuses.keys()[0].color
 	_stats_label.text = "PM: %d/%d   PA: %d/%d   ATQ: %d   DEF: %d   EVA: %d%%   VEL: %d" % [
 		pm, unit.move_points, pa, unit.action_points, unit.attack, unit.defense, unit.evasion, unit.speed]

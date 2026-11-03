@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/units/slime.png" id="2_slime"]
 [ext_resource type="Script" path="res://core/data/skill_data.gd" id="2_ujqvv"]
 [ext_resource type="Resource" path="res://content/skills/enemies/splash.tres" id="3_splash"]
+[ext_resource type="Resource" path="res://content/ai/melee_aggressive.tres" id="91_ai"]
 
 [resource]
 script = ExtResource("1_script")
@@ -21,4 +22,5 @@ defense = 5
 evasion = 0
 hp_per_level = 9
 skills = Array[ExtResource("2_ujqvv")]([ExtResource("3_splash")])
+ai_profile = ExtResource("91_ai")
 xp_reward = 8

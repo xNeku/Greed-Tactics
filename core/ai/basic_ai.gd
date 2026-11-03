@@ -1,34 +1,59 @@
 class_name BasicAI
 extends RefCounted
-## Simple greedy AI used by enemies (and by autoplay / companions later).
+## Tactical AI used by enemies (and by autoplay). Weights come from the unit's
+## AiProfile (UnitData.ai_profile) or a default one.
 ##
 ## Call [method decide] repeatedly during the unit's turn until it returns
-## END_TURN. Priorities:
-##   1. Use the best skill from the current cell (expected damage, kills,
-##      backstabs; motion skills included).
-##   2. Move to the cell with the best attack available after moving.
-##   3. Walk towards the nearest opponent.
-##   4. End the turn facing the nearest opponent.
+## END_TURN. Each call:
+##   1. Builds a threat map: how much damage the opponents could deal to each
+##      cell next turn (their movement + skill range + damage).
+##   2. Scores every (move, skill, target) combination: expected damage, kills,
+##      wounded/dangerous targets, statuses, resource costs and the threat of
+##      the cell where the unit ends up.
+##   3. Uses the skill now, moves to set up the best one, or repositions
+##      (approach for melee, keep distance for ranged, avoid danger).
+##   4. Ends the turn facing the nearest opponent.
 
-const KILL_BONUS := 50.0
-const MOVE_COST_WEIGHT := 0.01
+const MOVE_COST_WEIGHT := 0.05
+
+var _default_profile := AiProfile.new()
 
 
 func decide(combat: CombatState, unit: UnitState) -> AiAction:
-	var attack := best_attack_from(combat, unit, unit.cell)
-	if not attack.is_empty():
-		return AiAction.use_skill(attack.skill, attack.cell)
+	var profile := get_profile(unit)
+	var threat := build_threat_map(combat, unit)
 
+	var here := best_attack_from(combat, unit, unit.cell, threat)
+	var best_move := {}
+	var reach: ReachMap = null
 	if unit.pm > 0:
-		var destination := _best_destination(combat, unit)
+		reach = combat.get_reach_map(unit)
+		best_move = _best_attack_after_moving(combat, unit, reach, threat)
+	if not here.is_empty() and (best_move.is_empty() or here.score >= best_move.score - 0.5):
+		return AiAction.use_skill(here.skill, here.cell)
+	if not best_move.is_empty():
+		return AiAction.move(best_move.destination)
+
+	if reach != null:
+		var destination := _best_reposition(combat, unit, reach, threat, profile)
 		if destination != unit.cell:
 			return AiAction.move(destination)
 
 	return AiAction.end_turn(_facing_towards_nearest_opponent(combat, unit))
 
 
-## Returns {skill, cell, score} or an empty dictionary if nothing is worth it.
-func best_attack_from(combat: CombatState, unit: UnitState, from_cell: Vector2i) -> Dictionary:
+func get_profile(unit: UnitState) -> AiProfile:
+	return unit.data.ai_profile if unit.data.ai_profile != null else _default_profile
+
+
+#region Attack scoring
+
+## Best skill to use from [param from_cell]: {skill, cell, score, landing}
+## or {} if nothing is worth it. The score already includes the position
+## value of the cell where the unit ends up.
+func best_attack_from(combat: CombatState, unit: UnitState, from_cell: Vector2i,
+		threat: Dictionary[Vector2i, float] = {}) -> Dictionary:
+	var profile := get_profile(unit)
 	var opponents := _opponent_cells(combat, unit)
 	var best := {}
 	for skill in unit.data.skills:
@@ -39,50 +64,116 @@ func best_attack_from(combat: CombatState, unit: UnitState, from_cell: Vector2i)
 		for cell in combat.get_targetable_cells(unit, skill, from_cell):
 			if not _near_any(cell, opponents, reach):
 				continue
-			var score := 0.0
+			var value := 0.0
 			for preview in combat.preview_skill(unit, skill, from_cell, cell):
-				var value := preview.damage * preview.hit_chance / 100.0
-				if preview.damage >= preview.target.hp:
-					value += KILL_BONUS
-				score += value if preview.target.is_enemy_of(unit) else -value
-			# Spending rage/mana/cooldowns should be worth it.
-			score -= effective.rage_cost * 0.1 + effective.mp_cost * 0.2 + effective.cooldown * 1.5
-			if score > 0.0 and (best.is_empty() or score > best.score):
-				best = {"skill": skill, "cell": cell, "score": score}
+				value += _hit_value(unit, preview, profile)
+			if value <= 0.0:
+				continue
+			value -= profile.resource_cost_weight * (effective.rage_cost * 0.1 + effective.mp_cost * 0.2 + effective.cooldown * 1.5)
+			var landing := combat.get_landing_cell(unit, effective, from_cell, cell)
+			var score := value + position_value(combat, unit, landing, threat, profile)
+			if value > 0.0 and (best.is_empty() or score > best.score):
+				best = {"skill": skill, "cell": cell, "score": score, "landing": landing}
 	return best
 
 
-func _best_destination(combat: CombatState, unit: UnitState) -> Vector2i:
-	var reach := combat.get_reach_map(unit)
-	var destinations := reach.get_destinations()
+func _hit_value(unit: UnitState, preview: AttackPreview, profile: AiProfile) -> float:
+	var target := preview.target
+	var chance := preview.hit_chance / 100.0
+	var value := preview.damage * chance
+	if preview.damage >= target.hp:
+		value += profile.kill_bonus * chance
+	else:
+		value += profile.focus_weight * (1.0 - float(target.hp) / target.max_hp) * chance
+		for app in preview.statuses:
+			if not target.has_status(app.status):
+				value += profile.status_value * app.chance / 100.0 * chance
+	value += profile.dangerous_target_weight * target.attack * chance
+	return value if target.is_enemy_of(unit) else -value * 1.5
 
-	var best_cell := unit.cell
-	var best_score := 0.0
-	for cell in destinations:
-		var attack := best_attack_from(combat, unit, cell)
+
+func _best_attack_after_moving(combat: CombatState, unit: UnitState, reach: ReachMap,
+		threat: Dictionary[Vector2i, float]) -> Dictionary:
+	var best := {}
+	for cell in reach.get_destinations():
+		var attack := best_attack_from(combat, unit, cell, threat)
 		if attack.is_empty():
 			continue
 		var score: float = attack.score - reach.get_cost(cell) * MOVE_COST_WEIGHT
-		if score > best_score:
-			best_score = score
-			best_cell = cell
-	if best_cell != unit.cell:
-		return best_cell
+		if best.is_empty() or score > best.score:
+			best = {"destination": cell, "score": score}
+	return best
 
-	return _closest_to_opponents(combat, unit, destinations)
+#endregion
 
 
-func _closest_to_opponents(combat: CombatState, unit: UnitState, destinations: Array[Vector2i]) -> Vector2i:
-	var field := _distance_to_opponents(combat, unit)
+#region Positioning
+
+## Expected damage the opponents of [param unit] could deal to each cell
+## next turn. Cells nobody threatens are absent (0).
+func build_threat_map(combat: CombatState, unit: UnitState) -> Dictionary[Vector2i, float]:
+	var threat: Dictionary[Vector2i, float] = {}
+	var own_team: Dictionary[Vector2i, bool] = {}
+	for other in combat.get_living_units():
+		if not other.is_enemy_of(unit) and other != unit:
+			own_team[other.cell] = true
+	for opponent in combat.get_living_units():
+		if not opponent.is_enemy_of(unit):
+			continue
+		var max_range := 1
+		var best_power := 0
+		for skill in opponent.data.skills:
+			var effective := opponent.get_effective(skill)
+			if effective.deals_damage():
+				max_range = maxi(max_range, effective.range_max + effective.area_size)
+				best_power = maxi(best_power, effective.power)
+		var damage := maxf(best_power + opponent.attack - unit.defense, 1.0)
+		var moves := Pathfinder.find_reachable(combat.grid, combat.rules, opponent.cell,
+			opponent.move_points, own_team)
+		var covered: Dictionary[Vector2i, bool] = {}
+		for origin in moves.costs:
+			for cell in AreaShape.get_cells(AreaShape.Shape.DIAMOND, origin, max_range):
+				covered[cell] = true
+		for cell in covered:
+			threat[cell] = threat.get(cell, 0.0) + damage
+	return threat
+
+
+## How good it is to end the turn on [param cell] (higher is better).
+func position_value(combat: CombatState, unit: UnitState, cell: Vector2i,
+		threat: Dictionary[Vector2i, float], profile: AiProfile) -> float:
+	var value: float = -profile.threat_weight * threat.get(cell, 0.0)
+	var nearest := _nearest_opponent_distance(combat, unit, cell)
+	if nearest < profile.preferred_distance:
+		value -= profile.too_close_weight * (profile.preferred_distance - nearest)
+	return value
+
+
+func _best_reposition(combat: CombatState, unit: UnitState, reach: ReachMap,
+		threat: Dictionary[Vector2i, float], profile: AiProfile) -> Vector2i:
+	var walk := _distance_to_opponents(combat, unit)
 	var best_cell := unit.cell
-	var best_distance: int = field.get(unit.cell, 1 << 20)
-	for cell in destinations:
-		var distance: int = field.get(cell, 1 << 20)
-		if distance < best_distance:
-			best_distance = distance
+	var best_value := _reposition_value(combat, unit, unit.cell, threat, walk, profile)
+	for cell in reach.get_destinations():
+		var value := _reposition_value(combat, unit, cell, threat, walk, profile) - reach.get_cost(cell) * MOVE_COST_WEIGHT
+		if value > best_value + profile.reposition_margin:
+			best_value = value
 			best_cell = cell
 	return best_cell
 
+
+func _reposition_value(combat: CombatState, unit: UnitState, cell: Vector2i,
+		threat: Dictionary[Vector2i, float], walk: Dictionary[Vector2i, int], profile: AiProfile) -> float:
+	var value := position_value(combat, unit, cell, threat, profile)
+	# Only melee-minded units (or anyone with PA left) want to get closer.
+	var distance: int = walk.get(cell, 99)
+	value -= profile.approach_weight * maxi(distance - profile.preferred_distance, 0)
+	return value
+
+#endregion
+
+
+#region Helpers
 
 ## Walking distance from every cell to the closest opponent.
 func _distance_to_opponents(combat: CombatState, unit: UnitState) -> Dictionary[Vector2i, int]:
@@ -101,6 +192,14 @@ func _distance_to_opponents(combat: CombatState, unit: UnitState) -> Dictionary[
 			if not merged.has(cell) or field[cell] < merged[cell]:
 				merged[cell] = field[cell]
 	return merged
+
+
+func _nearest_opponent_distance(combat: CombatState, unit: UnitState, cell: Vector2i) -> int:
+	var best := 99
+	for other in combat.get_living_units():
+		if other.is_enemy_of(unit):
+			best = mini(best, BattleGrid.manhattan(cell, other.cell))
+	return best
 
 
 func _facing_towards_nearest_opponent(combat: CombatState, unit: UnitState) -> GridDir.Dir:
@@ -128,3 +227,5 @@ func _near_any(cell: Vector2i, cells: Array[Vector2i], distance: int) -> bool:
 		if BattleGrid.manhattan(cell, other) <= distance:
 			return true
 	return false
+
+#endregion

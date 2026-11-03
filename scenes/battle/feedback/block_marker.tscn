@@ -1,0 +1,27 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/battle/feedback/block_marker.gd" id="1_marker"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cross"]
+render_priority = 21
+transparency = 1
+no_depth_test = true
+shading_mode = 0
+albedo_color = Color(1, 0.25, 0.25, 0.95)
+
+[sub_resource type="BoxMesh" id="BoxMesh_bar"]
+material = SubResource("StandardMaterial3D_cross")
+size = Vector3(0.7, 0.06, 0.14)
+
+[node name="BlockMarker" type="Node3D"]
+script = ExtResource("1_marker")
+
+[node name="BarA" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.70710677, 0, 0.70710677, 0, 1, 0, -0.70710677, 0, 0.70710677, 0, 0.1, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_bar")
+
+[node name="BarB" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.70710677, 0, -0.70710677, 0, 1, 0, 0.70710677, 0, 0.70710677, 0, 0.1, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_bar")

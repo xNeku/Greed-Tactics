@@ -32,6 +32,7 @@ var _target_yaw := 0.0
 var _target_distance := 0.0
 var _bounds := AABB()
 var _dragging := false
+var _shake_strength := 0.0
 
 
 func _ready() -> void:
@@ -44,6 +45,11 @@ func _ready() -> void:
 
 func get_camera() -> Camera3D:
 	return _camera
+
+
+## Short screen shake (crits, explosions). Stronger calls override weaker ones.
+func shake(strength: float = 0.15) -> void:
+	_shake_strength = maxf(_shake_strength, strength)
 
 
 ## Limits panning to [param bounds] (usually the map AABB).
@@ -99,7 +105,11 @@ func _pan(amount: Vector2) -> void:
 
 func _apply_pitch_and_distance() -> void:
 	_pitch.rotation.x = -deg_to_rad(pitch_degrees)
-	_camera.position = Vector3(0.0, 0.0, distance)
+	var jitter := Vector3.ZERO
+	if _shake_strength > 0.001:
+		jitter = Vector3(randf_range(-1, 1), randf_range(-1, 1), 0.0) * _shake_strength
+		_shake_strength = lerpf(_shake_strength, 0.0, 0.18)
+	_camera.position = Vector3(0.0, 0.0, distance) + jitter
 
 
 func _clamp_to_bounds(world_position: Vector3) -> Vector3:

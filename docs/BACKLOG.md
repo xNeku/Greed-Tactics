@@ -10,19 +10,21 @@ El estado por hito está en [`ROADMAP.md`](ROADMAP.md).
 
 | ID | Tarea | Hito | Prio | Estado |
 |---|---|---|---|---|
+| GT-230 | Validar el feel v0.4 jugando: flechas, zona roja, efectos, estados y dificultad de la IA | M1 | P0 | 🔍 |
+| GT-231 | Ocultar o hacer transparentes los árboles/muros que tapan unidades o la casilla bajo el ratón | M1 | P1 | ⬜ |
+| GT-232 | Animación de "cast" del usuario (brillo/pose) y anticipación del enemigo antes de golpear | M1 | P2 | ⬜ |
+| GT-233 | Estados: más efectos (sangrado, escudo, provocar) e inmunidades de bosses | M1 | P2 | ⬜ |
+| GT-234 | IA: usar habilidades de movimiento sin daño para huir/reposicionarse y esperar al umbral de ira | M1 | P2 | ⬜ |
+| GT-235 | Opción de dificultad (fácil/normal/difícil) como multiplicador de `RunConfig` | M2 | P2 | ⬜ |
+| GT-202 | Previsualizar el daño de las explosiones de modificadores (hoy solo se indica "explota") | M1 | P3 | ⬜ |
 | GT-200 | Validar el prototipo v0.3 jugando: una run completa + combates rápidos de cada zona. Anotar sensaciones de ritmo, clases, ira y mapas | M1/M2 | P0 | 🔍 |
 | GT-016 | Medir duración media de combate con jugador humano y ajustar números (objetivo 4-6 min) | M1 | P1 | ⬜ |
 | GT-052 | Validar duración de run (objetivo 20-30 min en este prototipo) | M2 | P1 | ⬜ |
-| GT-201 | Marcador del umbral de mutación en la barra de ira (HUD) y aviso visual cuando una habilidad muta | M1 | P1 | ⬜ |
-| GT-202 | Previsualizar rebotes y explosiones en la ficha de ataque (hoy solo el golpe principal) | M1 | P2 | ⬜ |
-| GT-203 | IA: usar habilidades de movimiento sin daño (Parpadeo, Voltereta) para reposicionarse y huir | M1 | P2 | ⬜ |
-| GT-204 | IA: gestionar la ira (esperar al umbral de mutación) y el maná | M1 | P2 | ⬜ |
 | GT-050 | Bendiciones (GDD §2) separadas de los modificadores | M2 | P1 | ⬜ |
 | GT-051 | Compañeros: elegir personaje principal + compañeros, IA por rol (GDD §7) | M2 | P1 | ⬜ |
 | GT-205 | Mapa de run con ramas (elegir camino entre fases) | M2 | P2 | ⬜ |
 | GT-206 | Tienda / eventos entre fases como uso alternativo del oro | M2 | P2 | ⬜ |
 | GT-207 | Generador: más variedad (puentes, ruinas, desniveles con escaleras, zonas estrechas), validar "sentido lógico" con más semillas | M2 | P2 | ⬜ |
-| GT-017 | Estados alterados (veneno, aturdido, sangrado) como efecto al impacto | M1 | P2 | ⬜ |
 | GT-018 | Cola de turnos con retratos y resaltar la unidad en el mapa al pasar por la cola | M1 | P2 | ⬜ |
 
 ## Más adelante
@@ -60,5 +62,10 @@ El estado por hito está en [`ROADMAP.md`](ROADMAP.md).
 | GT-210 | Ira (ganancia, bonus de daño, coste, mutaciones), maná con regeneración, enfriamientos | M1 | 2026-11-02 |
 | GT-211 | Modificadores de comportamiento en combate: rebote, explosión, robo de vida, empuje, reembolso de PA | M1 | 2026-11-02 |
 | GT-212 | 12 enemigos y 3 minibosses con sprites provisionales; props 3D (árbol, cactus, roca, estalagmita, cristal) | M4 | 2026-11-02 |
+| GT-017 | Estados alterados (quemado, veneno, ralentizado, aturdido, silencio) con tinte e iconos | M1 | 2026-11-03 |
+| GT-201 | Previsión completa: vida resultante, estados, empuje cortado, rebotes; panel de habilidad | M1 | 2026-11-03 |
+| GT-203 | IA táctica: mapa de amenaza, foco en heridos/peligrosos, distancia preferida, perfiles por enemigo | M1 | 2026-11-03 |
+| GT-220 | Flechas de previsión en parábola (verde/roja/naranja/amarilla/gris) y marca de bloqueo; movimiento a medias | M1 | 2026-11-03 |
+| GT-221 | Efectos visuales placeholder (proyectil, parábola, tajo, nova, explosiones por casilla), sacudida de cámara | M1 | 2026-11-03 |
 | GT-213 | Tests: 91 unitarios + simulación de runs + recorrido end-to-end de pantallas | M1 | 2026-11-02 |
 | GT-100…113 | Base M0 (proyecto, datos, grid, combate, HUD, cámara, IA, tests, CI) | M0 | 2026-11-02 |

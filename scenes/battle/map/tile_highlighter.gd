@@ -1,10 +1,11 @@
 class_name TileHighlighter
 extends Node3D
-## Coloured overlays on top of cells (GDD §11): blue = movement, yellow/orange
-## = targets and area, green = hovered cell. Each layer is a child
+## Coloured overlays on top of cells (GDD §11): blue = movement, soft yellow =
+## skill range, red = damage zone, green = landing / hovered cell, orange =
+## where a push leaves a target. Each layer is a child
 ## MultiMeshInstance3D with its own material, so colours are tuned in the scene.
 
-enum Layer { MOVE, PATH, TARGET, AREA, CURSOR }
+enum Layer { MOVE, PATH, TARGET, AREA, LANDING, PUSH, CURSOR }
 
 ## Height above the surface, to avoid z-fighting with the terrain.
 const SURFACE_OFFSET := 0.02
@@ -14,6 +15,8 @@ const SURFACE_OFFSET := 0.02
 	Layer.PATH: $Path,
 	Layer.TARGET: $Target,
 	Layer.AREA: $Area,
+	Layer.LANDING: $Landing,
+	Layer.PUSH: $Push,
 	Layer.CURSOR: $Cursor,
 }
 

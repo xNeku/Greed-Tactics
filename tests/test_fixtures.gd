@@ -124,3 +124,23 @@ static func zone(layout: ZoneData.Layout) -> ZoneData:
 	z.obstacle_density = 0.12
 	z.liquid_amount = 0.08
 	return z
+
+
+static func status(kind: StatusData.Kind, duration: int = 2) -> StatusData:
+	var s := StatusData.new()
+	s.id = StringName(StatusData.Kind.keys()[kind].to_lower())
+	s.kind = kind
+	s.default_duration = duration
+	match kind:
+		StatusData.Kind.BURN:
+			s.damage_percent_per_turn = 10
+		StatusData.Kind.POISON:
+			s.damage_flat_per_turn = 5
+		StatusData.Kind.SLOW:
+			s.move_penalty = 2
+			s.speed_percent_penalty = 50
+		StatusData.Kind.STUN:
+			s.skips_turn = true
+		StatusData.Kind.SILENCE:
+			s.blocks_skills = true
+	return s

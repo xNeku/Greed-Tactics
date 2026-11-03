@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/units/bat.png" id="2_bat"]
 [ext_resource type="Script" path="res://core/data/skill_data.gd" id="2_ftit1"]
 [ext_resource type="Resource" path="res://content/skills/enemies/bite.tres" id="3_bite"]
+[ext_resource type="Resource" path="res://content/ai/skirmisher.tres" id="91_ai"]
 
 [resource]
 script = ExtResource("1_script")
@@ -21,5 +22,6 @@ defense = 1
 evasion = 25
 hp_per_level = 5
 skills = Array[ExtResource("2_ftit1")]([ExtResource("3_bite")])
+ai_profile = ExtResource("91_ai")
 xp_reward = 7
 gold_reward = 2

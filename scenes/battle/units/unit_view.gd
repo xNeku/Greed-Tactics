@@ -22,11 +22,14 @@ const RAGE_COLOR := Color(1.0, 0.45, 0.35)
 @onready var _info_label: Label3D = $Body/InfoLabel
 @onready var _ring: GeometryInstance3D = $Ring
 @onready var _facing_pivot: Node3D = $FacingPivot
+@onready var _status_icons: Node3D = $Body/StatusIcons
 
 var unit: UnitState
 var _map: BattleMapView
 var _camera: Camera3D
 var _facing_tween: Tween
+## Sprite colour when not flashing: white, or tinted by the strongest status.
+var _base_modulate := Color.WHITE
 
 
 func setup(p_unit: UnitState, map_view: BattleMapView, camera: Camera3D) -> void:
@@ -39,6 +42,7 @@ func setup(p_unit: UnitState, map_view: BattleMapView, camera: Camera3D) -> void
 		_sprite.offset.y = _sprite.texture.get_height() * 0.5
 	_sprite.pixel_size *= unit.data.sprite_scale
 	_info_label.position.y *= unit.data.sprite_scale
+	_status_icons.position.y *= unit.data.sprite_scale
 	_ring.scale = Vector3.ONE * clampf(unit.data.sprite_scale, 1.0, 1.3)
 	set_active(false)
 	sync_to_state()
@@ -63,6 +67,7 @@ func refresh_info() -> void:
 		resource = " · MP %d" % unit.mp
 	_info_label.text = "%s\nHP %d/%d%s" % [unit.display_name, unit.hp, unit.max_hp, resource]
 	_info_label.modulate = get_team_color().lightened(0.35)
+	_refresh_statuses()
 
 
 func get_team_color() -> Color:
@@ -80,6 +85,11 @@ func face(dir: GridDir.Dir) -> void:
 	var target := _facing_pivot.rotation.y + angle_difference(_facing_pivot.rotation.y, GridDir.to_yaw(dir))
 	_facing_tween = create_tween()
 	_facing_tween.tween_property(_facing_pivot, "rotation:y", target, 0.12)
+
+
+## Where projectiles leave from (chest height).
+func get_cast_position() -> Vector3:
+	return global_position + Vector3.UP * 0.55 * unit.data.sprite_scale
 
 
 func get_head_position() -> Vector3:
@@ -169,7 +179,7 @@ func play_hit(hit: SkillResult.Hit) -> void:
 	var flash := create_tween()
 	for i in 2:
 		flash.tween_property(_sprite, "modulate", Color(1.0, 0.35, 0.35), 0.06)
-		flash.tween_property(_sprite, "modulate", Color.WHITE, 0.06)
+		flash.tween_property(_sprite, "modulate", _base_modulate, 0.06)
 	await flash.finished
 
 
@@ -185,12 +195,60 @@ func play_defeat() -> void:
 #endregion
 
 
-func _spawn_popup(text: String, color: Color) -> void:
+## Floating texts for statuses that stuck on this unit after a hit.
+func play_statuses_applied(statuses: Array[StatusData]) -> void:
+	for status in statuses:
+		_spawn_popup("¡%s!" % status.display_name, status.color, 0.35)
+	refresh_info()
+
+
+## Start-of-turn status effects (damage over time, lost turn, expiry).
+func play_status_events(events: Array[StatusEvent]) -> void:
+	for event in events:
+		if event.damage > 0:
+			_spawn_popup("%d" % event.damage, event.status.color)
+			var flash := create_tween()
+			flash.tween_property(_sprite, "modulate", event.status.color, 0.08)
+			flash.tween_property(_sprite, "modulate", _base_modulate, 0.12)
+			await flash.finished
+		if event.skipped_turn:
+			_spawn_popup("%s: pierde el turno" % event.status.display_name, event.status.color, 0.35)
+		elif event.expired:
+			_spawn_popup("Fin de %s" % event.status.display_name.to_lower(), Color(0.85, 0.88, 1.0), 0.35)
+	refresh_info()
+
+
+func _refresh_statuses() -> void:
+	for child in _status_icons.get_children():
+		child.queue_free()
+	var tint := Color.WHITE
+	var x := -0.14 * (unit.statuses.size() - 1)
+	for status in unit.statuses:
+		tint = tint.lerp(status.color, 0.45)
+		if status.icon == null:
+			continue
+		var icon := Sprite3D.new()
+		icon.texture = status.icon
+		icon.pixel_size = 0.028
+		icon.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		icon.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+		icon.no_depth_test = true
+		icon.render_priority = 7
+		icon.shaded = false
+		icon.position.x = x
+		x += 0.28
+		_status_icons.add_child(icon)
+	_base_modulate = tint
+	if unit.is_alive():
+		_sprite.modulate = Color(tint, _sprite.modulate.a)
+
+
+func _spawn_popup(text: String, color: Color, height_offset: float = 0.0) -> void:
 	if damage_popup_scene == null:
 		return
 	var popup: DamagePopup = damage_popup_scene.instantiate()
 	add_child(popup)
-	popup.global_position = get_head_position() + Vector3.UP * 0.2
+	popup.global_position = get_head_position() + Vector3.UP * (0.2 + height_offset)
 	popup.show_text(text, color)
 
 

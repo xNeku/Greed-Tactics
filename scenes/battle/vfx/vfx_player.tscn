@@ -1,0 +1,12 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/battle/vfx/vfx_player.gd" id="1_player"]
+[ext_resource type="PackedScene" path="res://scenes/battle/vfx/vfx_projectile.tscn" id="2_projectile"]
+[ext_resource type="PackedScene" path="res://scenes/battle/vfx/vfx_impact.tscn" id="3_impact"]
+[ext_resource type="PackedScene" path="res://scenes/battle/vfx/vfx_slash.tscn" id="4_slash"]
+
+[node name="VfxPlayer" type="Node3D"]
+script = ExtResource("1_player")
+projectile_scene = ExtResource("2_projectile")
+impact_scene = ExtResource("3_impact")
+slash_scene = ExtResource("4_slash")

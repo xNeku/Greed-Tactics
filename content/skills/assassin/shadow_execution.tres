@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="SkillData" format=3]
 
 [ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+[ext_resource type="Resource" path="res://content/statuses/silence.tres" id="90_status"]
 
 [resource]
 script = ExtResource("1_script")
@@ -18,3 +19,5 @@ vertical_reach = 3
 power = 20
 motion = 3
 crit_bonus = 20
+status = ExtResource("90_status")
+vfx_color = Color(0.8, 0.4, 1, 1)

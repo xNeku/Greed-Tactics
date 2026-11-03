@@ -16,3 +16,4 @@ range_max = 3
 vertical_reach = 2
 power = 0
 motion = 1
+vfx_style = 1

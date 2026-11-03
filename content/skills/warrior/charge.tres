@@ -17,4 +17,5 @@ range_max = 4
 requires_straight_line = true
 power = 8
 motion = 2
+vfx_color = Color(0.9, 0.92, 1, 1)
 empowered_variant = ExtResource("2_unstoppable_charge")

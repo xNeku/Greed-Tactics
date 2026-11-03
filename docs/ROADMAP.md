@@ -8,7 +8,7 @@ Leyenda: ✅ hecho · 🟡 en curso · ⬜ pendiente · 🔍 pendiente de valida
 | Hito | Estado | Resumen |
 |---|---|---|
 | M0. Prototipo de grid | ✅ | Validado por Neku ("me gusta"). |
-| M1. Combate completo | 🔍 | 4 clases con kit completo, ira/maná/enfriamientos, pipeline y 22 modificadores. Falta validarlo jugando. |
+| M1. Combate completo | 🔍 | 4 clases, ira/maná/enfriamientos, 25 modificadores, estados, IA táctica, flechas y efectos (v0.4). Falta validarlo jugando. |
 | M2. Run jugable | 🟡 | Prototipo de run de 2 etapas × 4 fases con generador de mapas, recompensas y XP. Faltan compañeros, bendiciones y pulido. |
 | M3. Meta y persistencia | ⬜ | |
 | M4. Contenido | 🟡 | Adelantado: 3 zonas, 12 enemigos, 3 minibosses, 22 modificadores. |
@@ -33,6 +33,10 @@ Criterio de salida cumplido: mover y atacar en el grid con previsión; tests de 
 - ✅ `ModifierData` + `ResolutionPipeline` con el orden fijo del GDD §5 — GT-013, GT-014.
 - ✅ 22 modificadores (numéricos y de comportamiento) con tests del pipeline — GT-015.
 - ✅ Tabla de incompatibilidades — GT-040.
+- ✅ Feedback de acciones: flechas, zona de daño, previsión completa, panel de habilidad (v0.4) — GT-201, GT-220.
+- ✅ Efectos visuales placeholder por habilidad (v0.4) — GT-221.
+- ✅ Estados alterados: quemado, veneno, ralentizado, aturdido, silencio (v0.4) — GT-017.
+- ✅ IA táctica con mapa de amenaza y perfiles (v0.4) — GT-203.
 - 🔍 Medir duración real del combate con jugador humano (objetivo 4-6 min) — GT-016.
 
 ## M2. Run jugable — 🟡

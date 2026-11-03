@@ -15,6 +15,8 @@ signal skill_resolved(result: SkillResult)
 signal unit_stats_changed(unit: UnitState)
 signal unit_defeated(unit: UnitState)
 signal turn_ended(unit: UnitState)
+## Statuses acted at the start of [param unit]'s turn (damage, expiry, lost turn).
+signal statuses_ticked(unit: UnitState, events: Array[StatusEvent])
 signal combat_finished(winner: UnitState.Team)
 
 const NO_WINNER := -1
@@ -27,6 +29,8 @@ var active_unit: UnitState
 var winner: int = NO_WINNER
 ## Number of turns started so far (for stats and balance).
 var turn_count: int = 0
+## What statuses did at the start of the current turn.
+var last_status_events: Array[StatusEvent] = []
 
 var _turn_queue: TurnQueue
 var _rng := RandomNumberGenerator.new()
@@ -118,15 +122,59 @@ func get_occupied_cells(except: UnitState = null) -> Dictionary[Vector2i, bool]:
 ## Movement options for [param unit] with its current PM.
 ## Enemies block the way; allies can be crossed but not stood on.
 func get_reach_map(unit: UnitState) -> ReachMap:
-	var blocked: Dictionary[Vector2i, bool] = {}
-	var occupied: Dictionary[Vector2i, bool] = {}
-	for other in get_living_units():
-		if other == unit:
-			continue
-		occupied[other.cell] = true
-		if other.is_enemy_of(unit):
-			blocked[other.cell] = true
-	return Pathfinder.find_reachable(grid, rules, unit.cell, unit.pm, blocked, occupied)
+	var blockers := _movement_blockers(unit)
+	return Pathfinder.find_reachable(grid, rules, unit.cell, unit.pm, blockers.blocked, blockers.occupied)
+
+
+## Movement towards [param cell] even if it is out of PM range ("a medias").
+## Returns {} if there is no way to get closer, otherwise
+## {"destination": Vector2i, "path": Array[Vector2i], "partial": bool}.
+## A partial move stops on the last cell of the way that the PM allow.
+func get_move_preview(unit: UnitState, cell: Vector2i) -> Dictionary:
+	var reach := get_reach_map(unit)
+	if reach.can_stop_at(cell):
+		return {"destination": cell, "path": reach.get_path_to(cell), "partial": false}
+	var blockers := _movement_blockers(unit)
+	var unlimited := Pathfinder.find_reachable(grid, rules, unit.cell, 1 << 20, blockers.blocked, blockers.occupied)
+	if not unlimited.costs.has(cell):
+		return {}
+	var best := unit.cell
+	for step in unlimited.get_path_to(cell):
+		if unlimited.get_cost(step) > unit.pm:
+			break
+		if reach.can_stop_at(step):
+			best = step
+	if best == unit.cell:
+		return {}
+	return {"destination": best, "path": reach.get_path_to(best), "partial": true}
+
+
+## Where a push of [param distance] cells in [param direction] would leave
+## [param target]. {"to": Vector2i, "blocked_at": Vector2i (NO_CELL if complete)}.
+func predict_push(target: UnitState, direction: GridDir.Dir, distance: int) -> Dictionary:
+	var cell := target.cell
+	for i in distance:
+		var next := cell + GridDir.to_vector(direction)
+		if not _is_free(next, target) or grid.get_height(next) - grid.get_height(cell) > rules.max_climb:
+			return {"to": cell, "blocked_at": next}
+		cell = next
+	return {"to": cell, "blocked_at": NO_CELL}
+
+
+## Units a bouncing skill would chain to after hitting [param first]
+## (assuming every hop lands).
+func predict_bounces(user: UnitState, skill: EffectiveSkill, first: UnitState) -> Array[UnitState]:
+	var chain: Array[UnitState] = []
+	var exclude: Array[UnitState] = [first]
+	var from_cell := first.cell
+	for i in skill.bounce_hops:
+		var next := _nearest_enemy(user, from_cell, exclude)
+		if next == null:
+			break
+		chain.append(next)
+		exclude.append(next)
+		from_cell = next.cell
+	return chain
 
 
 func get_effective(user: UnitState, skill: SkillData) -> EffectiveSkill:
@@ -228,7 +276,14 @@ func start_next_turn() -> UnitState:
 	active_unit = _turn_queue.advance(units)
 	active_unit.begin_turn(rules)
 	turn_count += 1
+	last_status_events = _tick_statuses(active_unit)
 	turn_started.emit(active_unit)
+	if not last_status_events.is_empty():
+		statuses_ticked.emit(active_unit, last_status_events)
+		unit_stats_changed.emit(active_unit)
+		if not active_unit.is_alive():
+			unit_defeated.emit(active_unit)
+			_check_victory()
 	return active_unit
 
 
@@ -314,7 +369,15 @@ func _preview_hit(user: UnitState, skill: EffectiveSkill, from_cell: Vector2i, t
 		occupied: Dictionary[Vector2i, bool]) -> AttackPreview:
 	var side := GridRules.get_attack_side(grid, rules, from_cell, target.cell, target.facing, occupied)
 	var height_diff := grid.get_height(from_cell) - grid.get_height(target.cell)
-	return CombatFormulas.build_preview(rules, user, skill, target, side, height_diff)
+	var preview := CombatFormulas.build_preview(rules, user, skill, target, side, height_diff)
+	var fx := ResolutionPipeline.get_impact_effects(skill, side, false)
+	preview.statuses = fx.statuses
+	preview.push_to = target.cell
+	if preview.knockback > 0:
+		var push := predict_push(target, GridDir.from_delta(target.cell - from_cell), preview.knockback)
+		preview.push_to = push.to
+		preview.push_blocked_at = push.blocked_at
+	return preview
 
 
 func _resolve_hit(result: SkillResult, target: UnitState, from_cell: Vector2i,
@@ -344,8 +407,15 @@ func _resolve_hit(result: SkillResult, target: UnitState, from_cell: Vector2i,
 	var fx := ResolutionPipeline.get_impact_effects(skill, hit.side, hit.critical)
 	if fx.lifesteal > 0:
 		hit.healed = user.heal(roundi(hit.damage * fx.lifesteal / 100.0))
+	if target.is_alive():
+		for app: StatusApplication in fx.statuses:
+			if _rng.randi_range(1, 100) <= app.chance:
+				target.add_status(app.status, app.duration)
+				hit.applied_statuses.append(app.status)
 	if fx.knockback > 0 and target.is_alive():
-		hit.pushed_to = _push(target, GridDir.from_delta(target.cell - from_cell), fx.knockback)
+		var push := predict_push(target, GridDir.from_delta(target.cell - from_cell), fx.knockback)
+		hit.pushed_to = push.to
+		hit.push_blocked_at = push.blocked_at
 		target.cell = hit.pushed_to
 	if fx.explode_percent > 0 and source != SkillResult.HitSource.EXPLOSION:
 		_resolve_explosion(result, hit, fx.explode_percent, fx.explode_radius, already_hit)
@@ -413,18 +483,32 @@ func _apply_damage(target: UnitState, damage: int) -> void:
 		target.add_rage(CombatFormulas.rage_from_damage_taken(rules, target, damage), rules)
 
 
-## Pushes from the target's cell up to [param distance] cells. Stops at
-## obstacles, units, the map edge or walls higher than max_climb (drops are fine).
-func _push(target: UnitState, direction: GridDir.Dir, distance: int) -> Vector2i:
-	var cell := target.cell
-	for i in distance:
-		var next := cell + GridDir.to_vector(direction)
-		if not _is_free(next, target):
-			break
-		if grid.get_height(next) - grid.get_height(cell) > rules.max_climb:
-			break
-		cell = next
-	return cell
+## Start of turn: damage over time, lost turns and expiry.
+## Pushes stop at obstacles, units, the map edge or walls higher than
+## max_climb (drops are fine): see [method predict_push].
+func _tick_statuses(unit: UnitState) -> Array[StatusEvent]:
+	var events: Array[StatusEvent] = []
+	for status: StatusData in unit.statuses.keys():
+		var event := StatusEvent.new()
+		event.unit = unit
+		event.status = status
+		var damage := roundi(unit.max_hp * status.damage_percent_per_turn / 100.0) + status.damage_flat_per_turn
+		if damage > 0 and unit.is_alive():
+			event.damage = damage
+			_apply_damage(unit, damage)
+		if status.skips_turn:
+			event.skipped_turn = true
+			unit.skip_turn = true
+			unit.pm = 0
+			unit.pa = 0
+		unit.statuses[status] -= 1
+		if unit.statuses[status] <= 0:
+			unit.statuses.erase(status)
+			event.expired = true
+		events.append(event)
+	if not unit.is_alive():
+		unit.skip_turn = true
+	return events
 
 
 func _nearest_enemy(user: UnitState, from_cell: Vector2i, exclude: Array[UnitState]) -> UnitState:
@@ -438,6 +522,18 @@ func _nearest_enemy(user: UnitState, from_cell: Vector2i, exclude: Array[UnitSta
 			best_distance = distance
 			best = unit
 	return best
+
+
+func _movement_blockers(unit: UnitState) -> Dictionary:
+	var blocked: Dictionary[Vector2i, bool] = {}
+	var occupied: Dictionary[Vector2i, bool] = {}
+	for other in get_living_units():
+		if other == unit:
+			continue
+		occupied[other.cell] = true
+		if other.is_enemy_of(unit):
+			blocked[other.cell] = true
+	return {"blocked": blocked, "occupied": occupied}
 
 
 func _get_charge_landing(user: UnitState, from_cell: Vector2i, target_cell: Vector2i) -> Vector2i:

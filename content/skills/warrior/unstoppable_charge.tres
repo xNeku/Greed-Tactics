@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="SkillData" format=3]
 
 [ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+[ext_resource type="Resource" path="res://content/statuses/stun.tres" id="90_status"]
 
 [resource]
 script = ExtResource("1_script")
@@ -17,3 +18,5 @@ requires_straight_line = true
 power = 18
 motion = 2
 knockback = 2
+status = ExtResource("90_status")
+vfx_color = Color(1, 0.35, 0.3, 1)

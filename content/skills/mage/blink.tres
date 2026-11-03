@@ -16,3 +16,5 @@ range_max = 4
 vertical_reach = 9
 power = 0
 motion = 1
+vfx_style = 1
+vfx_color = Color(0.75, 0.5, 1, 1)

@@ -20,7 +20,7 @@ func advance(units: Array[UnitState]) -> UnitState:
 		return null
 	var ticks := _ticks_until_next(living, _ct_of(living))
 	for unit in living:
-		unit.ct += unit.speed * ticks
+		unit.ct += unit.get_current_speed() * ticks
 	return _pick_ready(living, _ct_of(living))
 
 
@@ -43,7 +43,7 @@ func preview(units: Array[UnitState], count: int, current: UnitState = null) -> 
 	while result.size() < count:
 		var ticks := _ticks_until_next(living, ct)
 		for unit in living:
-			ct[unit] += unit.speed * ticks
+			ct[unit] += unit.get_current_speed() * ticks
 		var next := _pick_ready(living, ct)
 		result.append(next)
 		ct[next] = maxi(ct[next] - _threshold, 0)
@@ -54,7 +54,7 @@ func _ticks_until_next(living: Array[UnitState], ct: Dictionary[UnitState, int])
 	var best := 1 << 30
 	for unit in living:
 		var missing := _threshold - ct[unit]
-		var ticks := 0 if missing <= 0 else ceili(float(missing) / unit.speed)
+		var ticks := 0 if missing <= 0 else ceili(float(missing) / unit.get_current_speed())
 		best = mini(best, ticks)
 	return best
 

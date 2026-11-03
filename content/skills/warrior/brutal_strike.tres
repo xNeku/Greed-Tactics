@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="SkillData" format=3]
 
 [ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+[ext_resource type="Resource" path="res://content/statuses/stun.tres" id="90_status"]
 
 [resource]
 script = ExtResource("1_script")
@@ -10,3 +11,6 @@ description = "Mutación con 50+ de ira: golpe devastador con más crítico."
 tags = Array[StringName]([&"basico", &"melee", &"hacha"])
 power = 26
 crit_bonus = 10
+status = ExtResource("90_status")
+status_chance = 35
+vfx_color = Color(1, 0.35, 0.3, 1)

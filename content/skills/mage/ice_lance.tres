@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="SkillData" format=3]
 
 [ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+[ext_resource type="Resource" path="res://content/statuses/slow.tres" id="90_status"]
 
 [resource]
 script = ExtResource("1_script")
@@ -15,3 +16,5 @@ range_max = 5
 vertical_reach = 4
 power = 18
 knockback = 1
+status = ExtResource("90_status")
+vfx_color = Color(0.5, 0.85, 1, 1)

@@ -84,3 +84,6 @@ font = ExtResource("4_font")
 font_size = 30
 outline_size = 10
 line_spacing = -4.0
+
+[node name="StatusIcons" type="Node3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.95, 0)

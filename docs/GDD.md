@@ -1,4 +1,4 @@
-# GDD - Greed Tactics · Tactics Roguelite Isométrico (v0.3)
+# GDD - Greed Tactics · Tactics Roguelite Isométrico (v0.4)
 
 Nov 2, 2026 · @Neku
 
@@ -121,6 +121,18 @@ Roguelike táctico isométrico 2.5D. Combate por turnos rápido y legible, runs 
 
 **[Decidido v0.3] Habilidades de movimiento** (`SkillData.motion`): `TELEPORT` (salta a una casilla libre ignorando alturas), `CHARGE` (corre en línea recta y golpea al llegar al lado del objetivo) y `BEHIND_TARGET` (aparece a la espalda del objetivo y golpea; necesita la espalda libre). Además, cualquier habilidad puede **empujar** (`knockback`): el objetivo se desplaza hasta chocar con un obstáculo, una unidad o una pared más alta que `max_climb` (las caídas sí se permiten).
 
+**[Decidido v0.4] Estados alterados** (`StatusData` en `content/statuses/`, todo dato). Volver a aplicar un estado renueva su duración (no se acumula). Actúan al empezar el turno de la unidad afectada:
+
+| Estado | Color | Efecto | Lo aplican |
+|---|---|---|---|
+| Quemado | rojo | −8% de la vida máxima por turno, 2 turnos | Bola de fuego, mod. *Munición incendiaria* |
+| Envenenado | verde | −4% de la vida máxima −2 por turno, 3 turnos | Dagas, Lluvia de dagas, Escorpión, Bandido, mod. *Hojas envenenadas* |
+| Ralentizado | azul | −2 PM y −35% de velocidad (actúa menos), 2 turnos | Lanza de hielo, Tiro certero, Raíces del Ent |
+| Aturdido | icono de estrellas | pierde su próximo turno | Golpe brutal ★ (35%), Carga imparable ★, Pisotón del Ogro (40%), mod. *Golpe aturdidor* (al crítico) |
+| Silenciado | icono de bocadillo tachado | solo puede usar el ataque básico, 2 turnos | Ejecución sombría ★ |
+
+Las habilidades se pueden lanzar a casillas vacías (libertad total); solo las que lo exigen (carga, aparecer a la espalda) necesitan un enemigo como objetivo.
+
 **[Decidido v0.3] Reglas de objetivo** (`SkillData.target_rule`): cualquier casilla, solo enemigos, solo casillas libres o uno mismo (alcance 0).
 
 **[Decidido v0.2] Datos de una habilidad (`SkillData`):** tipo, etiquetas, coste PA/MP, alcance mínimo y máximo (distancia Manhattan), alcance vertical, forma del área (`SINGLE`, `DIAMOND`, `SQUARE`, `CROSS`, `LINE`) y tamaño, poder y si afecta a aliados. Un alcance 0-0 apunta a la propia casilla (habilidades centradas en uno mismo).
@@ -186,7 +198,7 @@ El orden es fijo y está documentado. El caos viene de acumular, no de resolver 
 - La **mutación por ira se aplica antes** que los modificadores: los modificadores afectan también a la versión mutada.
 - **Tabla de incompatibilidades:** `ModifierData.incompatible_with` (por id). Ejemplo: *Rebote* y *Detonación*. El primero que consigues se queda; las ofertas nunca te ofrecen algo incompatible con lo que tienes ni un comportamiento repetido.
 - Las ofertas solo incluyen modificadores cuya etiqueta usa alguna habilidad del grupo.
-- Pool actual: 22 modificadores en `content/modifiers/`.
+- Pool actual: 25 modificadores en `content/modifiers/` (3 de estados en v0.4: `APPLY_STATUS`, se añade al final del enum para no romper datos guardados).
 
 ## 6. Personajes jugables
 
@@ -232,6 +244,12 @@ Enemigos de prototipo: Goblin (Saqueador, melee) y Limo (Bestia, melee lento y r
 - **Límite en combate:** máximo 3 aliados activos. Los demás quedan en reserva y se cambian entre combates.
 - **IA:** reglas de decisión por rol (prioridades simples: el sanador cura al aliado más bajo, el tanque se interpone, etc.). No se programa un comportamiento distinto por personaje.
 - Los compañeros no persisten entre runs, pero los que hayas visto pueden salir de nuevo en futuras runs.
+- **[Decidido v0.4] IA táctica** (`BasicAI` + `AiProfile` en `content/ai/`). Cada decisión:
+  1. Calcula un **mapa de amenaza**: cuánto daño podrían hacer los rivales a cada casilla el turno siguiente (su movimiento + alcance + daño).
+  2. Puntúa cada combinación **moverse + habilidad + objetivo**: daño esperado, bonus por **matar**, por rematar **heridos** (focus fire), por quitar de en medio a los **peligrosos** (más ataque), por aplicar **estados**, menos el coste del recurso y menos la **amenaza** de la casilla donde acaba.
+  3. Si no puede atacar, se **recoloca**: los melee avanzan, los de distancia **mantienen la distancia** y nadie se queda donde lo pueden reventar si lo puede evitar. Busca la **espalda** de forma natural (más daño).
+  - Perfiles: `melee_aggressive` (goblin, limo, momia, jabalí), `skirmisher` (lobo, murciélago, escorpión, bandido), `ranged` (goblin arquero, distancia 4), `boss` (casi ignora el peligro, foco total).
+  - La misma IA juega por el jugador en el autoplay, así que las simulaciones son una referencia exigente.
 - **[v0.2]** Ya existe una IA base (`BasicAI`) que usan los enemigos: ataca si puede, si no se mueve a la casilla con mejor ataque, si no se acerca al rival más cercano. Las IAs por rol extenderán esta base.
 
 ## 8. Armas y equipo
@@ -322,6 +340,21 @@ Enemigos de prototipo: Goblin (Saqueador, melee) y Limo (Bestia, melee lento y r
 
 **Feedback por color:** azul para movimiento, amarillo para objetivos y ataque, verde para la casilla seleccionada. Cada información tiene color y forma, no solo texto.
 
+**[Decidido v0.4] Feedback antes de confirmar (flechas y colores):**
+
+- Casillas: **azul** = alcanzable, **azul claro** = camino, **amarillo tenue** = alcance de la habilidad, **rojo** = zona de daño (si solo afecta a una casilla, solo esa), **verde** = dónde aterrizas, **naranja** = dónde acaba un objetivo empujado.
+- **Flechas en parábola** que se mueven en tiempo real (siguen al ratón suavemente, trazo discontinuo animado):
+  - **Verde**: tu movimiento y el de las habilidades de movimiento.
+  - **Roja**: tu ataque (desde donde golpearás tras moverte si la habilidad te mueve).
+  - **Naranja**: empujes. Si el empuje **se corta** por un obstáculo, la flecha acaba donde se queda y aparece una **✕ roja** en lo que lo bloquea.
+  - **Amarilla**: la cadena de **rebotes** prevista.
+  - **Gris**: movimiento **a medias**. Si apuntas fuera de tu alcance, la flecha verde llega hasta donde te dan los PM y la gris sigue hasta donde querías; al hacer clic te mueves lo máximo posible por ese camino.
+- Los **enemigos también enseñan sus flechas** un instante antes de actuar.
+- **Ficha de previsión** por objetivo: lado, daño (y crítico), vida antes → después, golpe y crítico, estados que aplicará con su probabilidad, empuje (y si se corta) y rebotes. Si hay varias, se colocan en fila sin taparse.
+- **Panel de habilidad** al seleccionarla: tipo, coste, etiquetas, descripción, alcance, área, efectos y modificadores que la afectan.
+
+**[Decidido v0.4] Efectos visuales (placeholder):** cada habilidad tiene `vfx_style` (tajo, proyectil, proyectil en parábola, nova o automático) y `vfx_color`. Proyectiles con estela y luz, explosiones con chispas + onda + destello, tajos en arco, una explosión pequeña en cada casilla del área, sacudida de cámara en críticos y explosiones, números flotantes, textos de estado ("¡Quemado!"), **tinte del sprite** del color del estado e **iconos de estado** sobre la cabeza.
+
 **Previsión:** toda acción muestra su área antes de confirmar. Los efectos encadenados tienen límite de saltos visible.
 
 **Tipografía:** Nunito (OFL) en Regular, Bold y ExtraBold.
@@ -337,7 +370,7 @@ core/        Reglas puras (RefCounted). Sin nodos, sin escenas. Testeables.
   data/      Definiciones de Resource: TerrainData, MapData, SkillData, UnitData, RulesConfig, BattleSetup
   grid/      GridDir, BattleGrid, GridRules, AreaShape, Pathfinder, ReachMap
   combat/    UnitState, TurnQueue, CombatState, CombatFormulas, AttackPreview, SkillResult
-  ai/        BasicAI, AiAction
+  ai/        BasicAI (táctica, v0.4), AiAction
 content/     Instancias .tres (lo que edita diseño): terrenos, mapas, unidades, habilidades, reglas, combates
 scenes/      Presentación: cada .tscn junto a su .gd
   battle/    battle.tscn (raíz del combate), mapa, unidades, cámara, input del jugador
@@ -410,9 +443,11 @@ Cada hito tiene un criterio de salida. No se pasa al siguiente sin cumplirlo.
 - **[v0.3] Fase del miniboss:** hoy el miniboss es la fase 4 (4 combates por etapa, 8 por run). ¿O el miniboss debe ser un 5º combate aparte?
 - **[v0.3] Grupo:** hoy los 4 héroes van siempre juntos. ¿Se elige 1 personaje principal + compañeros (GDD §7)?
 - **[v0.3] Curación entre fases** con oro: ¿se mantiene o se sustituye por otra cosa (tienda, eventos)?
-- **[v0.3] Balance:** con la configuración actual la IA (jugando por el jugador) gana ~90% de las runs y cada combate dura 18-30 turnos de unidad. Validar a mano.
+- **[v0.4] Dificultad:** "el juego tiene que ser jodido". Con la IA táctica jugando por el jugador, la run se gana ~40% de las veces (los minibosses son el gran filtro) y los combates duran 30-90 turnos de unidad. Validar a mano; se ajusta en `content/run/default_run.tres` (nivel base 3, +2 niveles por fase, +3 por etapa, +25% de estadísticas por etapa, 4-5 enemigos por fase, miniboss + 3).
 
 ## Changelog
+
+- **v0.4 (Nov 3, 2026)** — Game feel: flechas de previsión en parábola (movimiento, ataque, empuje, rebotes, movimiento a medias), zona de daño en rojo, aterrizaje en verde, marca de bloqueo; efectos visuales placeholder por habilidad; 5 estados alterados con tinte e iconos; ficha de previsión ampliada y panel de habilidad; IA táctica con mapa de amenaza y perfiles; dificultad subida.
 
 - **v0.3 (Nov 2, 2026)** — Prototipo de run: 4 clases jugables (Guerrero y Asesina con ira y mutaciones, Maga con maná, Arquero con enfriamientos) con la plantilla de 4 habilidades; habilidades de movimiento (teletransporte, carga, aparecer a la espalda) y empuje; `ModifierData` + `ResolutionPipeline` con el orden fijo de §5 y 22 modificadores; generador procedural de mapas para Cueva, Bosque y Desierto; 12 enemigos y 3 minibosses; run de 2 etapas × 4 fases con recompensas (modificador en pares, oro en impares), XP, nivel, vida persistente y curación; menú, mapa de run, recompensas y fin de run; bonus de altura.
 

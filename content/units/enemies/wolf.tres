@@ -4,6 +4,7 @@
 [ext_resource type="Script" path="res://core/data/skill_data.gd" id="2_rc346"]
 [ext_resource type="Texture2D" path="res://assets/sprites/units/wolf.png" id="2_wolf"]
 [ext_resource type="Resource" path="res://content/skills/enemies/bite.tres" id="3_bite"]
+[ext_resource type="Resource" path="res://content/ai/skirmisher.tres" id="91_ai"]
 
 [resource]
 script = ExtResource("1_script")
@@ -21,5 +22,6 @@ defense = 2
 evasion = 15
 hp_per_level = 6
 skills = Array[ExtResource("2_rc346")]([ExtResource("3_bite")])
+ai_profile = ExtResource("91_ai")
 xp_reward = 8
 gold_reward = 2

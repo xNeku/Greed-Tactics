@@ -49,3 +49,10 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"CaptionLabel"
 text = "PM: 0/0   PA: 0/0   EVA: 0%   VEL: 0"
+
+[node name="StatusLabel" type="Label" parent="Lines"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Estados"
+autowrap_mode = 3

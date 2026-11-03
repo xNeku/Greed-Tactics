@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/battle/feedback/arc_arrow.gd" id="1_arrow"]
+[ext_resource type="Shader" path="res://assets/shaders/arc_arrow.gdshader" id="2_shader"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_arrow"]
+render_priority = 20
+shader = ExtResource("2_shader")
+shader_parameter/dash_count = null
+shader_parameter/dash_speed = null
+shader_parameter/dash_dim = null
+shader_parameter/start_fade = null
+
+[node name="ArcArrow" type="MeshInstance3D"]
+material_override = SubResource("ShaderMaterial_arrow")
+script = ExtResource("1_arrow")

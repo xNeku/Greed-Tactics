@@ -59,9 +59,16 @@ func test_ai_attacks_adjacent_opponent() -> void:
 	while combat.active_unit != foe:
 		combat.end_turn(combat.active_unit.facing)
 		combat.start_next_turn()
-	var action := BasicAI.new().decide(combat, foe)
-	assert_eq(action.kind, AiAction.Kind.SKILL)
-	assert_eq(action.cell, hero.cell)
+	var ai := BasicAI.new()
+	for step in 6:
+		var action := ai.decide(combat, foe)
+		if action.kind == AiAction.Kind.MOVE:
+			combat.move_active_unit(action.cell)
+		elif action.kind == AiAction.Kind.SKILL:
+			combat.use_skill(action.skill, action.cell)
+		else:
+			break
+	assert_true(hero.hp < hero.max_hp, "the AI hits the adjacent hero (maybe after flanking)")
 
 
 func test_ai_approaches_when_out_of_range() -> void:

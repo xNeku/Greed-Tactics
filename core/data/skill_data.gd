@@ -17,6 +17,16 @@ enum TargetRule {
 	SELF,        ## Only the user's own cell (range is ignored).
 }
 
+## How the presentation shows the skill (placeholder VFX).
+enum VfxStyle {
+	AUTO,        ## Derived from tags/shape: melee = SLASH, projectile = PROJECTILE, ranged area = LOB, self = NOVA.
+	NONE,
+	SLASH,       ## Melee swing on the target.
+	PROJECTILE,  ## Fast, low arc projectile.
+	LOB,         ## High arc projectile that explodes on the area (fireball, arrow rain).
+	NOVA,        ## Burst around the user.
+}
+
 ## How the user moves as part of the skill (movement skills, GDD §4).
 enum Motion {
 	NONE,           ## The user stays where it is.
@@ -63,6 +73,17 @@ enum Motion {
 @export_range(0, 5) var knockback: int = 0
 ## Extra crit chance (percentage points) for this skill.
 @export_range(0, 100) var crit_bonus: int = 0
+
+@export_group("Status")
+## Status applied to every target hit (optional).
+@export var status: StatusData
+@export_range(0, 100) var status_chance: int = 100
+## 0 = the status default duration.
+@export_range(0, 9) var status_duration: int = 0
+
+@export_group("Visual")
+@export var vfx_style: VfxStyle = VfxStyle.AUTO
+@export var vfx_color: Color = Color(1.0, 0.9, 0.6)
 
 @export_group("Rage mutation")
 @export var empowered_variant: SkillData

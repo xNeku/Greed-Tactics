@@ -15,3 +15,5 @@ range_max = 6
 vertical_reach = 5
 area_shape = 2
 area_size = 1
+vfx_style = 4
+vfx_color = Color(1, 0.95, 0.75, 1)

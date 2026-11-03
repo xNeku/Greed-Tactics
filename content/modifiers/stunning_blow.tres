@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ModifierData" format=3]
+
+[ext_resource type="Script" path="res://core/data/modifier_data.gd" id="1_script"]
+[ext_resource type="Resource" path="res://content/statuses/stun.tres" id="2_status"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"stunning_blow"
+display_name = "Golpe aturdidor"
+description = "Los críticos cuerpo a cuerpo aturden (1 turno)."
+target_tag = &"melee"
+trigger = 2
+effect = 12
+value = 100
+status = ExtResource("2_status")
+weight = 8

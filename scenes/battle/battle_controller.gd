@@ -17,6 +17,11 @@ const AI_THINK_TIME := 0.4
 const AI_STEP_TIME := 0.25
 const MAX_AI_STEPS := 8
 const RESULT_DELAY := 1.2
+## How long the AI shows its arrows before acting.
+const AI_PREVIEW_TIME := 0.45
+const STATUS_TICK_TIME := 0.5
+const CRIT_SHAKE := 0.22
+const HIT_SHAKE := 0.08
 
 @export var setup: BattleSetup
 @export var rules: RulesConfig
@@ -32,6 +37,8 @@ const RESULT_DELAY := 1.2
 @onready var _hud: BattleHud = %HUD
 @onready var _environment: WorldEnvironment = %WorldEnvironment
 @onready var _sun: DirectionalLight3D = %Sun
+@onready var _arrows: FeedbackArrows = %FeedbackArrows
+@onready var _vfx: VfxPlayer = %VfxPlayer
 
 var combat: CombatState
 
@@ -60,7 +67,7 @@ func _ready() -> void:
 	_hud.set_title(setup.title)
 	_hud.set_camera(_camera_rig.get_camera())
 	_hud.set_result_button_text(_game.get_result_button_text() if _owned_by_game() else "Reintentar")
-	_player_input.setup(self, _map_view, _highlighter, _camera_rig.get_camera(), _hud)
+	_player_input.setup(self, _map_view, _highlighter, _arrows, _camera_rig.get_camera(), _hud)
 	_run_next_turn.call_deferred()
 
 
@@ -106,6 +113,18 @@ func _run_next_turn() -> void:
 	_views[unit].refresh_info()
 	_camera_rig.home_position = _map_view.cell_to_world(unit.cell)
 	_camera_rig.focus_on(_camera_rig.home_position)
+	if not combat.last_status_events.is_empty():
+		await _views[unit].play_status_events(combat.last_status_events)
+		await get_tree().create_timer(STATUS_TICK_TIME).timeout
+		if not unit.is_alive():
+			await _views[unit].play_defeat()
+	if combat.is_finished():
+		return
+	if unit.skip_turn:
+		_hud.set_message("%s pierde el turno" % unit.display_name, unit.team == UnitState.Team.ENEMY)
+		await get_tree().create_timer(STATUS_TICK_TIME).timeout
+		execute_end_turn(unit.facing)
+		return
 	if unit.team == UnitState.Team.PLAYER and not autoplay_player_units:
 		_hud.set_message("Tu turno: %s" % unit.display_name)
 		_player_input.begin_turn(unit)
@@ -125,16 +144,16 @@ func _run_ai_turn(unit: UnitState) -> void:
 		match action.kind:
 			AiAction.Kind.MOVE:
 				_highlighter.show_cells(TileHighlighter.Layer.MOVE, combat.get_reach_map(unit).get_destinations())
-				_highlighter.show_cell(TileHighlighter.Layer.CURSOR, action.cell)
-				await get_tree().create_timer(AI_STEP_TIME).timeout
-				_highlighter.clear_all()
+				_highlighter.show_cell(TileHighlighter.Layer.LANDING, action.cell)
+				_arrows.add(_chest(unit.cell, unit), _ground(action.cell), FeedbackArrows.Kind.MOVE)
+				_arrows.commit()
+				await get_tree().create_timer(AI_PREVIEW_TIME).timeout
+				_clear_feedback()
 				await execute_move(action.cell)
 			AiAction.Kind.SKILL:
-				var effective := combat.get_effective(unit, action.skill)
-				var landing := combat.get_landing_cell(unit, effective, unit.cell, action.cell)
-				_highlighter.show_cells(TileHighlighter.Layer.AREA, combat.get_effect_cells(effective, landing, action.cell))
-				await get_tree().create_timer(AI_STEP_TIME).timeout
-				_highlighter.clear_all()
+				_show_ai_skill_preview(unit, action)
+				await get_tree().create_timer(AI_PREVIEW_TIME).timeout
+				_clear_feedback()
 				await execute_skill(action.skill, action.cell)
 			AiAction.Kind.END_TURN:
 				execute_end_turn(action.facing)
@@ -155,15 +174,24 @@ func _play_skill_result(result: SkillResult) -> void:
 		await user_view.play_leap(result.user_to)
 		_camera_rig.home_position = _map_view.cell_to_world(result.user.cell)
 	if skill.deals_damage():
-		await user_view.play_attack(result.target_cell)
+		user_view.play_attack(result.target_cell)
+	await _vfx.play_cast(result, _map_view, user_view)
 	for hit in result.hits:
 		var view := _views[hit.target]
 		match hit.source:
 			SkillResult.HitSource.BOUNCE:
 				view.play_text("¡Rebote!", UnitView.CRIT_COLOR)
+				await _vfx.play_bounce(_views[hit.target].get_cast_position(), hit, _views, skill.vfx_color)
 			SkillResult.HitSource.EXPLOSION:
 				view.play_text("¡Boom!", UnitView.CRIT_COLOR)
+		if hit.landed:
+			_vfx.impact(view.get_cast_position(), skill.vfx_color, 1.4 if hit.critical else 0.8)
+			_camera_rig.shake(CRIT_SHAKE if hit.critical or hit.source == SkillResult.HitSource.EXPLOSION else HIT_SHAKE)
 		await view.play_hit(hit)
+		if not hit.applied_statuses.is_empty():
+			view.play_statuses_applied(hit.applied_statuses)
+		if hit.push_blocked_at != CombatState.NO_CELL and hit.landed and not hit.defeated:
+			view.play_text("¡Choca!", UnitView.CRIT_COLOR)
 		if hit.pushed_to != hit.pushed_from and not hit.defeated:
 			await view.play_push(hit.pushed_to)
 		if hit.healed > 0:
@@ -195,6 +223,36 @@ func _prepare_setup() -> bool:
 	for error in errors:
 		push_error("Map '%s': %s" % [setup.map.display_name, error])
 	return errors.is_empty()
+
+
+func _show_ai_skill_preview(unit: UnitState, action: AiAction) -> void:
+	var effective := combat.get_effective(unit, action.skill)
+	var landing := combat.get_landing_cell(unit, effective, unit.cell, action.cell)
+	var from := _chest(unit.cell, unit)
+	if landing != unit.cell:
+		_highlighter.show_cell(TileHighlighter.Layer.LANDING, landing)
+		_arrows.add(from, _ground(landing), FeedbackArrows.Kind.MOTION)
+		from = _chest(landing, unit)
+	if effective.deals_damage():
+		_highlighter.show_cells(TileHighlighter.Layer.AREA, combat.get_effect_cells(effective, landing, action.cell))
+		if effective.target_rule != SkillData.TargetRule.SELF:
+			var target := combat.get_unit_at(action.cell)
+			_arrows.add(from, _chest(action.cell, target) if target != null else _ground(action.cell), FeedbackArrows.Kind.ATTACK)
+	_arrows.commit()
+
+
+func _clear_feedback() -> void:
+	_highlighter.clear_all()
+	_arrows.clear()
+
+
+func _chest(cell: Vector2i, unit: UnitState) -> Vector3:
+	var scale_factor := unit.data.sprite_scale if unit != null else 1.0
+	return _map_view.cell_to_world(cell) + Vector3.UP * 0.55 * scale_factor
+
+
+func _ground(cell: Vector2i) -> Vector3:
+	return _map_view.cell_to_world(cell) + Vector3.UP * 0.12
 
 
 func _apply_zone_look(zone: ZoneData) -> void:
@@ -251,7 +309,7 @@ func _on_unit_stats_changed(unit: UnitState) -> void:
 
 func _on_combat_finished(winner: UnitState.Team) -> void:
 	_player_input.end_turn_input()
-	_highlighter.clear_all()
+	_clear_feedback()
 	var victory := winner == UnitState.Team.PLAYER
 	_hud.set_message("¡Victoria!" if victory else "Derrota")
 	# Let the last hit animation play before covering the screen.

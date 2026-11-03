@@ -16,3 +16,5 @@ vertical_reach = 2
 area_shape = 1
 area_size = 1
 power = 15
+vfx_style = 3
+vfx_color = Color(1, 0.35, 0.3, 1)

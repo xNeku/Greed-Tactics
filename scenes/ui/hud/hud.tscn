@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://scenes/ui/hud/components/action_preview_layer.gd" id="6_previews"]
 [ext_resource type="PackedScene" path="res://scenes/ui/hud/components/preview_card.tscn" id="7_card"]
 [ext_resource type="PackedScene" path="res://scenes/ui/hud/components/result_overlay.tscn" id="8_result"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud/components/skill_info_panel.tscn" id="9_skill_info"]
 
 [node name="HUD" type="CanvasLayer"]
 script = ExtResource("1_hud")
@@ -124,6 +125,22 @@ anchor_bottom = 1.0
 offset_left = -284.0
 offset_top = -24.0
 offset_right = -24.0
+offset_bottom = -24.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="SkillInfoPanel" parent="Root" instance=ExtResource("9_skill_info")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -724.0
+offset_top = -24.0
+offset_right = -360.0
 offset_bottom = -24.0
 grow_horizontal = 0
 grow_vertical = 0

@@ -12,3 +12,4 @@ range_min = 2
 range_max = 4
 vertical_reach = 3
 power = 9
+vfx_color = Color(1, 0.95, 0.75, 1)

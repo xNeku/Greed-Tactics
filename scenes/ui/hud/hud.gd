@@ -20,6 +20,7 @@ const MESSAGE_ENEMY_COLOR := Color(1.0, 0.62, 0.62)
 @onready var _command_menu: CommandMenu = %CommandMenu
 @onready var _previews: ActionPreviewLayer = %ActionPreviewLayer
 @onready var _result: ResultOverlay = %ResultOverlay
+@onready var _skill_info: SkillInfoPanel = %SkillInfoPanel
 
 
 func _ready() -> void:
@@ -64,6 +65,15 @@ func show_commands(unit: UnitState, can_move: bool, usable_skills: Dictionary[Sk
 
 func hide_commands() -> void:
 	_command_menu.visible = false
+	_skill_info.hide_skill()
+
+
+func show_skill_info(skill: EffectiveSkill) -> void:
+	_skill_info.show_skill(skill)
+
+
+func hide_skill_info() -> void:
+	_skill_info.hide_skill()
 
 
 func get_command_menu() -> CommandMenu:

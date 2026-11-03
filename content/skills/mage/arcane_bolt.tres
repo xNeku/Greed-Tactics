@@ -10,3 +10,4 @@ description = "Proyectil mágico a 1-3 casillas. Gratis."
 tags = Array[StringName]([&"basico", &"proyectil", &"arcano"])
 range_max = 3
 vertical_reach = 3
+vfx_color = Color(0.75, 0.5, 1, 1)

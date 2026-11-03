@@ -10,3 +10,4 @@ description = "Mutación con 50+ de ira: puñalada con muchísimo crítico."
 tags = Array[StringName]([&"basico", &"melee", &"daga"])
 power = 18
 crit_bonus = 25
+vfx_color = Color(1, 0.35, 0.3, 1)
