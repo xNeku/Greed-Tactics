@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/status_data.gd" id="1_8v7x1"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+[ext_resource type="Resource" path="res://content/statuses/knockup.tres" id="2_r"]
+[ext_resource type="Resource" path="res://content/statuses/rolling.tres" id="3_r"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"ent_roll"
+display_name = "Rodar"
+description = "Rueda en línea recta hasta el borde del mapa por encima de todo, arrollando una franja de 5 casillas: poco daño y 50% de lanzar por los aires. Le da una carga de Rodando (vulnerable)."
+skill_type = 3
+tags = Array[StringName]([&"movimiento", &"area"])
+max_uses_per_turn = 1
+vertical_reach = 99
+area_size = 2
+power = 6
+motion = 4
+self_status = ExtResource("3_r")
+status = ExtResource("2_r")
+status_chance = 50
+vfx_style = 5
+vfx_color = Color(0.75, 0.55, 0.3, 1)

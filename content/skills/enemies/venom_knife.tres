@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/status_data.gd" id="1_h15im"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+[ext_resource type="Resource" path="res://content/statuses/poison.tres" id="2_r"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"venom_knife"
+display_name = "Puñal envenenado"
+description = "Puñalada que envenena. Si el objetivo ya está envenenado, siempre es crítico."
+tags = Array[StringName]([&"basico", &"melee", &"veneno"])
+power = 3
+crit_vs_status_kind = 1
+status = ExtResource("2_r")
+vfx_color = Color(0.5, 1, 0.3, 1)

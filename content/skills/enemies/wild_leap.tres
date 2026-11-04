@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/status_data.gd" id="1_ghagu"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+[ext_resource type="Resource" path="res://content/statuses/knockup.tres" id="2_r"]
+
+[resource]
+script = ExtResource("1_script")
+status_chance = 50
+id = &"wild_leap"
+display_name = "Salto salvaje"
+description = "Salta a una casilla libre a 2-4 (ignora alturas), golpea a los adyacentes (50% de lanzarlos por los aires) y roba vida."
+skill_type = 3
+tags = Array[StringName]([&"movimiento", &"melee", &"salto"])
+cooldown = 3
+target_rule = 2
+range_min = 2
+range_max = 4
+vertical_reach = 9
+area_shape = 1
+area_size = 1
+power = 8
+motion = 1
+lifesteal_percent = 20
+status = ExtResource("2_r")
+vfx_style = 5
+vfx_color = Color(1, 0.5, 0.45, 1)

@@ -244,6 +244,8 @@ func get_landing_cell(user: UnitState, skill: EffectiveSkill, from_cell: Vector2
 			return target_cell if _is_free(target_cell, user) else NO_CELL
 		SkillData.Motion.CHARGE:
 			return _get_charge_landing(user, from_cell, target_cell)
+		SkillData.Motion.ROLL:
+			return _get_roll_landing(user, from_cell, target_cell)
 		SkillData.Motion.BEHIND_TARGET:
 			var target := get_unit_at(target_cell)
 			if target == null:
@@ -258,6 +260,47 @@ func get_landing_cell(user: UnitState, skill: EffectiveSkill, from_cell: Vector2
 			return from_cell
 
 
+## Cells a skill affects when [param user] uses it from [param from_cell] on
+## [param target_cell] (after its motion). Use this rather than get_effect_cells.
+func get_skill_area(user: UnitState, skill: EffectiveSkill, from_cell: Vector2i, target_cell: Vector2i) -> Array[Vector2i]:
+	var landing := get_landing_cell(user, skill, from_cell, target_cell)
+	if landing == NO_CELL:
+		return []
+	if skill.motion == SkillData.Motion.ROLL:
+		return _get_roll_band(skill, from_cell, target_cell)
+	return get_effect_cells(skill, landing, target_cell)
+
+
+## ROLL: farthest walkable free cell on the line from [param from_cell] through
+## [param target_cell] to the map edge, ignoring heights and obstacles on the way.
+func _get_roll_landing(user: UnitState, from_cell: Vector2i, target_cell: Vector2i) -> Vector2i:
+	var step := target_cell - from_cell
+	if absi(step.x) + absi(step.y) != 1:
+		return NO_CELL
+	var cell := from_cell
+	var best := NO_CELL
+	while grid.is_inside(cell + step):
+		cell += step
+		if _is_free(cell, user):
+			best = cell
+	return best
+
+
+## ROLL: every cell the roll sweeps, 2*area_size+1 wide, from the user to the edge.
+func _get_roll_band(skill: EffectiveSkill, from_cell: Vector2i, target_cell: Vector2i) -> Array[Vector2i]:
+	var step := target_cell - from_cell
+	var side := Vector2i(step.y, step.x)
+	var cells: Array[Vector2i] = []
+	var cell := from_cell
+	while grid.is_inside(cell + step):
+		cell += step
+		for offset in range(-skill.area_size, skill.area_size + 1):
+			var swept := cell + side * offset
+			if grid.is_inside(swept) and not cells.has(swept):
+				cells.append(swept)
+	return cells
+
+
 func get_effect_cells(skill: EffectiveSkill, from_cell: Vector2i, target_cell: Vector2i) -> Array[Vector2i]:
 	var direction := GridDir.from_delta(target_cell - from_cell)
 	var cells := AreaShape.get_cells(skill.area_shape, target_cell, skill.area_size, direction)
@@ -269,8 +312,7 @@ func get_skill_targets(user: UnitState, skill: EffectiveSkill, from_cell: Vector
 	var targets: Array[UnitState] = []
 	if not skill.deals_damage():
 		return targets
-	var landing := get_landing_cell(user, skill, from_cell, target_cell)
-	for cell in get_effect_cells(skill, landing, target_cell):
+	for cell in get_skill_area(user, skill, from_cell, target_cell):
 		var unit := get_unit_at(cell)
 		if unit == null or unit == user:
 			continue
@@ -297,15 +339,34 @@ func preview_heals(user: UnitState, skill: SkillData, from_cell: Vector2i, targe
 	var heals: Dictionary[UnitState, int] = {}
 	if effective.heal_percent <= 0:
 		return heals
-	var landing := get_landing_cell(user, effective, from_cell, target_cell)
-	if landing == NO_CELL:
-		return heals
-	for cell in get_effect_cells(effective, landing, target_cell):
-		var unit := user if cell == landing else get_unit_at(cell)
-		if unit == null or unit.is_enemy_of(user) or not unit.is_alive():
-			continue
+	for unit in _allies_in_area(user, effective, from_cell, target_cell):
 		heals[unit] = mini(roundi(unit.max_hp * effective.heal_percent / 100.0), unit.max_hp - unit.hp)
 	return heals
+
+
+## Allies that would get the skill's ally_status (buffs), structures excluded.
+func preview_buffs(user: UnitState, skill: SkillData, from_cell: Vector2i, target_cell: Vector2i) -> Array[UnitState]:
+	var effective := get_effective(user, skill)
+	var buffed: Array[UnitState] = []
+	if effective.ally_status == null:
+		return buffed
+	for unit in _allies_in_area(user, effective, from_cell, target_cell):
+		if not unit.is_structure():
+			buffed.append(unit)
+	return buffed
+
+
+## Living allies (the user included) inside the skill's area, seen from where the user lands.
+func _allies_in_area(user: UnitState, effective: EffectiveSkill, from_cell: Vector2i, target_cell: Vector2i) -> Array[UnitState]:
+	var allies: Array[UnitState] = []
+	var landing := get_landing_cell(user, effective, from_cell, target_cell)
+	if landing == NO_CELL:
+		return allies
+	for cell in get_skill_area(user, effective, from_cell, target_cell):
+		var unit := user if cell == landing else get_unit_at(cell)
+		if unit != null and not unit.is_enemy_of(user) and unit.is_alive() and not allies.has(unit):
+			allies.append(unit)
+	return allies
 
 #endregion
 
@@ -374,7 +435,7 @@ func use_skill(skill: SkillData, target_cell: Vector2i) -> SkillResult:
 	result.user_to = landing
 	if target_cell != user.cell:
 		user.facing = GridDir.from_delta(target_cell - user.cell, user.facing)
-	result.affected_cells = get_effect_cells(effective, landing, target_cell)
+	result.affected_cells = get_skill_area(user, effective, result.user_from, target_cell)
 
 	var already_hit: Array[UnitState] = []
 	for target in targets:
@@ -386,6 +447,10 @@ func use_skill(skill: SkillData, target_cell: Vector2i) -> SkillResult:
 	if effective.heal_percent > 0:
 		for ally in preview_heals(user, skill, result.user_from, target_cell).keys():
 			result.heals[ally] = ally.heal(roundi(ally.max_hp * effective.heal_percent / 100.0))
+	if effective.ally_status != null:
+		for ally in preview_buffs(user, skill, result.user_from, target_cell):
+			ally.add_status(effective.ally_status, effective.ally_status.default_duration, user)
+			result.buffed.append(ally)
 	_resolve_bounces(result, already_hit)
 	if effective.recoil > 0 and user.is_alive():
 		var recoil_to := get_final_cell(user, effective, result.user_from, target_cell)
@@ -652,6 +717,9 @@ func _matches_target_rule(user: UnitState, skill: EffectiveSkill, cell: Vector2i
 			return unit != null and unit.is_enemy_of(user)
 		SkillData.TargetRule.EMPTY_CELL:
 			return _is_free(cell, user)
+		SkillData.TargetRule.ALLY_UNIT:
+			var ally := get_unit_at(cell)
+			return ally != null and not ally.is_enemy_of(user)
 		_:
 			return true
 

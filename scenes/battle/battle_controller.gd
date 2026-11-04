@@ -267,7 +267,7 @@ func _show_ai_skill_preview(unit: UnitState, action: AiAction) -> void:
 		_highlighter.show_cells(TileHighlighter.Layer.LANDING, get_aura_cells(effective.summon, action.cell))
 		_arrows.add(from, _ground(action.cell), FeedbackArrows.Kind.MOTION)
 	if effective.deals_damage():
-		_highlighter.show_cells(TileHighlighter.Layer.AREA, combat.get_effect_cells(effective, landing, action.cell))
+		_highlighter.show_cells(TileHighlighter.Layer.AREA, combat.get_skill_area(unit, effective, unit.cell, action.cell))
 		if effective.target_rule != SkillData.TargetRule.SELF:
 			var target := combat.get_unit_at(action.cell)
 			_arrows.add(from, _chest(action.cell, target) if target != null else _ground(action.cell), FeedbackArrows.Kind.ATTACK)

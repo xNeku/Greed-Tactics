@@ -71,11 +71,13 @@ func best_attack_from(combat: CombatState, unit: UnitState, from_cell: Vector2i,
 	var best := {}
 	for skill in unit.data.skills:
 		var effective := unit.get_effective(skill)
-		if not effective.deals_damage() or not unit.can_afford(effective):
+		var support := effective.supports_allies()
+		if not (effective.deals_damage() or support) or not unit.can_afford(effective):
 			continue
 		var reach := 2 * effective.area_size + effective.explode_radius
+		var long_area := effective.motion == SkillData.Motion.ROLL
 		for cell in combat.get_targetable_cells(unit, skill, from_cell):
-			if not _near_any(cell, opponents, reach):
+			if not support and not long_area and not _near_any(cell, opponents, reach):
 				continue
 			var value := 0.0
 			for preview in combat.preview_skill(unit, skill, from_cell, cell):
@@ -84,6 +86,9 @@ func best_attack_from(combat: CombatState, unit: UnitState, from_cell: Vector2i,
 					value += profile.shared_focus_weight * preview.hit_chance / 100.0
 			for healed: int in combat.preview_heals(unit, skill, from_cell, cell).values():
 				value += profile.heal_weight * healed
+			for ally in combat.preview_buffs(unit, skill, from_cell, cell):
+				if not ally.has_status(effective.ally_status):
+					value += profile.status_value * (0.5 if ally == unit else 1.0)
 			if value <= 0.0:
 				continue
 			value -= profile.resource_cost_weight * (effective.rage_cost * 0.1 + effective.mp_cost * 0.2 + effective.cooldown * 1.5)
@@ -233,7 +238,9 @@ func position_value(combat: CombatState, unit: UnitState, cell: Vector2i,
 func _best_reposition(combat: CombatState, unit: UnitState, reach: ReachMap,
 		threat: Dictionary[Vector2i, float], profile: AiProfile) -> Vector2i:
 	var walk := _distance_to_attack_spots(combat, unit)
-	if not reach.get_destinations().any(func(c: Vector2i) -> bool: return walk.has(c)):
+	if not _has_damaging_skill(unit):
+		walk = _distance_to_allies(combat, unit)  # Healers stay with their team.
+	elif not reach.get_destinations().any(func(c: Vector2i) -> bool: return walk.has(c)):
 		walk = _distance_to_opponents(combat, unit)
 	var best_cell := unit.cell
 	var best_value := _reposition_value(combat, unit, unit.cell, threat, walk, profile)
@@ -317,6 +324,28 @@ func _distance_to_attack_spots(combat: CombatState, unit: UnitState) -> Dictiona
 	if spots.is_empty():
 		return {}
 	return Pathfinder.distance_field_many(grid, combat.rules, spots, blocked)
+
+
+func _has_damaging_skill(unit: UnitState) -> bool:
+	return unit.data.skills.any(func(s: SkillData) -> bool: return unit.get_effective(s).deals_damage())
+
+
+## Walking distance from every cell to the cells next to the unit's allies.
+func _distance_to_allies(combat: CombatState, unit: UnitState) -> Dictionary[Vector2i, int]:
+	var blocked: Dictionary[Vector2i, bool] = {}
+	var spots: Array[Vector2i] = []
+	for other in combat.get_living_units():
+		if other == unit:
+			continue
+		blocked[other.cell] = true
+		if not other.is_enemy_of(unit) and not other.is_structure():
+			for dir in GridDir.ALL:
+				var spot := other.cell + GridDir.to_vector(dir)
+				if combat.grid.is_inside(spot) and combat.grid.is_walkable(spot):
+					spots.append(spot)
+	if spots.is_empty():
+		return {}
+	return Pathfinder.distance_field_many(combat.grid, combat.rules, spots, blocked)
 
 
 ## Walking distance from every cell to the closest opponent.

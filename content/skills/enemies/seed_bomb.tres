@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/status_data.gd" id="1_p02an"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+[ext_resource type="Resource" path="res://content/statuses/rolling.tres" id="2_r"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"seed_bomb"
+display_name = "Bombita de semillas"
+description = "Tras rodar dos veces: lanza una bomba a cualquier distancia que estalla en rombo."
+skill_type = 2
+tags = Array[StringName]([&"area", &"proyectil"])
+requires_status = ExtResource("2_r")
+requires_stacks = 2
+range_max = 60
+vertical_reach = 99
+area_shape = 1
+area_size = 1
+power = 16
+vfx_style = 4
+vfx_color = Color(0.6, 0.95, 0.5, 1)

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/status_data.gd" id="1_2r4l8"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"thirsty_axes"
+display_name = "Hachas sedientas"
+description = "Dos hachazos rápidos que roban un 35% de vida."
+tags = Array[StringName]([&"basico", &"melee"])
+power = 7
+strikes = 2
+lifesteal_percent = 35
+vfx_color = Color(1, 0.5, 0.45, 1)

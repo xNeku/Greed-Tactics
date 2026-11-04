@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="StatusData" format=3]
+
+[ext_resource type="Script" path="res://core/data/status_data.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/sprites/status/haste.png" id="2_r"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"haste"
+display_name = "Prisa"
+description = "Brisa del bosque: +2 PM."
+move_bonus = 2
+color = Color(0.55, 1, 0.65, 1)
+icon = ExtResource("2_r")

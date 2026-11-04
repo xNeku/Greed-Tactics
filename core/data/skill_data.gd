@@ -15,6 +15,7 @@ enum TargetRule {
 	ENEMY_UNIT,  ## A cell with an opponent on it.
 	EMPTY_CELL,  ## A walkable cell with nobody on it.
 	SELF,        ## Only the user's own cell (range is ignored).
+	ALLY_UNIT,   ## A cell with an ally (or the user) on it: heals and buffs.
 }
 
 ## How the presentation shows the skill (placeholder VFX).
@@ -33,6 +34,8 @@ enum Motion {
 	TELEPORT,       ## Jumps to the target cell (must be empty), ignoring height and obstacles.
 	CHARGE,         ## Rushes in a straight line and stops next to the target.
 	BEHIND_TARGET,  ## Appears on the cell behind the target (must be free) and strikes its back.
+	ROLL,           ## Rolls in a straight line (aim at an adjacent cell) to the map edge, over any
+	                ## height or obstacle, hitting a band of 2*area_size+1 cells along the way.
 }
 
 @export var id: StringName = &""
@@ -48,6 +51,11 @@ enum Motion {
 @export_range(0, 100) var rage_cost: int = 0
 ## Turns to wait before using it again (0 = none).
 @export_range(0, 9) var cooldown: int = 0
+## Times it can be used in one turn (0 = as many as PA allow).
+@export_range(0, 9) var max_uses_per_turn: int = 0
+## Needs this many charges of [member requires_status] on the user, and spends them.
+@export var requires_status: StatusData
+@export_range(0, 20) var requires_stacks: int = 0
 
 @export_group("Targeting")
 @export var target_rule: TargetRule = TargetRule.ANY
@@ -73,10 +81,14 @@ enum Motion {
 @export_range(0, 5) var knockback: int = 0
 ## Extra crit chance (percentage points) for this skill.
 @export_range(0, 100) var crit_bonus: int = 0
+## Always crits against a target with a status of this kind (StatusData.Kind; -1 = off).
+@export_range(-1, 10) var crit_vs_status_kind: int = -1
 ## Times each target is hit (fast multi-hits). Each strike rolls separately.
 @export_range(1, 6) var strikes: int = 1
 ## Cells the user is thrown back (away from the target) after using it.
 @export_range(0, 6) var recoil: int = 0
+## Status given to the allies (user included) inside the effect area (buffs).
+@export var ally_status: StatusData
 ## Allies (user included) inside the effect area recover this % of their max HP.
 @export_range(0, 100) var heal_percent: int = 0
 ## % of the damage dealt healed back to the user.

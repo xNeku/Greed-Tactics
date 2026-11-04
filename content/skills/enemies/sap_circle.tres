@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/status_data.gd" id="1_s45l1"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"sap_circle"
+display_name = "Círculo de savia"
+description = "Cura un 20% a los aliados a 2 casillas de él (él incluido)."
+skill_type = 2
+tags = Array[StringName]([&"area", &"cura"])
+cooldown = 2
+target_rule = 3
+area_shape = 1
+area_size = 2
+power = 0
+heal_percent = 20
+vfx_style = 5
+vfx_color = Color(0.6, 0.95, 0.5, 1)

@@ -35,6 +35,11 @@ var crit_bonus: int
 var strikes: int = 1
 var self_status: StatusData
 var heal_percent: int = 0
+var ally_status: StatusData
+var max_uses_per_turn: int = 0
+var requires_status: StatusData
+var requires_stacks: int = 0
+var crit_vs_status_kind: int = -1
 var recoil: int = 0
 
 # Numeric modifiers (stage 2)
@@ -89,6 +94,11 @@ static func from_skill(base_skill: SkillData, used: SkillData) -> EffectiveSkill
 	e.lifesteal_percent = used.lifesteal_percent
 	e.self_status = used.self_status
 	e.heal_percent = used.heal_percent
+	e.ally_status = used.ally_status
+	e.max_uses_per_turn = used.max_uses_per_turn
+	e.requires_status = used.requires_status
+	e.requires_stacks = used.requires_stacks
+	e.crit_vs_status_kind = used.crit_vs_status_kind
 	e.recoil = used.recoil
 	if used.status != null:
 		e.statuses.append(StatusApplication.create(used.status, used.status_chance, used.status_duration))
@@ -119,6 +129,11 @@ func get_vfx_style() -> SkillData.VfxStyle:
 
 func deals_damage() -> bool:
 	return power > 0
+
+
+## Heals or buffs allies (support skills the AI can use without attacking).
+func supports_allies() -> bool:
+	return heal_percent > 0 or ally_status != null
 
 
 func has_tag(tag: StringName) -> bool:

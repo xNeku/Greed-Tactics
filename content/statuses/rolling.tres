@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="StatusData" format=3]
+
+[ext_resource type="Script" path="res://core/data/status_data.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/sprites/status/rolling.png" id="2_r"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"rolling"
+display_name = "Rodando"
+description = "Va rodando: cada carga (máx. 2) acerca sus bombitas, pero recibe el doble de daño y su defensa baja a la mitad."
+default_duration = 2
+max_stacks = 2
+defense_percent_bonus = -50
+damage_taken_percent_bonus = 100
+color = Color(0.75, 0.55, 0.3, 1)
+icon = ExtResource("2_r")

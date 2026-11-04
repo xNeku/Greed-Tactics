@@ -251,7 +251,7 @@ func _show_skill_forecast(target_cell: Vector2i) -> void:
 		_arrows.add(_ground_point(landing) + Vector3.UP * 0.3, _ground_point(final_cell), FeedbackArrows.Kind.MOTION)
 	if not effective.deals_damage():
 		return
-	_highlighter.show_cells(TileHighlighter.Layer.AREA, combat.get_effect_cells(effective, landing, target_cell))
+	_highlighter.show_cells(TileHighlighter.Layer.AREA, combat.get_skill_area(_unit, effective, _unit.cell, target_cell))
 	if effective.target_rule != SkillData.TargetRule.SELF:
 		var unit_there := combat.get_unit_at(target_cell)
 		var aim := _unit_point(unit_there) if unit_there != null else _ground_point(target_cell)

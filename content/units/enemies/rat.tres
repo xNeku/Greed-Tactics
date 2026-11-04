@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Script" path="res://core/data/unit_data.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/sprites/units/rat.png" id="2_r"]
+[ext_resource type="Texture2D" path="res://assets/sprites/units/rat_side.png" id="3_r"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="4_r"]
+[ext_resource type="Resource" path="res://content/ai/melee_aggressive.tres" id="5_r"]
+[ext_resource type="Resource" path="res://content/skills/enemies/rat_bite.tres" id="6_r"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"rat"
+display_name = "Rata"
+short_name = "RAT"
+race = "Bestia"
+unit_class = "Alimaña"
+sprite = ExtResource("2_r")
+sprite_side = ExtResource("3_r")
+sprite_scale = 1.5
+description = "Rata del bosque: muerde flojo pero la mitad de las veces es crítico."
+max_hp = 26
+speed = 12
+move_points = 5
+attack = 8
+attack_per_level = 1
+defense = 1
+evasion = 15
+hp_per_level = 3
+skills = Array[ExtResource("4_r")]([ExtResource("6_r")])
+ai_profile = ExtResource("5_r")
+xp_reward = 5
+gold_reward = 2

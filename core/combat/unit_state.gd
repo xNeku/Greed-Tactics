@@ -48,6 +48,8 @@ var status_stacks: Dictionary[StatusData, int] = {}
 var taunted_by: UnitState
 ## Set at the start of a turn the unit cannot play (stunned, or killed by a status).
 var skip_turn: bool = false
+## Uses of each skill (base SkillData) this turn, for max_uses_per_turn.
+var uses_this_turn: Dictionary[SkillData, int] = {}
 ## Who summoned this unit (totems), or null.
 var summoner: UnitState
 
@@ -82,6 +84,19 @@ func get_defense() -> int:
 	return maxi(roundi(defense * (1.0 + percent / 100.0)), 0)
 
 
+## Extra damage taken % from active statuses (vulnerable states).
+func get_damage_taken_percent() -> int:
+	var total := 0
+	for status in statuses:
+		total += status.damage_taken_percent_bonus
+	return total
+
+
+## True if any active status is of [param kind] (StatusData.Kind).
+func has_status_kind(kind: int) -> bool:
+	return statuses.keys().any(func(s: StatusData) -> bool: return s.kind == kind)
+
+
 ## Extra damage % from active statuses (auras, buffs, debuffs).
 func get_damage_bonus_percent() -> int:
 	var total := 0
@@ -105,8 +120,9 @@ func uses_mana() -> bool:
 func begin_turn(rules: RulesConfig) -> void:
 	var penalty := 0
 	for status in statuses:
-		penalty += status.move_penalty
+		penalty += status.move_penalty - status.move_bonus
 	pm = maxi(move_points - penalty, 0)
+	uses_this_turn.clear()
 	pa = action_points
 	skip_turn = false
 	refunds_this_turn = 0
@@ -138,6 +154,8 @@ func can_afford(skill: EffectiveSkill) -> bool:
 		and mp >= skill.mp_cost \
 		and rage >= skill.rage_cost \
 		and get_cooldown(skill.base) == 0 \
+		and (skill.max_uses_per_turn == 0 or uses_this_turn.get(skill.base, 0) < skill.max_uses_per_turn) \
+		and (skill.requires_status == null or get_stacks(skill.requires_status) >= skill.requires_stacks) \
 		and (not is_silenced() or skill.skill_type == SkillData.SkillType.BASIC)
 
 
@@ -148,6 +166,13 @@ func pay_for(skill: EffectiveSkill) -> void:
 	if skill.cooldown > 0:
 		# +1 because the countdown ticks at the start of the user's next turn.
 		cooldowns[skill.base] = skill.cooldown + 1
+	uses_this_turn[skill.base] = uses_this_turn.get(skill.base, 0) + 1
+	if skill.requires_status != null and skill.requires_stacks > 0:
+		var left := get_stacks(skill.requires_status) - skill.requires_stacks
+		if left <= 0:
+			remove_status(skill.requires_status)
+		else:
+			status_stacks[skill.requires_status] = left
 
 
 func add_rage(amount: int, rules: RulesConfig) -> void:

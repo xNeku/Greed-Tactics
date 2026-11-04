@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/status_data.gd" id="1_eby4y"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"swift_blows"
+display_name = "Golpes veloces"
+description = "Dos golpes rápidos a un adyacente."
+tags = Array[StringName]([&"basico", &"melee"])
+power = 4
+strikes = 2
+vfx_color = Color(0.9, 0.92, 1, 1)

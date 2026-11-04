@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/status_data.gd" id="1_gt1er"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+[ext_resource type="Resource" path="res://content/statuses/poison.tres" id="2_r"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"venom_step"
+display_name = "Paso venenoso"
+description = "Aparece a la espalda (2-5) y apuñala con veneno. Crítico seguro si ya está envenenado."
+skill_type = 3
+tags = Array[StringName]([&"movimiento", &"melee", &"veneno"])
+cooldown = 3
+target_rule = 1
+range_min = 2
+range_max = 5
+vertical_reach = 3
+power = 4
+motion = 3
+crit_vs_status_kind = 1
+status = ExtResource("2_r")
+vfx_color = Color(0.5, 1, 0.3, 1)

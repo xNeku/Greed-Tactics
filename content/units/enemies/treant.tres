@@ -1,30 +1,32 @@
 [gd_resource type="Resource" script_class="UnitData" format=3]
 
 [ext_resource type="Script" path="res://core/data/unit_data.gd" id="1_script"]
-[ext_resource type="Script" path="res://core/data/skill_data.gd" id="2_icnb2"]
-[ext_resource type="Texture2D" path="res://assets/sprites/units/treant.png" id="2_treant"]
-[ext_resource type="Resource" path="res://content/skills/enemies/ent_branch.tres" id="3_ent_branch"]
-[ext_resource type="Resource" path="res://content/skills/enemies/ent_roots.tres" id="4_ent_roots"]
-[ext_resource type="Resource" path="res://content/ai/boss.tres" id="91_ai"]
+[ext_resource type="Texture2D" path="res://assets/sprites/units/treant.png" id="2_r"]
+[ext_resource type="Texture2D" path="res://assets/sprites/units/treant_side.png" id="3_r"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="4_r"]
+[ext_resource type="Resource" path="res://content/ai/boss.tres" id="5_r"]
+[ext_resource type="Resource" path="res://content/skills/enemies/root_punch.tres" id="6_r"]
+[ext_resource type="Resource" path="res://content/skills/enemies/ent_roll.tres" id="7_r"]
+[ext_resource type="Resource" path="res://content/skills/enemies/seed_bomb.tres" id="8_r"]
 
 [resource]
 script = ExtResource("1_script")
 id = &"treant"
-display_name = "Ent anciano"
+display_name = "Ent"
 short_name = "ENT"
 race = "Ent"
 unit_class = "Miniboss"
-sprite = ExtResource("2_treant")
-sprite_scale = 1.55
-max_hp = 280
+sprite = ExtResource("2_r")
+sprite_side = ExtResource("3_r")
+description = "Mucha vida y poco daño. Rueda de lado a lado del mapa arrollando y lanzando por los aires; tras rodar dos veces lanza bombitas a cualquier distancia. Mientras rueda es vulnerable (daño x2, defensa a la mitad)."
+max_hp = 340
 speed = 7
 move_points = 3
-attack = 16
+attack = 12
 defense = 8
 evasion = 0
-hp_per_level = 26
-attack_per_level = 3
-skills = Array[ExtResource("2_icnb2")]([ExtResource("3_ent_branch"), ExtResource("4_ent_roots")])
-ai_profile = ExtResource("91_ai")
+hp_per_level = 28
+skills = Array[ExtResource("4_r")]([ExtResource("6_r"), ExtResource("7_r"), ExtResource("8_r")])
+ai_profile = ExtResource("5_r")
 xp_reward = 60
 gold_reward = 25

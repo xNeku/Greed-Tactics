@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://core/data/status_data.gd" id="2_j72jd"]
+[ext_resource type="Resource" path="res://content/statuses/haste.tres" id="2_r"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"forest_breeze"
+display_name = "Brisa del bosque"
+description = "Da Prisa (+2 PM, 2 turnos) a un aliado, esté donde esté."
+skill_type = 3
+tags = Array[StringName]([&"apoyo"])
+max_uses_per_turn = 1
+target_rule = 4
+range_max = 40
+vertical_reach = 40
+power = 0
+ally_status = ExtResource("2_r")
+vfx_style = 1
+vfx_color = Color(0.55, 1, 0.65, 1)

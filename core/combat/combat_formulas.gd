@@ -20,6 +20,8 @@ static func build_preview(
 	preview.crit_damage = maxi(roundi(preview.damage * rules.crit_multiplier), rules.min_damage)
 	preview.hit_chance = compute_hit_chance(rules, target, side)
 	preview.crit_chance = clampi(compute_crit_chance(rules, user, skill, side) + bonus.crit, 0, 100)
+	if skill.crit_vs_status_kind >= 0 and target.has_status_kind(skill.crit_vs_status_kind):
+		preview.crit_chance = 100
 	preview.bounces = skill.bounce_hops
 	preview.strikes = skill.strikes
 	preview.knockback = ResolutionPipeline.get_impact_effects(skill, side, false).knockback
@@ -49,6 +51,7 @@ static func compute_damage(
 	if user.uses_rage():
 		multiplier *= 1.0 + user.rage * rules.rage_damage_bonus
 	multiplier *= maxf(1.0 + user.get_damage_bonus_percent() / 100.0, 0.1)
+	multiplier *= maxf(1.0 + target.get_damage_taken_percent() / 100.0, 0.1)
 	return maxi(roundi(base * multiplier), rules.min_damage)
 
 

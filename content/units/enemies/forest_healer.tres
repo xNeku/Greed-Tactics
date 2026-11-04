@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Script" path="res://core/data/unit_data.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/sprites/units/forest_healer.png" id="2_r"]
+[ext_resource type="Texture2D" path="res://assets/sprites/units/forest_healer_side.png" id="3_r"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="4_r"]
+[ext_resource type="Resource" path="res://content/ai/support.tres" id="5_r"]
+[ext_resource type="Resource" path="res://content/skills/enemies/distant_sap.tres" id="6_r"]
+[ext_resource type="Resource" path="res://content/skills/enemies/sap_circle.tres" id="7_r"]
+[ext_resource type="Resource" path="res://content/skills/enemies/forest_breeze.tres" id="8_r"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"forest_healer"
+display_name = "Viejo curandero"
+short_name = "CUR"
+race = "Humano"
+unit_class = "Curandero"
+sprite = ExtResource("2_r")
+sprite_side = ExtResource("3_r")
+description = "No ataca. Cura a cualquiera del mapa y, si nadie lo necesita, da Prisa. Lento y muy frágil: mátalo primero."
+max_hp = 38
+speed = 9
+move_points = 2
+attack = 5
+hp_per_level = 4
+skills = Array[ExtResource("4_r")]([ExtResource("6_r"), ExtResource("7_r"), ExtResource("8_r")])
+ai_profile = ExtResource("5_r")
+gold_reward = 6

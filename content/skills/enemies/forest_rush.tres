@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://core/data/status_data.gd" id="1_yv7ug"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"forest_rush"
+display_name = "Acometida"
+description = "Carga en línea recta (2-4) contra un enemigo."
+skill_type = 3
+tags = Array[StringName]([&"movimiento", &"melee"])
+cooldown = 2
+target_rule = 1
+range_min = 2
+range_max = 4
+vertical_reach = 2
+requires_straight_line = true
+power = 8
+motion = 2
+vfx_color = Color(0.9, 0.92, 1, 1)

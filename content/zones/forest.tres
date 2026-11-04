@@ -8,12 +8,15 @@
 [ext_resource type="Resource" path="res://content/terrains/stone.tres" id="5_stone"]
 [ext_resource type="Resource" path="res://content/terrains/tree.tres" id="6_tree"]
 [ext_resource type="Resource" path="res://content/terrains/water.tres" id="7_water"]
-[ext_resource type="Resource" path="res://content/units/enemies/wolf.tres" id="8_wolf"]
-[ext_resource type="Resource" path="res://content/units/enemies/goblin_archer.tres" id="9_goblin_archer"]
-[ext_resource type="Resource" path="res://content/units/enemies/boar.tres" id="10_boar"]
-[ext_resource type="Resource" path="res://content/units/enemies/goblin.tres" id="11_goblin"]
 [ext_resource type="Script" path="res://core/data/terrain_data.gd" id="11_wt4x8"]
 [ext_resource type="Resource" path="res://content/units/enemies/treant.tres" id="12_treant"]
+[ext_resource type="Resource" path="res://content/units/enemies/forest_assassin.tres" id="70_forest_assassin"]
+[ext_resource type="Resource" path="res://content/units/enemies/forest_berserker.tres" id="70_forest_berserker"]
+[ext_resource type="Resource" path="res://content/units/enemies/forest_fighter.tres" id="70_forest_fighter"]
+[ext_resource type="Resource" path="res://content/units/enemies/forest_healer.tres" id="70_forest_healer"]
+[ext_resource type="Resource" path="res://content/units/enemies/rat.tres" id="70_rat"]
+[ext_resource type="Resource" path="res://content/units/enemies/rat_big.tres" id="70_rat_big"]
+[ext_resource type="Resource" path="res://content/units/enemies/rat_small.tres" id="70_rat_small"]
 [ext_resource type="PackedScene" path="res://scenes/battle/atmosphere/fireflies.tscn" id="71_particles"]
 
 [resource]
@@ -37,5 +40,5 @@ fog_color = Color(0.55, 0.7, 0.62, 1)
 fog_density = 0.012
 glow_intensity = 0.4
 ambient_particles = ExtResource("71_particles")
-enemy_pool = Array[ExtResource("2_1gu88")]([ExtResource("8_wolf"), ExtResource("9_goblin_archer"), ExtResource("10_boar"), ExtResource("11_goblin")])
+enemy_pool = Array[ExtResource("2_1gu88")]([ExtResource("70_forest_fighter"), ExtResource("70_forest_assassin"), ExtResource("70_forest_berserker"), ExtResource("70_forest_healer"), ExtResource("70_rat_small"), ExtResource("70_rat"), ExtResource("70_rat_big")])
 miniboss_pool = Array[ExtResource("2_1gu88")]([ExtResource("12_treant")])

@@ -32,6 +32,8 @@ var affected_cells: Array[Vector2i] = []
 var hits: Array[Hit] = []
 ## HP recovered by each ally the skill healed (heal_percent).
 var heals: Dictionary[UnitState, int] = {}
+## Allies that received the skill's ally_status.
+var buffed: Array[UnitState] = []
 ## Where the user was before the skill moved it (== landing if no motion).
 var user_from: Vector2i
 var user_to: Vector2i

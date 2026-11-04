@@ -11,6 +11,7 @@ display_name = "Alzar elemental"
 description = "Levanta un elemental de arena en una casilla libre (1-3). Uno por turno, hasta 4 a la vez."
 skill_type = 1
 tags = Array[StringName]([&"invocacion"])
+max_uses_per_turn = 1
 target_rule = 2
 range_max = 3
 vertical_reach = 9

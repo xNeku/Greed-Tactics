@@ -28,12 +28,16 @@ enum Kind { BURN, POISON, SLOW, STUN, SILENCE, OTHER, KNOCKUP }
 @export_range(-90, 300) var damage_percent_bonus: int = 0
 ## Defense change while active (percentage, negative = more exposed).
 @export_range(-100, 300) var defense_percent_bonus: int = 0
+## Extra damage taken while active (percentage; 100 = double).
+@export_range(-90, 300) var damage_taken_percent_bonus: int = 0
 ## HP recovered at the start of each turn, as % of max HP.
 @export_range(0, 100) var heal_percent_per_turn: int = 0
 
 @export_group("Restrictions")
 ## PM lost every turn while it lasts.
 @export_range(0, 20) var move_penalty: int = 0
+## PM gained every turn while it lasts (haste).
+@export_range(0, 20) var move_bonus: int = 0
 ## % of speed lost (slower turn order).
 @export_range(0, 90) var speed_percent_penalty: int = 0
 ## The unit loses its turns while it lasts.
