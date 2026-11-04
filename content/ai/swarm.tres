@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AiProfile" format=3]
+
+[ext_resource type="Script" path="res://core/data/ai_profile.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+kill_bonus = 70.0
+focus_weight = 40.0
+shared_focus_weight = 45.0
+threat_weight = 0.15
+approach_weight = 4.0

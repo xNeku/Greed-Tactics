@@ -267,6 +267,18 @@ Enemigos de prototipo: Goblin (Saqueador, melee) y Limo (Bestia, melee lento y r
 
 **[v0.6.3] Desierto de Neku:** enemigos normales = **Trasgo con daga** (Puñalada trapera + *Pincha y huye*: pega y salta 2 atrás), **Trasgo con arco** (Flecha 2-5 que alcanza mucha altura + *Flecha lastrante* que ralentiza), **Trasgo brujo** (*Dardo de ponzoña* y *Nube de veneno*: cargas de toxina) y **Escorpión** (sprite nuevo de Neku a mitad de densidad; Aguijón + *Tenaza* 35% aturdir). Bandido y Momia salen del desierto (sus datos siguen en `content/units/enemies/`).
 
+**[Decidido v0.6.3, Neku] Invocaciones (para todo el juego):**
+- Una invocación la **controla quien la invoca**: si la invoca el jugador, la mueve el jugador; si la invoca un enemigo, la IA. Las estructuras (tótem) no juegan turno.
+- **Si muere el invocador, mueren todas sus invocaciones** (y las de sus invocaciones). Matar al invocador gana el combate si solo quedaban sus invocaciones.
+- `SkillData.summon_limit`: cuántas puede tener vivas a la vez; al pasarse, la nueva sustituye a la más antigua (tótem = 1).
+
+**[v0.6.3] Miniboss del desierto: Troll elemental de arena** (sprite de Neku; sustituye al Gusano de arena, cuyos datos siguen en `content/`). Frágil (140 PV), rápido (5 PM, 12 vel.):
+- *Alzar elemental*: un **Elemental de arena** por turno en una casilla libre a 1-3 (máx. 4 vivos).
+- *Lanza de arena*: 3-6 casillas, 70% de **Hundido en arena** (-2 PM, 2 turnos).
+- *Tránsito bajo la arena*: se teletransporta a 3-7 (enfriamiento 2) para escapar.
+- IA `summoner`: guarda distancia y se **refugia entre sus elementales** (`AiProfile.ally_cover_weight`); usa el teletransporte cuando llega a un sitio claramente más seguro que andando.
+- **Elemental de arena** (sprite de Claude, a retocar en el taller): nace débil (16 PV, 6 ATQ), pega a 1-2 casillas y **crece al moverse**: +2 PV máx. y +1 ATQ por casilla recorrida (`UnitData.hp_per_cell_moved` / `attack_per_cell_moved`). IA `swarm`: **foco compartido** (`AiProfile.shared_focus_weight`), todos van a por el último rival que golpeó su equipo (`CombatState.focus_target`).
+
 **[v0.6.3] Anti-bloqueo de la IA:** `CombatState.turns_without_damage` cuenta los turnos seguidos sin que nadie pierda vida; el miedo de la IA a las casillas amenazadas baja hasta 0 en `AiProfile.patience_turns` (8) turnos. Evita empates eternos de dos bandos esperando en el borde del alcance del otro.
 
 ## 7. Compañeros
@@ -490,6 +502,7 @@ Cada hito tiene un criterio de salida. No se pasa al siguiente sin cumplirlo.
 
 ## Changelog
 
+- **v0.6.3 (Nov 4, 2026)** — Desierto de Neku (trasgos con daga, arco y brujo; escorpión nuevo) y su miniboss **Troll elemental de arena** con **Elementales de arena**. Reglas nuevas para todo el juego: las invocaciones las controla su invocador, mueren con él y tienen límite (`summon_limit`); crecimiento al moverse; foco compartido; refugio entre aliados; la IA escapa con teletransportes. IA anti-bloqueo (`patience_turns`). `autoplay_battle.gd` acepta zona y enemigos (`-- desert sand_troll,trasgo_dagger`).
 - **v0.6.2 (Nov 4, 2026)** — Tras la primera partida larga de Neku: menú de acciones en dos páginas (**1 Mover · 2 Atacar · 3 Esperar**; Atacar abre las habilidades 1-6; Esc vuelve atrás), sin bocadillos (solo el marco de la habilidad, también al pasar el ratón por el botón); al elegir una habilidad se ve su rango al momento y, si es sobre uno mismo o tiene una sola casilla posible, su zona y la previsión sin mover el ratón (se lanza pulsando otra vez su tecla, Enter o clic). **Subir escalones ya no cuesta PM extra** (`climb_up_cost` = 0 en las reglas). La IA busca las **casillas desde donde puede atacar** (alcance, área, altura, línea recta) y camina hacia ellas: encuentra rampas y no se queda huyendo cuando el jugador está en alto.
 - **v0.6 (Nov 3, 2026)** — Tres heroínas de Neku: **Nyx** rehecha como asesina táctica (toxina acumulable y provocación), **Elara** paladina elfa (curas en área, aturdimientos, Égida) y **Grizka** goblin pistolera (retroceso). Mecánicas genéricas: `max_stacks`, `taunts`, `extra_statuses`, `heal_percent`, `recoil`. Plantel de 8; el menú muestra las tarjetas en rejilla de 4 columnas con la descripción como tooltip. `autoplay_run.gd` acepta un grupo (`-- 5 nyx,paladin,gunner,shaman`).
 - **v0.5.1 (Nov 3, 2026)** — Correcciones de Neku: Pablo sin tatuajes tribales y con los aros pegados a la oreja; Sigrid sin el hacha añadida (las armas las pasará Neku); el chamán es hombre y se llama **Tohil**; grupo inicial = Kael, Pablo, Tohil, Sigrid.

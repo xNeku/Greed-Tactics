@@ -89,6 +89,9 @@ enum Motion {
 ## again removes the previous one summoned by the same user.
 ## Typed as Resource to avoid a SkillData <-> UnitData script cycle.
 @export var summon: Resource
+## How many of this summon the user can keep alive; a new one past the limit
+## replaces the oldest (1 = totem style, re-summoning moves it).
+@export_range(1, 12) var summon_limit: int = 1
 
 @export_group("Status")
 ## Status applied to every target hit (optional).

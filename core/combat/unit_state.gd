@@ -161,6 +161,19 @@ func heal(amount: int) -> int:
 	return hp - before
 
 
+## Momentum (UnitData.hp_per_cell_moved / attack_per_cell_moved): walking
+## [param cells] makes the unit bigger. Returns true if it grew.
+func gain_momentum(cells: int) -> bool:
+	var hp_gain := data.hp_per_cell_moved * cells
+	var attack_gain := data.attack_per_cell_moved * cells
+	if hp_gain <= 0 and attack_gain <= 0:
+		return false
+	max_hp += hp_gain
+	hp += hp_gain
+	attack += attack_gain
+	return true
+
+
 #region Statuses
 
 ## Refreshes the status to at least [param duration] turns. Stacking

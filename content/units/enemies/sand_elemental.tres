@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Script" path="res://core/data/unit_data.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/sprites/units/sand_elemental.png" id="2_r"]
+[ext_resource type="Texture2D" path="res://assets/sprites/units/sand_elemental_side.png" id="3_r"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="4_r"]
+[ext_resource type="Resource" path="res://content/ai/swarm.tres" id="5_r"]
+[ext_resource type="Resource" path="res://content/skills/enemies/sand_slam.tres" id="6_r"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"sand_elemental"
+display_name = "Elemental de arena"
+short_name = "ELE"
+race = "Elemental"
+unit_class = "Invocación"
+sprite = ExtResource("2_r")
+sprite_side = ExtResource("3_r")
+description = "Arena viva invocada por el troll. Nace débil, pero cada casilla que recorre lo hace más grande y más fuerte. Van todos a por el mismo."
+max_hp = 16
+speed = 11
+attack = 6
+defense = 1
+hp_per_level = 3
+attack_per_level = 1
+skills = Array[ExtResource("4_r")]([ExtResource("6_r")])
+hp_per_cell_moved = 2
+attack_per_cell_moved = 1
+ai_profile = ExtResource("5_r")
+xp_reward = 0
+gold_reward = 0

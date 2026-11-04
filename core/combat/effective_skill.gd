@@ -51,6 +51,7 @@ var refund_ap: int = 0
 ## Statuses applied on every landed hit (skill + ALWAYS modifiers).
 var statuses: Array[StatusApplication] = []
 var summon: UnitData
+var summon_limit: int = 1
 var vfx_style: SkillData.VfxStyle = SkillData.VfxStyle.AUTO
 var vfx_color: Color = Color.WHITE
 
@@ -95,6 +96,7 @@ static func from_skill(base_skill: SkillData, used: SkillData) -> EffectiveSkill
 		if extra != null:
 			StatusApplication.merge(e.statuses, StatusApplication.create(extra, 100, 0))
 	e.summon = used.summon as UnitData
+	e.summon_limit = used.summon_limit
 	e.vfx_style = used.vfx_style
 	e.vfx_color = used.vfx_color
 	return e

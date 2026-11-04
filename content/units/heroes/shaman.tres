@@ -13,7 +13,7 @@
 script = ExtResource("1_script")
 id = &"shaman"
 display_name = "Tohil"
-short_name = "NAY"
+short_name = "TOH"
 race = "Humano"
 unit_class = "Chamán de fuego"
 sprite = ExtResource("2_sprite")

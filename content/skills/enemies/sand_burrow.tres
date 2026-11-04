@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/status_data.gd" id="1_e2e1q"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"sand_burrow"
+display_name = "Tránsito bajo la arena"
+description = "Se hunde en la arena y reaparece en una casilla libre a 3-7."
+skill_type = 3
+tags = Array[StringName]([&"movimiento"])
+cooldown = 2
+target_rule = 2
+range_min = 3
+range_max = 7
+vertical_reach = 9
+power = 0
+motion = 1
+vfx_color = Color(0.9, 0.78, 0.5, 1)

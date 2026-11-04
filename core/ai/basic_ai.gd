@@ -43,6 +43,10 @@ func decide(combat: CombatState, unit: UnitState) -> AiAction:
 	if not best_move.is_empty():
 		return AiAction.move(best_move.destination)
 
+	var escape := _best_escape(combat, unit, reach, threat, profile)
+	if not escape.is_empty():
+		return AiAction.use_skill(escape.skill, escape.cell)
+
 	if reach != null:
 		var destination := _best_reposition(combat, unit, reach, threat, profile)
 		if destination != unit.cell:
@@ -76,6 +80,8 @@ func best_attack_from(combat: CombatState, unit: UnitState, from_cell: Vector2i,
 			var value := 0.0
 			for preview in combat.preview_skill(unit, skill, from_cell, cell):
 				value += _hit_value(unit, preview, profile)
+				if preview.target == _focus_of(combat, unit, profile):
+					value += profile.shared_focus_weight * preview.hit_chance / 100.0
 			for healed: int in combat.preview_heals(unit, skill, from_cell, cell).values():
 				value += profile.heal_weight * healed
 			if value <= 0.0:
@@ -86,6 +92,16 @@ func best_attack_from(combat: CombatState, unit: UnitState, from_cell: Vector2i,
 			if value > 0.0 and (best.is_empty() or score > best.score):
 				best = {"skill": skill, "cell": cell, "score": score, "landing": landing}
 	return best
+
+
+## The opponent this unit's team is focusing (shared_focus_weight > 0), or null.
+func _focus_of(combat: CombatState, unit: UnitState, profile: AiProfile) -> UnitState:
+	if profile.shared_focus_weight <= 0.0:
+		return null
+	var focus: UnitState = combat.focus_target.get(unit.team)
+	if focus == null or not focus.is_alive() or not focus.is_enemy_of(unit):
+		return null
+	return focus
 
 
 func _hit_value(unit: UnitState, preview: AttackPreview, profile: AiProfile) -> float:
@@ -131,20 +147,31 @@ func _best_summon(combat: CombatState, unit: UnitState) -> Dictionary:
 		var effective := unit.get_effective(skill)
 		if effective.summon == null or not unit.can_afford(effective):
 			continue
-		var has_one := combat.get_living_units().any(
-			func(u: UnitState) -> bool: return u.summoner == unit and u.data == effective.summon)
-		if has_one:
+		var alive := combat.get_living_units().filter(
+			func(u: UnitState) -> bool: return u.summoner == unit and u.data == effective.summon).size()
+		if alive >= effective.summon_limit:
 			continue
-		var radius := effective.summon.aura.radius if effective.summon.aura != null else 1
 		for cell in combat.get_targetable_cells(unit, skill, unit.cell):
-			var score := 0.0
-			for other in combat.get_living_units():
-				if other.is_structure() or BattleGrid.manhattan(other.cell, cell) > radius:
-					continue
-				score += 6.0 if other.is_enemy_of(unit) else 10.0
+			var score := _summon_cell_value(combat, unit, effective.summon, cell)
 			if score > 10.0 and (best.is_empty() or score > best.score):
 				best = {"skill": skill, "cell": cell, "score": score}
 	return best
+
+
+## Aura summons (totems) go where the aura covers the most units; fighting
+## summons go between the summoner and its opponents (towards them, as cover).
+func _summon_cell_value(combat: CombatState, unit: UnitState, summon: UnitData, cell: Vector2i) -> float:
+	var score := 0.0
+	if summon.aura != null:
+		for other in combat.get_living_units():
+			if other.is_structure() or BattleGrid.manhattan(other.cell, cell) > summon.aura.radius:
+				continue
+			score += 6.0 if other.is_enemy_of(unit) else 10.0
+		return score
+	score = 30.0 - 2.0 * _nearest_opponent_distance(combat, unit, cell)
+	if BattleGrid.manhattan(cell, unit.cell) == 1:
+		score += 4.0
+	return score
 
 #endregion
 
@@ -195,6 +222,11 @@ func position_value(combat: CombatState, unit: UnitState, cell: Vector2i,
 	var nearest := _nearest_opponent_distance(combat, unit, cell)
 	if nearest < profile.preferred_distance:
 		value -= profile.too_close_weight * (profile.preferred_distance - nearest)
+	if profile.ally_cover_weight > 0.0:
+		for other in combat.get_living_units():
+			if other != unit and not other.is_enemy_of(unit) and not other.is_structure() \
+					and BattleGrid.manhattan(other.cell, cell) == 1:
+				value += profile.ally_cover_weight
 	return value
 
 
@@ -211,6 +243,27 @@ func _best_reposition(combat: CombatState, unit: UnitState, reach: ReachMap,
 			best_value = value
 			best_cell = cell
 	return best_cell
+
+
+## Teleport skills that deal no damage (burrowing, blink) used to reposition
+## when they reach a clearly better cell than walking does.
+func _best_escape(combat: CombatState, unit: UnitState, reach: ReachMap,
+		threat: Dictionary[Vector2i, float], profile: AiProfile) -> Dictionary:
+	var walk := _distance_to_attack_spots(combat, unit)
+	var baseline := _reposition_value(combat, unit, unit.cell, threat, walk, profile)
+	if reach != null:
+		for cell in reach.get_destinations():
+			baseline = maxf(baseline, _reposition_value(combat, unit, cell, threat, walk, profile))
+	var best := {}
+	for skill in unit.data.skills:
+		var effective := unit.get_effective(skill)
+		if effective.motion != SkillData.Motion.TELEPORT or effective.deals_damage() or not unit.can_afford(effective):
+			continue
+		for cell in combat.get_targetable_cells(unit, skill, unit.cell):
+			var value := _reposition_value(combat, unit, cell, threat, walk, profile)
+			if value > baseline + 2.0 * profile.reposition_margin and (best.is_empty() or value > best.value):
+				best = {"skill": skill, "cell": cell, "value": value}
+	return best
 
 
 func _reposition_value(combat: CombatState, unit: UnitState, cell: Vector2i,
@@ -236,6 +289,8 @@ func _distance_to_attack_spots(combat: CombatState, unit: UnitState) -> Dictiona
 	var blocked: Dictionary[Vector2i, bool] = {}
 	var targets: Array[UnitState] = []
 	var taunter := unit.get_taunter()
+	if taunter == null:
+		taunter = _focus_of(combat, unit, get_profile(unit))  # Swarms walk to the shared target.
 	for other in combat.get_living_units():
 		if other == unit:
 			continue

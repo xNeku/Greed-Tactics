@@ -80,11 +80,16 @@ func get_view(unit: UnitState) -> UnitView:
 func execute_move(destination: Vector2i) -> void:
 	var unit := combat.active_unit
 	var from_cell := unit.cell
+	var max_hp := unit.max_hp
+	var attack := unit.attack
 	var path := combat.move_active_unit(destination)
 	if path.is_empty():
 		return
 	await _views[unit].play_move(from_cell, path)
 	_camera_rig.home_position = _map_view.cell_to_world(unit.cell)
+	if unit.max_hp != max_hp or unit.attack != attack:
+		_views[unit].play_text("+%d PV · +%d ATQ" % [unit.max_hp - max_hp, unit.attack - attack], UnitView.HEAL_COLOR)
+		_views[unit].refresh_info()
 
 
 func execute_skill(skill: SkillData, target_cell: Vector2i) -> void:
@@ -118,6 +123,7 @@ func _run_next_turn() -> void:
 		await get_tree().create_timer(STATUS_TICK_TIME).timeout
 		if not unit.is_alive():
 			await _views[unit].play_defeat()
+			await _play_orphans(combat.last_orphaned)
 	if combat.is_finished():
 		return
 	if unit.skip_turn:
@@ -206,6 +212,7 @@ func _play_skill_result(result: SkillResult) -> void:
 		if result.heals[ally] > 0 and _views.has(ally):
 			_vfx.impact(_views[ally].get_cast_position(), UnitView.HEAL_COLOR, 0.7)
 			_views[ally].play_heal(result.heals[ally])
+	await _play_orphans(result.orphaned)
 	if result.replaced != null and _views.has(result.replaced):
 		_views[result.replaced].play_defeat()
 	if result.summoned != null:
@@ -214,6 +221,16 @@ func _play_skill_result(result: SkillResult) -> void:
 	if result.refunded_ap > 0:
 		user_view.play_text("+%d PA" % result.refunded_ap, UnitView.HEAL_COLOR)
 	user_view.refresh_info()
+
+## Summons that crumble because their summoner died.
+func _play_orphans(units: Array[UnitState]) -> void:
+	for unit in units:
+		if _views.has(unit):
+			_views[unit].play_text("Se deshace", UnitView.CRIT_COLOR)
+			_views[unit].play_defeat()
+	if not units.is_empty():
+		await get_tree().create_timer(0.5).timeout
+
 
 #endregion
 

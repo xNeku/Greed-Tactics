@@ -35,6 +35,17 @@ func _initialize() -> void:
 				var zones: Array = seen[data]["zones"]
 				if not zones.has(zone.display_name):
 					zones.append(zone.display_name)
+	# Summons of those enemies (sand elementals) go with their summoner's zones.
+	for sheet: Dictionary in enemies.duplicate():
+		var data := load("res://content/units/enemies/%s.tres" % sheet["id"]) as UnitData
+		for skill in data.skills:
+			var summoned := skill.summon as UnitData
+			if summoned == null or summoned.is_structure or seen.has(summoned):
+				continue
+			seen[summoned] = _enemy(summoned, false)
+			seen[summoned]["order"] = seen.size()
+			seen[summoned]["zones"] = sheet["zones"].duplicate()
+			enemies.append(seen[summoned])
 	var file := FileAccess.open(out_path, FileAccess.WRITE)
 	file.store_string(JSON.stringify({"heroes": heroes, "enemies": enemies}, "  "))
 	print("Exported %d heroes and %d enemies to %s" % [heroes.size(), enemies.size(), out_path])

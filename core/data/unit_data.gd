@@ -63,6 +63,12 @@ enum ResourceKind {
 ## The first BASIC one is the default attack.
 @export var skills: Array[SkillData] = []
 
+@export_group("Momentum")
+## Max HP (and current HP) gained per cell walked in combat (sand elementals).
+@export_range(0, 50) var hp_per_cell_moved: int = 0
+## Attack gained per cell walked in combat.
+@export_range(0, 20) var attack_per_cell_moved: int = 0
+
 @export_group("Structure")
 ## Structures (totems, barricades...) never take turns, never move and do not
 ## count to win or lose a combat. Enemies can still attack and destroy them.

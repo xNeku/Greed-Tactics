@@ -43,6 +43,8 @@ var recoil_to: Vector2i = Vector2i(-1, -1)
 var summoned: UnitState
 ## Previous summon removed to make room for the new one, or null.
 var replaced: UnitState
+## Summons that died because their summoner died in this skill.
+var orphaned: Array[UnitState] = []
 
 
 func user_moved() -> bool:

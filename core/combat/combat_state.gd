@@ -33,8 +33,14 @@ var winner: int = NO_WINNER
 var turn_count: int = 0
 ## Unit turns in a row in which nobody lost HP (the AI gets bolder as it grows).
 var turns_without_damage: int = 0
+## Last opponent each team hit (Team -> UnitState), for focus fire.
+var focus_target: Dictionary[int, UnitState] = {}
+## Summons that died because their summoner died, not yet announced.
+var _orphaned: Array[UnitState] = []
 ## What statuses did at the start of the current turn.
 var last_status_events: Array[StatusEvent] = []
+## Summons that died at the start of this turn with their summoner (status damage).
+var last_orphaned: Array[UnitState] = []
 
 var _turn_queue: TurnQueue
 var _rng := RandomNumberGenerator.new()
@@ -312,6 +318,7 @@ func start_next_turn() -> UnitState:
 		return null
 	active_unit = _turn_queue.advance(units)
 	active_unit.begin_turn(rules)
+	last_orphaned = []
 	turn_count += 1
 	turns_without_damage += 1
 	last_status_events = _tick_statuses(active_unit)
@@ -322,6 +329,7 @@ func start_next_turn() -> UnitState:
 		unit_stats_changed.emit(active_unit)
 		if not active_unit.is_alive():
 			unit_defeated.emit(active_unit)
+			last_orphaned = take_orphaned()
 			_check_victory()
 	return active_unit
 
@@ -338,6 +346,7 @@ func move_active_unit(destination: Vector2i) -> Array[Vector2i]:
 	unit.pm -= reach.get_cost(destination)
 	unit.cell = destination
 	unit.facing = GridDir.from_delta(destination - previous, unit.facing)
+	unit.gain_momentum(path.size())
 	unit_moved.emit(unit, path)
 	unit_stats_changed.emit(unit)
 	return path
@@ -399,6 +408,7 @@ func use_skill(skill: SkillData, target_cell: Vector2i) -> SkillResult:
 		unit_stats_changed.emit(hit.target)
 		if hit.defeated:
 			unit_defeated.emit(hit.target)
+	result.orphaned = take_orphaned()
 	_check_victory()
 	return result
 
@@ -457,6 +467,8 @@ func _resolve_hit(result: SkillResult, target: UnitState, from_cell: Vector2i,
 	hit.critical = _rng.randi_range(1, 100) <= preview.crit_chance
 	hit.damage = preview.crit_damage if hit.critical else preview.damage
 	_apply_damage(target, hit.damage)
+	if target.is_enemy_of(user):
+		focus_target[user.team] = target
 	user.add_rage(rules.rage_on_hit_dealt + skill.rage_on_hit, rules)
 	hit.defeated = not target.is_alive()
 
@@ -539,6 +551,26 @@ func _apply_damage(target: UnitState, damage: int) -> void:
 	target.hp = maxi(target.hp - damage, 0)
 	if target.is_alive():
 		target.add_rage(CombatFormulas.rage_from_damage_taken(rules, target, damage), rules)
+	else:
+		_kill_summons_of(target)
+
+
+## A summoner's death takes its summons with it (GDD: invocadores).
+func _kill_summons_of(summoner: UnitState) -> void:
+	for unit in get_living_units():
+		if unit.summoner == summoner:
+			unit.hp = 0
+			_orphaned.append(unit)
+			_kill_summons_of(unit)
+
+
+## Summons killed by their summoner's death since the last call.
+func take_orphaned() -> Array[UnitState]:
+	var list := _orphaned.duplicate()
+	_orphaned.clear()
+	for unit in list:
+		unit_defeated.emit(unit)
+	return list
 
 
 ## Start of turn: damage over time, lost turns and expiry.
@@ -649,10 +681,12 @@ func _apply_auras(unit: UnitState) -> void:
 
 func _summon(result: SkillResult, data: UnitData, cell: Vector2i) -> void:
 	var user := result.user
-	for other in get_living_units():
-		if other.summoner == user and other.data == data:
-			other.hp = 0
-			result.replaced = other
+	var alive := get_living_units().filter(
+		func(u: UnitState) -> bool: return u.summoner == user and u.data == data)
+	if alive.size() >= result.skill.summon_limit:
+		var oldest: UnitState = alive[0]
+		oldest.hp = 0
+		result.replaced = oldest
 	var unit := add_unit(data, user.team, cell, user.facing, user.level)
 	unit.summoner = user
 	result.summoned = unit
