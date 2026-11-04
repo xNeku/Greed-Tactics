@@ -265,6 +265,10 @@ Enemigos de prototipo: Goblin (Saqueador, melee) y Limo (Bestia, melee lento y r
 
 **[v0.3] Enemigos por zona:** Cueva (Goblin, Murciélago, Limo; miniboss **Ogro de las cavernas**), Bosque (Lobo, Goblin arquero, Jabalí, Goblin; miniboss **Ent anciano**), Desierto (Escorpión, Bandido, Momia; miniboss **Gusano de arena**, que emerge a tu espalda).
 
+**[v0.6.3] Desierto de Neku:** enemigos normales = **Trasgo con daga** (Puñalada trapera + *Pincha y huye*: pega y salta 2 atrás), **Trasgo con arco** (Flecha 2-5 que alcanza mucha altura + *Flecha lastrante* que ralentiza), **Trasgo brujo** (*Dardo de ponzoña* y *Nube de veneno*: cargas de toxina) y **Escorpión** (sprite nuevo de Neku a mitad de densidad; Aguijón + *Tenaza* 35% aturdir). Bandido y Momia salen del desierto (sus datos siguen en `content/units/enemies/`).
+
+**[v0.6.3] Anti-bloqueo de la IA:** `CombatState.turns_without_damage` cuenta los turnos seguidos sin que nadie pierda vida; el miedo de la IA a las casillas amenazadas baja hasta 0 en `AiProfile.patience_turns` (8) turnos. Evita empates eternos de dos bandos esperando en el borde del alcance del otro.
+
 ## 7. Compañeros
 
 - Son personajes preset con personalidad y rol definido, de la misma pool que los personajes jugables.

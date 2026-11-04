@@ -182,9 +182,16 @@ func build_threat_map(combat: CombatState, unit: UnitState) -> Dictionary[Vector
 
 
 ## How good it is to end the turn on [param cell] (higher is better).
+## 1 = normal fear of threatened cells, 0 = none. Drops as turns go by without
+## anyone taking damage, so two sides waiting at the edge of each other's
+## reach end up engaging instead of stalling forever.
+func get_caution(combat: CombatState, profile: AiProfile) -> float:
+	return clampf(1.0 - float(combat.turns_without_damage) / profile.patience_turns, 0.0, 1.0)
+
+
 func position_value(combat: CombatState, unit: UnitState, cell: Vector2i,
 		threat: Dictionary[Vector2i, float], profile: AiProfile) -> float:
-	var value: float = -profile.threat_weight * threat.get(cell, 0.0)
+	var value: float = -profile.threat_weight * get_caution(combat, profile) * threat.get(cell, 0.0)
 	var nearest := _nearest_opponent_distance(combat, unit, cell)
 	if nearest < profile.preferred_distance:
 		value -= profile.too_close_weight * (profile.preferred_distance - nearest)

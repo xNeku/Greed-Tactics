@@ -28,3 +28,6 @@ extends Resource
 @export var approach_weight: float = 3.0
 ## Minimum gain to bother moving without attacking.
 @export var reposition_margin: float = 2.0
+## Anti-stalemate: after this many unit turns in a row without anyone taking
+## damage, the unit stops fearing threatened cells (fades linearly to zero).
+@export_range(1, 50) var patience_turns: int = 8

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/status_data.gd" id="1_aea3r"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+[ext_resource type="Resource" path="res://content/statuses/stun.tres" id="2_r"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"pincer"
+display_name = "Tenaza"
+description = "Atrapa a un adyacente con la pinza: 35% de aturdir."
+skill_type = 1
+tags = Array[StringName]([&"melee"])
+cooldown = 2
+status = ExtResource("2_r")
+status_chance = 35
+status_duration = 1
+vfx_color = Color(0.9, 0.75, 0.4, 1)

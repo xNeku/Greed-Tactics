@@ -5,6 +5,8 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/units/scorpion.png" id="2_scorpion"]
 [ext_resource type="Resource" path="res://content/skills/enemies/sting.tres" id="3_sting"]
 [ext_resource type="Resource" path="res://content/ai/skirmisher.tres" id="91_ai"]
+[ext_resource type="Texture2D" path="res://assets/sprites/units/scorpion_side.png" id="92_side"]
+[ext_resource type="Resource" path="res://content/skills/enemies/pincer.tres" id="93_pincer"]
 
 [resource]
 script = ExtResource("1_script")
@@ -14,6 +16,8 @@ short_name = "ESC"
 race = "Bestia"
 unit_class = "Acechador"
 sprite = ExtResource("2_scorpion")
+sprite_side = ExtResource("92_side")
+description = "Escorpión gigante del desierto. Su aguijón envenena y su tenaza puede dejarte aturdido."
 max_hp = 60
 speed = 11
 attack = 12
@@ -21,6 +25,6 @@ defense = 4
 evasion = 10
 crit_chance = 10
 hp_per_level = 7
-skills = Array[ExtResource("2_5ujem")]([ExtResource("3_sting")])
+skills = Array[ExtResource("2_5ujem")]([ExtResource("3_sting"), ExtResource("93_pincer")])
 ai_profile = ExtResource("91_ai")
 xp_reward = 8

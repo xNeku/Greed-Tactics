@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Script" path="res://core/data/unit_data.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/sprites/units/trasgo_dagger.png" id="2_r"]
+[ext_resource type="Texture2D" path="res://assets/sprites/units/trasgo_dagger_side.png" id="3_r"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="4_r"]
+[ext_resource type="Resource" path="res://content/ai/skirmisher.tres" id="5_r"]
+[ext_resource type="Resource" path="res://content/skills/enemies/backstab_trasgo.tres" id="6_r"]
+[ext_resource type="Resource" path="res://content/skills/enemies/stab_and_run.tres" id="7_r"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"trasgo_dagger"
+display_name = "Trasgo con daga"
+short_name = "TRD"
+race = "Trasgo"
+unit_class = "Degollador"
+sprite = ExtResource("2_r")
+sprite_side = ExtResource("3_r")
+description = "Trasgo del desierto que entra, apuñala y se aparta antes de que le respondas."
+max_hp = 48
+speed = 13
+move_points = 5
+attack = 13
+defense = 2
+evasion = 18
+crit_chance = 12
+hp_per_level = 5
+skills = Array[ExtResource("4_r")]([ExtResource("6_r"), ExtResource("7_r")])
+ai_profile = ExtResource("5_r")
+xp_reward = 8
+gold_reward = 4

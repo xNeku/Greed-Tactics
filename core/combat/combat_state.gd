@@ -31,6 +31,8 @@ var active_unit: UnitState
 var winner: int = NO_WINNER
 ## Number of turns started so far (for stats and balance).
 var turn_count: int = 0
+## Unit turns in a row in which nobody lost HP (the AI gets bolder as it grows).
+var turns_without_damage: int = 0
 ## What statuses did at the start of the current turn.
 var last_status_events: Array[StatusEvent] = []
 
@@ -311,6 +313,7 @@ func start_next_turn() -> UnitState:
 	active_unit = _turn_queue.advance(units)
 	active_unit.begin_turn(rules)
 	turn_count += 1
+	turns_without_damage += 1
 	last_status_events = _tick_statuses(active_unit)
 	_apply_auras(active_unit)
 	turn_started.emit(active_unit)
@@ -531,6 +534,8 @@ func _resolve_kill_refund(result: SkillResult) -> void:
 
 
 func _apply_damage(target: UnitState, damage: int) -> void:
+	if damage > 0:
+		turns_without_damage = 0
 	target.hp = maxi(target.hp - damage, 0)
 	if target.is_alive():
 		target.add_rage(CombatFormulas.rage_from_damage_taken(rules, target, damage), rules)

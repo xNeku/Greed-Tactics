@@ -153,3 +153,34 @@ func test_unreachable_target_still_gets_approached() -> void:
 	var before := BattleGrid.manhattan(foe.cell, hero.cell)
 	_play_turn(foe)
 	assert_true(BattleGrid.manhattan(foe.cell, hero.cell) < before, "does not wander off")
+
+
+func test_cautious_unit_engages_after_a_long_stalemate() -> void:
+	var hero_data := TestFixtures.unit_data("Hero", 1)
+	hero_data.attack = 60  # Any cell near the hero is very dangerous.
+	var hero := combat.add_unit(hero_data, UnitState.Team.PLAYER, Vector2i(1, 1))
+	var foe_data := TestFixtures.unit_data("Coward", 20)
+	foe_data.skills[0].range_max = 1
+	var profile := AiProfile.new()
+	profile.threat_weight = 50.0
+	profile.patience_turns = 6
+	foe_data.ai_profile = profile
+	var foe := combat.add_unit(foe_data, UnitState.Team.ENEMY, Vector2i(8, 8))
+	_turn_of(foe)
+	var ai := BasicAI.new()
+	combat.turns_without_damage = 0
+	assert_eq(ai.get_caution(combat, profile), 1.0)
+	combat.turns_without_damage = 6
+	assert_eq(ai.get_caution(combat, profile), 0.0, "no fear left")
+	var before := BattleGrid.manhattan(foe.cell, hero.cell)
+	_play_turn(foe)
+	assert_true(BattleGrid.manhattan(foe.cell, hero.cell) < before, "goes in after the stalemate")
+
+
+func test_damage_resets_the_stalemate_counter() -> void:
+	var hero := combat.add_unit(TestFixtures.unit_data("Hero", 20), UnitState.Team.PLAYER, Vector2i(4, 4))
+	combat.add_unit(TestFixtures.unit_data("Foe", 1), UnitState.Team.ENEMY, Vector2i(4, 5))
+	combat.turns_without_damage = 5
+	_turn_of(hero)
+	combat.use_skill(hero.data.skills[0], Vector2i(4, 5))
+	assert_eq(combat.turns_without_damage, 0)

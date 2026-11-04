@@ -84,6 +84,7 @@ El estado por hito está en [`ROADMAP.md`](ROADMAP.md).
 | GT-241 | Kael camorrista: kit a puños, sprites de frente/lado y animaciones (idle, andar, puñetazo, golpe) | M4 | 2026-11-03 |
 | GT-242 | Sprite de Pablo de Neku: más delgado, moño frontal, aros dorados pegados a la oreja (sin tribales, v0.5.1); frente + lado | M4 | 2026-11-03 |
 | GT-243 | Terrenos con textura procedural, decoración, niebla, sol, glow, partículas por zona, viñeta | M5 | 2026-11-03 |
+| GT-270 | Desierto de Neku: trasgos con daga, arco y brujo + escorpión nuevo (sprites recuperados, 2 habilidades cada uno); IA anti-bloqueo por turnos sin daño | M4 | 2026-11-04 |
 | GT-266 | v0.6.2: menú Mover/Atacar/Esperar con página de habilidades, sin bocadillos, rango y zona al seleccionar; subir sin coste; IA que busca casillas de ataque (rampas, alturas) | M1 | 2026-11-04 |
 | GT-265 | Primera importación del taller: retoques de Neku en los sprites de Kael (y sus animaciones), Pablo, Tohil, Nyx, Sigrid, Elara y Grizka | M4 | 2026-11-03 |
 | GT-264 | Taller: categoría de enemigos (jefes, minibosses, normales) con ficha editable y creación/borrado de enemigos nuevos | M4 | 2026-11-03 |
