@@ -47,6 +47,38 @@ static func distance_field(
 	return reach.costs
 
 
+## Walking distance (in PM) from the closest of [param starts] to every
+## reachable cell (multi-source Dijkstra). Steps are symmetric in height, so this
+## is also the distance from each cell to its closest start.
+static func distance_field_many(
+		grid: BattleGrid,
+		rules: RulesConfig,
+		starts: Array[Vector2i],
+		blocked: Dictionary[Vector2i, bool] = {}) -> Dictionary[Vector2i, int]:
+	var costs: Dictionary[Vector2i, int] = {}
+	var frontier: Array[Vector2i] = []
+	for start in starts:
+		if not costs.has(start):
+			costs[start] = 0
+			frontier.append(start)
+	while not frontier.is_empty():
+		var current := _pop_cheapest(frontier, costs)
+		for dir in GridDir.ALL:
+			var next := current + GridDir.to_vector(dir)
+			if blocked.has(next):
+				continue
+			var step := GridRules.get_step_cost(grid, rules, current, next)
+			if step < 0:
+				continue
+			var new_cost := costs[current] + step
+			if costs.has(next) and costs[next] <= new_cost:
+				continue
+			costs[next] = new_cost
+			if not frontier.has(next):
+				frontier.append(next)
+	return costs
+
+
 static func _pop_cheapest(frontier: Array[Vector2i], costs: Dictionary[Vector2i, int]) -> Vector2i:
 	var best_index := 0
 	for i in range(1, frontier.size()):

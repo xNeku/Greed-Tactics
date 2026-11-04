@@ -193,7 +193,9 @@ func position_value(combat: CombatState, unit: UnitState, cell: Vector2i,
 
 func _best_reposition(combat: CombatState, unit: UnitState, reach: ReachMap,
 		threat: Dictionary[Vector2i, float], profile: AiProfile) -> Vector2i:
-	var walk := _distance_to_opponents(combat, unit)
+	var walk := _distance_to_attack_spots(combat, unit)
+	if not reach.get_destinations().any(func(c: Vector2i) -> bool: return walk.has(c)):
+		walk = _distance_to_opponents(combat, unit)
 	var best_cell := unit.cell
 	var best_value := _reposition_value(combat, unit, unit.cell, threat, walk, profile)
 	for cell in reach.get_destinations():
@@ -207,15 +209,53 @@ func _best_reposition(combat: CombatState, unit: UnitState, reach: ReachMap,
 func _reposition_value(combat: CombatState, unit: UnitState, cell: Vector2i,
 		threat: Dictionary[Vector2i, float], walk: Dictionary[Vector2i, int], profile: AiProfile) -> float:
 	var value := position_value(combat, unit, cell, threat, profile)
-	# Only melee-minded units (or anyone with PA left) want to get closer.
-	var distance: int = walk.get(cell, 99)
-	value -= profile.approach_weight * maxi(distance - profile.preferred_distance, 0)
+	# Get closer to a cell from where some skill can hit an opponent. If none is
+	# reachable (walled off, on a cliff), at least close the straight distance.
+	var distance: int = walk.get(cell, 2 * _nearest_opponent_distance(combat, unit, cell) + 20)
+	value -= profile.approach_weight * distance
 	return value
 
 #endregion
 
 
 #region Helpers
+
+## Walking distance from every cell to the closest "attack spot": a cell from
+## where one of the unit's damaging skills could reach an opponent (range, area,
+## vertical reach, straight line). This is what makes units on low ground find
+## the ramp, and ranged units step into range instead of hugging the target.
+func _distance_to_attack_spots(combat: CombatState, unit: UnitState) -> Dictionary[Vector2i, int]:
+	var grid := combat.grid
+	var blocked: Dictionary[Vector2i, bool] = {}
+	var targets: Array[UnitState] = []
+	var taunter := unit.get_taunter()
+	for other in combat.get_living_units():
+		if other == unit:
+			continue
+		blocked[other.cell] = true
+		if other.is_enemy_of(unit) and not other.data.is_structure and (taunter == null or other == taunter):
+			targets.append(other)
+	var spots: Array[Vector2i] = []
+	for skill in unit.data.skills:
+		var effective := unit.get_effective(skill)
+		if not effective.deals_damage():
+			continue
+		var self_cast := effective.target_rule == SkillData.TargetRule.SELF
+		var near := 1 if self_cast else maxi(effective.range_min - effective.area_size, 1)
+		var far := effective.area_size if self_cast else effective.range_max + effective.area_size
+		for target in targets:
+			for cell in AreaShape.get_ring(target.cell, near, maxi(far, near)):
+				if not grid.is_inside(cell) or not grid.is_walkable(cell) or blocked.has(cell):
+					continue
+				if absi(grid.get_height(cell) - grid.get_height(target.cell)) > effective.vertical_reach:
+					continue
+				if effective.requires_straight_line and cell.x != target.cell.x and cell.y != target.cell.y:
+					continue
+				spots.append(cell)
+	if spots.is_empty():
+		return {}
+	return Pathfinder.distance_field_many(grid, combat.rules, spots, blocked)
+
 
 ## Walking distance from every cell to the closest opponent.
 func _distance_to_opponents(combat: CombatState, unit: UnitState) -> Dictionary[Vector2i, int]:

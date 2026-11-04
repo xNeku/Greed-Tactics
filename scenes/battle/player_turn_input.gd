@@ -6,12 +6,15 @@ extends Node
 ##   MOVE    blue cells = reachable. Hover = path + green arrow. Hovering a
 ##           cell out of reach shows how far you get this turn (green) and the
 ##           rest of the way (grey); clicking moves as far as possible.
-##   TARGET  yellow cells = skill range. Hover = red damage zone, red arrow to
+##   TARGET  yellow cells = skill range, shown as soon as the skill is picked.
+##           Skills on the user itself (or with a single possible cell) show
+##           their zone and forecast right away; pressing their key again,
+##           Enter or a click casts them. Hover = red damage zone, red arrow to
 ##           the target, green arrow to the landing cell (movement skills),
 ##           orange arrows for pushes (with a cross where they get cut),
 ##           yellow arrows for bounces, and the forecast cards.
 ##   FACING  hover around the unit to pick a facing, click/Enter = end turn.
-## Right click / Esc goes back to the default mode.
+## Right click / Esc steps back: aiming -> skills page -> main actions.
 ## Commands go to BattleController.execute_*; this node never touches the rules.
 
 enum Mode { DISABLED, MOVE, TARGET, FACING }
@@ -33,6 +36,8 @@ var _targetable: Array[Vector2i] = []
 var _hover := BattleMapView.INVALID_CELL
 var _facing := GridDir.Dir.SOUTH
 var _move_preview := {}
+## Cell forecast while nothing targetable is hovered (self skills, single target).
+var _auto_target := BattleMapView.INVALID_CELL
 
 
 func setup(controller: BattleController, map_view: BattleMapView, highlighter: TileHighlighter,
@@ -74,27 +79,44 @@ func _unhandled_input(event: InputEvent) -> void:
 		_on_cell_clicked(_hover)
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("cancel"):
-		_enter_default_mode()
+		_step_back()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("confirm") and _mode == Mode.FACING:
 		_end_turn()
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("confirm") and _mode == Mode.TARGET and _auto_target != BattleMapView.INVALID_CELL:
+		_run_skill(_skill, _auto_target)
 		get_viewport().set_input_as_handled()
 
 
 #region Modes
 
-func _enter_default_mode() -> void:
+func _enter_default_mode(page: CommandMenu.Page = CommandMenu.Page.ROOT) -> void:
 	if _controller.combat.is_finished():
 		end_turn_input()
 		return
 	_reach = _controller.combat.get_reach_map(_unit)
-	_refresh_commands()
+	_refresh_commands(page)
 	if not _reach.get_destinations().is_empty():
 		_enter_move_mode()
 	elif _first_usable_skill() != null:
 		_enter_target_mode(_first_usable_skill())
-	else:
+	elif page == CommandMenu.Page.ROOT:
 		_enter_facing_mode()
+	else:
+		_set_mode(Mode.MOVE)
+
+
+## Esc / right click: aiming -> skills page -> main actions.
+func _step_back() -> void:
+	var menu := _hud.get_command_menu()
+	if _mode == Mode.TARGET:
+		_enter_default_mode(CommandMenu.Page.SKILLS)
+	elif menu.get_page() == CommandMenu.Page.SKILLS:
+		menu.open_root()
+		_enter_default_mode()
+	elif _mode == Mode.FACING:
+		_enter_default_mode()
 
 
 func _enter_move_mode() -> void:
@@ -112,7 +134,12 @@ func _enter_target_mode(skill: SkillData) -> void:
 	_hud.show_skill_info(effective)
 	_targetable = _controller.combat.get_targetable_cells(_unit, skill, _unit.cell)
 	_highlighter.show_cells(TileHighlighter.Layer.TARGET, _targetable)
-	_hud.set_message("%s: elige un objetivo%s" % [effective.display_name, "  (ira desatada)" if effective.empowered else ""])
+	var rage := "  (ira desatada)" if effective.empowered else ""
+	if effective.target_rule == SkillData.TargetRule.SELF or _targetable.size() == 1:
+		_auto_target = _targetable[0] if not _targetable.is_empty() else BattleMapView.INVALID_CELL
+		_hud.set_message("%s%s: pulsa otra vez su tecla, Enter o haz clic para usarla" % [effective.display_name, rage])
+	else:
+		_hud.set_message("%s%s: elige un objetivo" % [effective.display_name, rage])
 	_on_hover_changed()
 
 
@@ -135,6 +162,7 @@ func _set_mode(mode: Mode) -> void:
 		_controller.get_view(_unit).face(_unit.facing)
 	_mode = mode
 	_skill = null
+	_auto_target = BattleMapView.INVALID_CELL
 	_targetable.clear()
 	_move_preview = {}
 	_highlighter.clear_all()
@@ -159,13 +187,17 @@ func _on_hover_changed() -> void:
 	_hud.clear_previews()
 	_move_preview = {}
 	_update_info_panels()
-	if _hover != BattleMapView.INVALID_CELL:
+	if _hover == BattleMapView.INVALID_CELL and _mode == Mode.TARGET and _auto_target != BattleMapView.INVALID_CELL:
+		_show_skill_forecast(_auto_target)
+	elif _hover != BattleMapView.INVALID_CELL:
 		match _mode:
 			Mode.MOVE:
 				_show_move_forecast(_hover)
 			Mode.TARGET:
 				if _targetable.has(_hover):
 					_show_skill_forecast(_hover)
+				elif _auto_target != BattleMapView.INVALID_CELL:
+					_show_skill_forecast(_auto_target)
 			Mode.FACING:
 				if _hover != _unit.cell:
 					_facing = GridDir.from_delta(_hover - _unit.cell, _facing)
@@ -181,6 +213,8 @@ func _on_cell_clicked(cell: Vector2i) -> void:
 		Mode.TARGET:
 			if _targetable.has(cell):
 				_run_skill(_skill, cell)
+			elif _auto_target != BattleMapView.INVALID_CELL:
+				_run_skill(_skill, _auto_target)
 		Mode.FACING:
 			_end_turn()
 
@@ -307,11 +341,11 @@ func _end_turn() -> void:
 
 #region Command menu
 
-func _refresh_commands() -> void:
+func _refresh_commands(page: CommandMenu.Page = CommandMenu.Page.ROOT) -> void:
 	var usable: Dictionary[SkillData, bool] = {}
 	for skill in _unit.data.skills:
 		usable[skill] = _can_use(skill)
-	_hud.show_commands(_unit, not _reach.get_destinations().is_empty(), usable)
+	_hud.show_commands(_unit, not _reach.get_destinations().is_empty(), usable, page)
 
 
 func _on_move_selected() -> void:
@@ -320,8 +354,13 @@ func _on_move_selected() -> void:
 
 
 func _on_skill_selected(skill: SkillData) -> void:
-	if _mode != Mode.DISABLED and _can_use(skill):
-		_enter_target_mode(skill)
+	if _mode == Mode.DISABLED or not _can_use(skill):
+		return
+	# Picking the aimed self/single-target skill again casts it.
+	if _mode == Mode.TARGET and _skill == skill and _auto_target != BattleMapView.INVALID_CELL:
+		_run_skill(skill, _auto_target)
+		return
+	_enter_target_mode(skill)
 
 
 func _on_wait_selected() -> void:

@@ -15,6 +15,9 @@ El estado por hito está en [`ROADMAP.md`](ROADMAP.md).
 | GT-251 | Animaciones de Pablo (y del resto cuando lleguen sus sprites) con `art/src` + `tools/build_sprite_frames.gd` | M4 | P1 | ⬜ |
 | GT-252 | Pablo sin arco visible en el sprite: decidir con Neku si lo lleva a la espalda o en la mano | M4 | P2 | ⬜ |
 | GT-260 | Importador del taller: los sprites ya se importan (`tools/hero_workshop/import_sheets.py`); falta pasar armas, pasivas y desbloqueables cuando existan en el juego | M4 | P1 | 🟡 |
+| GT-267 | Artefacto de modificadores: catálogo con categorías según a qué afectan (daño, área, movimiento, estados, recursos...), editable por Neku e importable al juego | M1 | P1 | ⬜ |
+| GT-268 | Armas: un sprite por arma con punto de agarre, que se dibuja encima de la mano de cada personaje (todos comparten estructura) | M4 | P1 | ⬜ |
+| GT-269 | IA nivel 2: anticipar el turno del jugador (minimax de 1 jugada), coordinación entre enemigos (rodear, no bloquearse), roles por arquetipo | M1 | P2 | ⬜ |
 | GT-262 | Compañeros = héroes jugables con progresión bilateral: aparecen a nivel de run con su progresión de cuenta (depende de la meta de M3) | M3 | P1 | ⬜ |
 | GT-263 | Jefes de verdad: diseñarlos en el taller (Neku) y meterlos en las zonas | M4 | P1 | ⬜ |
 | GT-257 | Equilibrar a Nyx, Elara y Grizka jugando (con ellas la IA gana 1/5 runs simuladas frente a 3/5 del grupo por defecto) | M5 | P1 | ⬜ |
@@ -81,6 +84,7 @@ El estado por hito está en [`ROADMAP.md`](ROADMAP.md).
 | GT-241 | Kael camorrista: kit a puños, sprites de frente/lado y animaciones (idle, andar, puñetazo, golpe) | M4 | 2026-11-03 |
 | GT-242 | Sprite de Pablo de Neku: más delgado, moño frontal, aros dorados pegados a la oreja (sin tribales, v0.5.1); frente + lado | M4 | 2026-11-03 |
 | GT-243 | Terrenos con textura procedural, decoración, niebla, sol, glow, partículas por zona, viñeta | M5 | 2026-11-03 |
+| GT-266 | v0.6.2: menú Mover/Atacar/Esperar con página de habilidades, sin bocadillos, rango y zona al seleccionar; subir sin coste; IA que busca casillas de ataque (rampas, alturas) | M1 | 2026-11-04 |
 | GT-265 | Primera importación del taller: retoques de Neku en los sprites de Kael (y sus animaciones), Pablo, Tohil, Nyx, Sigrid, Elara y Grizka | M4 | 2026-11-03 |
 | GT-264 | Taller: categoría de enemigos (jefes, minibosses, normales) con ficha editable y creación/borrado de enemigos nuevos | M4 | 2026-11-03 |
 | GT-261 | Taller de héroes (artefacto en claude.ai): editor pixel perfect con lápiz, goma, gotero, cubo, simetría, deshacer, paleta, vista previa y PNG; fichas con skills, pasivas, desbloqueables y arma. Fuente en `tools/hero_workshop/`, datos con `tools/export_hero_sheets.gd` | M4 | 2026-11-03 |

@@ -22,11 +22,15 @@ const MESSAGE_ENEMY_COLOR := Color(1.0, 0.62, 0.62)
 @onready var _result: ResultOverlay = %ResultOverlay
 @onready var _skill_info: SkillInfoPanel = %SkillInfoPanel
 
+## Card of the skill being aimed (shown again when the mouse leaves a button).
+var _selected_skill: EffectiveSkill
+
 
 func _ready() -> void:
 	_command_menu.move_selected.connect(move_selected.emit)
 	_command_menu.skill_selected.connect(skill_selected.emit)
 	_command_menu.wait_selected.connect(wait_selected.emit)
+	_command_menu.skill_hovered.connect(_on_skill_hovered)
 	_result.restart_requested.connect(restart_requested.emit)
 	_command_menu.visible = false
 	_tile_info.visible = false
@@ -59,21 +63,33 @@ func show_tile(terrain: TerrainData, height: int) -> void:
 		_tile_info_label.text = "%s · Elev. %d" % [terrain.display_name, height]
 
 
-func show_commands(unit: UnitState, can_move: bool, usable_skills: Dictionary[SkillData, bool]) -> void:
-	_command_menu.show_for(unit, can_move, usable_skills)
+func show_commands(unit: UnitState, can_move: bool, usable_skills: Dictionary[SkillData, bool],
+		page: CommandMenu.Page = CommandMenu.Page.ROOT) -> void:
+	_command_menu.show_for(unit, can_move, usable_skills, page)
 
 
 func hide_commands() -> void:
 	_command_menu.visible = false
-	_skill_info.hide_skill()
+	hide_skill_info()
 
 
 func show_skill_info(skill: EffectiveSkill) -> void:
+	_selected_skill = skill
 	_skill_info.show_skill(skill)
 
 
 func hide_skill_info() -> void:
+	_selected_skill = null
 	_skill_info.hide_skill()
+
+
+func _on_skill_hovered(skill: EffectiveSkill) -> void:
+	if skill != null:
+		_skill_info.show_skill(skill)
+	elif _selected_skill != null:
+		_skill_info.show_skill(_selected_skill)
+	else:
+		_skill_info.hide_skill()
 
 
 func get_command_menu() -> CommandMenu:

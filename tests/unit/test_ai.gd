@@ -109,3 +109,47 @@ func test_ai_values_healing_wounded_allies() -> void:
 	assert_eq(action.kind, AiAction.Kind.SKILL)
 	combat.use_skill(action.skill, action.cell)
 	assert_eq(ally.hp, 70, "healed 50% of max HP")
+
+
+func _height_grid(heights: PackedStringArray) -> BattleGrid:
+	var rows := PackedStringArray()
+	for row in heights:
+		rows.append("g".repeat(row.length()))
+	return TestFixtures.grid(rows, heights)
+
+
+func test_melee_takes_the_ramp_to_reach_a_unit_on_high_ground() -> void:
+	combat = CombatState.new(_height_grid([
+		"0000000333",
+		"0000000333",
+		"0000000333",
+		"0000000002",
+		"0000000001",
+		"0000000000",
+	]), TestFixtures.rules(), 9)
+	var hero := combat.add_unit(TestFixtures.unit_data("Hero", 1), UnitState.Team.PLAYER, Vector2i(7, 1))
+	var foe_data := TestFixtures.unit_data("Foe", 20)
+	foe_data.move_points = 6
+	var foe := combat.add_unit(foe_data, UnitState.Team.ENEMY, Vector2i(4, 4))
+	_turn_of(foe)
+	_play_turn(foe)
+	assert_true(foe.cell.x >= 8, "heads for the ramp instead of waiting under the cliff: %s" % foe.cell)
+	assert_eq(hero.hp, hero.max_hp)
+
+
+func test_unreachable_target_still_gets_approached() -> void:
+	combat = CombatState.new(_height_grid([
+		"00000",
+		"00300",
+		"00000",
+		"00000",
+		"00000",
+		"00000",
+		"00000",
+	]), TestFixtures.rules(), 9)
+	var hero := combat.add_unit(TestFixtures.unit_data("Hero", 1), UnitState.Team.PLAYER, Vector2i(2, 1))
+	var foe := combat.add_unit(TestFixtures.unit_data("Foe", 20), UnitState.Team.ENEMY, Vector2i(2, 6))
+	_turn_of(foe)
+	var before := BattleGrid.manhattan(foe.cell, hero.cell)
+	_play_turn(foe)
+	assert_true(BattleGrid.manhattan(foe.cell, hero.cell) < before, "does not wander off")

@@ -4,3 +4,4 @@
 
 [resource]
 script = ExtResource("1_script")
+climb_up_cost = 0

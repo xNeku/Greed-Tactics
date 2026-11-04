@@ -60,9 +60,14 @@ func show_skill(skill: EffectiveSkill) -> void:
 	_effects_label.visible = not effects.is_empty()
 	_effects_label.text = " · ".join(effects)
 
-	var mods := skill.applied.map(func(m: ModifierData) -> String: return "◆ " + m.display_name)
-	_modifiers_label.visible = not mods.is_empty()
-	_modifiers_label.text = "  ".join(mods)
+	var extra := PackedStringArray()
+	var mutation := skill.source.empowered_variant
+	if not skill.empowered and mutation != null:
+		extra.append("★ Con %d+ de ira muta en %s" % [skill.source.empowered_rage_threshold, mutation.display_name])
+	for modifier in skill.applied:
+		extra.append("◆ %s: %s" % [modifier.display_name, modifier.description])
+	_modifiers_label.visible = not extra.is_empty()
+	_modifiers_label.text = "\n".join(extra)
 
 
 func hide_skill() -> void:
