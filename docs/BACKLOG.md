@@ -16,7 +16,8 @@ El estado por hito está en [`ROADMAP.md`](ROADMAP.md).
 | GT-252 | Pablo sin arco visible en el sprite: decidir con Neku si lo lleva a la espalda o en la mano | M4 | P2 | ⬜ |
 | GT-260 | Importador del taller: los sprites ya se importan (`tools/hero_workshop/import_sheets.py`); falta pasar armas, pasivas y desbloqueables cuando existan en el juego | M4 | P1 | 🟡 |
 | GT-276 | Casillas de tienda y de evento en el mapa de run (gastar oro, decisiones con riesgo) | M2 | P1 | ⬜ |
-| GT-277 | Armas por tipo: cambian el ataque básico + 1 pasiva + ajuste de estadísticas; botín en la run y desbloqueo permanente; sprite aparte en la mano | M4 | P1 | ⬜ |
+| GT-277 | Armas en el juego: importar de la Armería (sprite + agarre + mano), ataque básico, pasiva y estadísticas; botín en la run y desbloqueo permanente | M4 | P1 | ⬜ |
+| GT-280 | Equipamiento de habilidades: elegir qué habilidades llevas (y así qué modificadores te salen) | M3 | P1 | ⬜ |
 | GT-278 | Más objetivos de combate (matar al líder, aguantar X turnos) y que la IA enemiga persiga la carreta / tape la salida | M2 | P2 | ⬜ |
 | GT-274 | Varios golpes por habilidad suman el ataque entero en cada golpe: revisar si los golpes extra deben escalar menos (afecta a Sigrid, Kael, luchador, berserker) | M5 | P2 | ⬜ |
 | GT-272 | Animaciones de invocar y de hundirse/emerger en la arena (troll); el elemental "crece" visualmente con el impulso | M4 | P2 | ⬜ |
@@ -89,6 +90,7 @@ El estado por hito está en [`ROADMAP.md`](ROADMAP.md).
 | GT-241 | Kael camorrista: kit a puños, sprites de frente/lado y animaciones (idle, andar, puñetazo, golpe) | M4 | 2026-11-03 |
 | GT-242 | Sprite de Pablo de Neku: más delgado, moño frontal, aros dorados pegados a la oreja (sin tribales, v0.5.1); frente + lado | M4 | 2026-11-03 |
 | GT-243 | Terrenos con textura procedural, decoración, niebla, sol, glow, partículas por zona, viñeta | M5 | 2026-11-03 |
+| GT-279 | v0.7.1: protagonista +1 PM/+1 PA, IA de combos y prioridad a sanadores/protagonista, Armería (artefacto) | M2 | 2026-11-05 |
 | GT-275 | v0.7: protagonista + reclutas, mapa con bifurcaciones, objetivos (proteger/escapar), Lobo solitario, modificadores solo del protagonista, escalado por grupo; pantallas de mapa y reclutar | M2 | 2026-11-05 |
 | GT-273 | Bosque de Neku: luchador, asesina, berserker, curandero, ratas (3 tamaños/colores) y Ent miniboss con rodar y bombitas; mecánicas de apoyo, rodar, cargas, usos por turno y crítico por estado | M4 | 2026-11-04 |
 | GT-271 | Troll elemental de arena (miniboss del desierto) + Elemental de arena; reglas de invocadores (control, muerte en cadena, límite), crecimiento al moverse, foco compartido, cobertura y escape con teletransporte | M4 | 2026-11-04 |

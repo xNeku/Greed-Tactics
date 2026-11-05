@@ -184,3 +184,51 @@ func test_damage_resets_the_stalemate_counter() -> void:
 	_turn_of(hero)
 	combat.use_skill(hero.data.skills[0], Vector2i(4, 5))
 	assert_eq(combat.turns_without_damage, 0)
+
+
+func test_ai_goes_for_the_healer_before_the_tank() -> void:
+	var tank_data := TestFixtures.unit_data("Tank", 1)
+	tank_data.attack = 14
+	var healer_data := TestFixtures.unit_data("Healer", 1)
+	var mend := TestFixtures.skill(0, 1, 5)
+	mend.target_rule = SkillData.TargetRule.ALLY_UNIT
+	mend.heal_percent = 30
+	healer_data.skills.append(mend)
+	var tank := combat.add_unit(tank_data, UnitState.Team.PLAYER, Vector2i(4, 5))
+	var healer := combat.add_unit(healer_data, UnitState.Team.PLAYER, Vector2i(6, 5))
+	var foe := combat.add_unit(TestFixtures.unit_data("Foe", 20), UnitState.Team.ENEMY, Vector2i(5, 5))
+	_turn_of(foe)
+	var best := BasicAI.new().best_attack_from(combat, foe, foe.cell)
+	assert_eq(best.cell, healer.cell, "the healer, not the more dangerous tank")
+	assert_eq(tank.hp, tank.max_hp)
+
+
+func test_ai_exploits_crits_on_poisoned_targets() -> void:
+	var a := combat.add_unit(TestFixtures.unit_data("A", 1), UnitState.Team.PLAYER, Vector2i(4, 5))
+	var b := combat.add_unit(TestFixtures.unit_data("B", 1), UnitState.Team.PLAYER, Vector2i(6, 5))
+	var data := TestFixtures.unit_data("Assassin", 20)
+	data.skills[0].crit_vs_status_kind = StatusData.Kind.POISON
+	var foe := combat.add_unit(data, UnitState.Team.ENEMY, Vector2i(5, 5))
+	b.add_status(TestFixtures.status(StatusData.Kind.POISON, 3), 3)
+	_turn_of(foe)
+	var best := BasicAI.new().best_attack_from(combat, foe, foe.cell)
+	assert_eq(best.cell, b.cell, "the poisoned one: guaranteed crit")
+	assert_eq(a.hp, a.max_hp)
+
+
+func test_ai_sets_up_combos_for_its_allies() -> void:
+	var hero := combat.add_unit(TestFixtures.unit_data("Hero", 1), UnitState.Team.PLAYER, Vector2i(5, 4))
+	var data := TestFixtures.unit_data("Poisoner", 20)
+	var plain := TestFixtures.skill(25)  # 15 more damage: only the combo justifies the poison.
+	var venom := TestFixtures.skill(10)
+	venom.status = TestFixtures.status(StatusData.Kind.POISON, 3)
+	data.skills = [plain, venom]
+	data.action_points = 1
+	var poisoner := combat.add_unit(data, UnitState.Team.ENEMY, Vector2i(5, 5))
+	var assassin_data := TestFixtures.unit_data("Assassin", 1)
+	assassin_data.skills[0].crit_vs_status_kind = StatusData.Kind.POISON
+	combat.add_unit(assassin_data, UnitState.Team.ENEMY, Vector2i(9, 9))
+	_turn_of(poisoner)
+	var best := BasicAI.new().best_attack_from(combat, poisoner, poisoner.cell)
+	assert_eq(best.skill, venom, "poisons so the assassin can crit, even if it hits a bit less")
+	assert_eq(hero.hp, hero.max_hp)

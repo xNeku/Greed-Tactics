@@ -216,13 +216,11 @@ func test_miniboss_victory_offers_a_recruit_before_the_next_stage() -> void:
 	assert_eq(run.stage, 1, "on to the next stage")
 
 
-func test_lone_wolf_bonus_shrinks_as_the_party_grows() -> void:
-	assert_eq(run.get_protagonist_bonus(), config.protagonist_bonus_by_party[0])
+func test_protagonist_bonus_goes_into_every_battle() -> void:
 	run.choose_node(run.get_choices()[0])
-	assert_eq(run.start_battle().protagonist_bonus_percent, config.protagonist_bonus_by_party[0])
-	for i in 3:
-		run.heroes.append(HeroState.new(config.roster[i + 1], 1))
-	assert_eq(run.get_protagonist_bonus(), config.protagonist_bonus_by_party[3])
+	var setup := run.start_battle()
+	assert_eq(setup.protagonist_move_bonus, config.protagonist_move_bonus)
+	assert_eq(setup.protagonist_action_bonus, config.protagonist_action_bonus)
 
 
 func test_same_seed_same_maps() -> void:

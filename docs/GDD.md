@@ -44,9 +44,9 @@ Roguelike táctico isométrico 2.5D. Combate por turnos rápido y legible, runs 
 
 **[Decidido v0.7, Neku] Nuevo bucle de run: protagonista + reclutas.** Sustituye a la estructura v0.3 (los 4 héroes juntos desde el principio).
 - **Protagonista:** en el menú eliges UN héroe. Empiezas la run solo con él. Si cae en un combate, se pierde la run aunque queden compañeros. La IA lo protege más cuando juega por él (doble miedo a las casillas amenazadas).
-- **Lobo solitario:** el protagonista tiene +50% de vida y daño yendo solo, +25% con 1 compañero, +10% con 2 y nada con el grupo completo (`RunConfig.protagonist_bonus_by_party`). Solo dura el combate.
+- **[v0.7.1, Neku] El protagonista siempre es más rápido:** +1 PM y +1 PA en todos los combates (`RunConfig.protagonist_move_bonus` / `protagonist_action_bonus`). Sustituye al bonus de vida y daño de v0.7 («no tiene sentido empezar individualmente más fuerte que luego»).
 - **Reclutar:** casillas del mapa (2 por etapa garantizadas) y tras vencer al miniboss de la primera etapa. Te ofrecen 3 héroes del plantel que no tienes y eliges uno (o ninguno). Llegan a nivel del grupo con la vida llena y **los controlas tú**. Máximo 4. Con el grupo lleno, reclutar da oro.
-- **Los modificadores de la run solo afectan al protagonista** y solo se ofrecen los que tocan sus habilidades.
+- **Los modificadores de la run solo afectan al protagonista.** Se ofrecen los genéricos (sin etiqueta) y los que encajan con las etiquetas de las habilidades que **lleva** (nada de magia a un luchador físico ni de cuerpo a cuerpo a quien solo dispara). Cuando exista el equipamiento de habilidades, si te pones 3 de proyectil te saldrán modificadores de proyectil.
 - **Mapa de etapa con bifurcaciones** (`RunMap`): 5 pasos por etapa de 2-3 casillas cada uno, unidas por caminos; el último es el miniboss. Tipos:
   - *Combate* (oro + XP)
   - *Élite* (más enemigos y +2 niveles: modificador + XP×1.5)
@@ -61,7 +61,7 @@ Roguelike táctico isométrico 2.5D. Combate por turnos rápido y legible, runs 
   - acompañantes del miniboss 0/1/2/3;
   - **mapas más pequeños con poca gente** (60% / 72% / 86% / 100% del tamaño de la zona).
 - **Niveles:** los enemigos son nivel 1 en la etapa 1 y nivel 3 en la etapa 2 (+15% de estadísticas). Ya no suben en cada paso.
-- **Equilibrio (simulaciones):** el grupo controlado por la IA gana ~41% de las runs (13/32), recorriendo cada vez con un protagonista distinto del plantel.
+- **Equilibrio (simulaciones):** el grupo controlado por la IA gana ~37% de las runs (12/32), con un protagonista distinto del plantel cada vez.
 
 **[Decidido v0.3, sustituido en v0.7] Estructura del prototipo de run** (`RunConfig` en `content/run/default_run.tres`, todo ajustable):
 
@@ -310,6 +310,13 @@ Enemigos de prototipo: Goblin (Saqueador, melee) y Limo (Bestia, melee lento y r
 - Mecánicas genéricas nuevas: `Motion.ROLL`, `TargetRule.ALLY_UNIT`, `SkillData.ally_status` (buffs), `max_uses_per_turn`, `requires_status`/`requires_stacks` (gastar cargas), `StatusData.move_bonus` y `damage_taken_percent_bonus`. `CombatState.get_skill_area` calcula el área real de cualquier habilidad (también rodar).
 - **Equilibrio:** con los primeros números el grupo de la IA ganaba 1-2 runs de 10; se bajó velocidad (13-14), ataque por nivel (1) y los golpes de luchador y asesina, y el salto del berserker pasó a 50%. Ahora ~4/10, como antes.
 
+**[v0.7.1] IA de combos y prioridades** (para todos los enemigos y la IA del jugador):
+- Cuenta el **daño esperado con críticos**: quien critica seguro contra envenenados va a por los envenenados (y así con cualquier `crit_vs_status_kind`).
+- **Prepara combos:** aplicar un estado vale más si algún aliado puede explotarlo (crítico seguro contra ese tipo, vulnerabilidad, menos defensa) — `AiProfile.combo_weight`.
+- **Prioridad de objetivos:** sanadores y apoyos primero (`support_target_weight`), y el protagonista del jugador es un objetivo apetecible (`protagonist_target_weight`), sin dejar de valorar remates y amenazas.
+
+**[v0.7.1] Armería** (artefacto privado de Neku, fuente `tools/armory/armeria.html`): un documento por arma (`weapons/<id>`) con sprite pixel perfect, **punto de agarre**, delante/detrás del cuerpo, tipo, rareza, cómo se consigue, quién la puede llevar, ataque básico que da, pasiva y cambios de estadísticas. Cada héroe tiene marcada su **mano** de frente y de lado (`hands/<heroe>`), y la armería enseña el arma colocada en su mano. Empieza con las 8 armas iniciales (una por héroe).
+
 **[v0.6.3] Anti-bloqueo de la IA:** `CombatState.turns_without_damage` cuenta los turnos seguidos sin que nadie pierda vida; el miedo de la IA a las casillas amenazadas baja hasta 0 en `AiProfile.patience_turns` (8) turnos. Evita empates eternos de dos bandos esperando en el borde del alcance del otro.
 
 ## 7. Compañeros
@@ -533,6 +540,7 @@ Cada hito tiene un criterio de salida. No se pasa al siguiente sin cumplirlo.
 
 ## Changelog
 
+- **v0.7.1 (Nov 5, 2026)** — El protagonista pasa a tener +1 PM y +1 PA siempre (fuera el bonus de vida y daño). IA de combos (daño esperado con críticos, preparar estados que los aliados explotan) y prioridad a sanadores y al protagonista. Armería: artefacto para dibujar armas, marcar el agarre y la mano de cada héroe y definir sus cualidades.
 - **v0.7 (Nov 5, 2026)** — Nuevo bucle de run (decisión de Neku): un protagonista, reclutas que controlas tú, mapa de etapa con bifurcaciones (combate, élite, reclutar, descanso, miniboss), objetivos opcionales (proteger la carreta, escapar), Lobo solitario, modificadores solo para el protagonista, mapas y enemigos según el tamaño del grupo. Pantallas nuevas: mapa de run con caminos, reclutar; menú de protagonista; panel de objetivo y estrella del protagonista en combate. Arreglado: la semilla de la run ya da siempre el mismo mapa.
 - **v0.6.4 (Nov 4, 2026)** — Bosque de Neku: luchador, asesina, berserker, viejo curandero, tres ratas y el **Ent** que rueda. Mecánicas: rodar, objetivo aliado, buffs, usos por turno, cargas que se gastan, crítico seguro por estado, prisa, vulnerabilidad. Arreglado: el troll podía invocar dos elementales por turno (ahora `max_uses_per_turn` = 1).
 - **v0.6.3 (Nov 4, 2026)** — Desierto de Neku (trasgos con daga, arco y brujo; escorpión nuevo) y su miniboss **Troll elemental de arena** con **Elementales de arena**. Reglas nuevas para todo el juego: las invocaciones las controla su invocador, mueren con él y tienen límite (`summon_limit`); crecimiento al moverse; foco compartido; refugio entre aliados; la IA escapa con teletransportes. IA anti-bloqueo (`patience_turns`). `autoplay_battle.gd` acepta zona y enemigos (`-- desert sand_troll,trasgo_dagger`).

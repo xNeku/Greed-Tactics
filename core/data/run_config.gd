@@ -38,10 +38,13 @@ extends Resource
 @export var miniboss_adds_by_party: PackedInt32Array = [0, 1, 2, 3]
 ## Battle map size (fraction of the zone size) by party size.
 @export var map_scale_by_party: PackedFloat32Array = [0.6, 0.72, 0.86, 1.0]
-## "Lobo solitario": % extra HP and attack for the protagonist by party size.
-@export var protagonist_bonus_by_party: PackedInt32Array = [40, 20, 10, 0]
 @export_range(0, 4) var elite_extra_enemies: int = 1
 @export_range(0, 10) var elite_extra_levels: int = 2
+
+@export_group("Protagonist")
+## The protagonist always moves and acts more than everyone else.
+@export_range(0, 5) var protagonist_move_bonus: int = 1
+@export_range(0, 3) var protagonist_action_bonus: int = 1
 
 @export_group("Enemy scaling")
 @export_range(1, 50) var enemy_base_level: int = 1

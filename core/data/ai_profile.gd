@@ -15,6 +15,12 @@ extends Resource
 ## Extra value for hitting the opponent the unit's team hit last (swarms focus).
 ## Units with it also walk towards that opponent first.
 @export var shared_focus_weight: float = 0.0
+## Value of applying a status that allies can exploit (crit-on-poison, vulnerability...), per ally.
+@export var combo_weight: float = 14.0
+## Extra value for hitting opponents that heal or buff (kill the healer first).
+@export var support_target_weight: float = 25.0
+## Extra value for hitting the run protagonist (its fall wins the battle).
+@export var protagonist_target_weight: float = 12.0
 ## Value per HP healed on an ally.
 @export var heal_weight: float = 1.2
 ## How much spending mana/rage/cooldowns hurts.

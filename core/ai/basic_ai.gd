@@ -83,7 +83,7 @@ func best_attack_from(combat: CombatState, unit: UnitState, from_cell: Vector2i,
 				continue
 			var value := 0.0
 			for preview in combat.preview_skill(unit, skill, from_cell, cell):
-				value += _hit_value(unit, preview, profile)
+				value += _hit_value(combat, unit, preview, profile)
 				if preview.target == _focus_of(combat, unit, profile):
 					value += profile.shared_focus_weight * preview.hit_chance / 100.0
 			for healed: int in combat.preview_heals(unit, skill, from_cell, cell).values():
@@ -111,22 +111,50 @@ func _focus_of(combat: CombatState, unit: UnitState, profile: AiProfile) -> Unit
 	return focus
 
 
-func _hit_value(unit: UnitState, preview: AttackPreview, profile: AiProfile) -> float:
+func _hit_value(combat: CombatState, unit: UnitState, preview: AttackPreview, profile: AiProfile) -> float:
 	var target := preview.target
 	var taunter := unit.get_taunter()
 	if taunter != null and target.is_enemy_of(unit) and target != taunter:
 		return 0.0  # Taunted: only the taunter is worth hitting.
 	var chance := preview.hit_chance / 100.0
-	var value := preview.get_total_damage() * chance
+	# Expected damage with crits: units that always crit poisoned targets go for them.
+	var crit := preview.crit_chance / 100.0
+	var expected := (preview.damage * (1.0 - crit) + preview.crit_damage * crit) * preview.strikes
+	var value := expected * chance
 	if preview.get_total_damage() >= target.hp:
 		value += profile.kill_bonus * chance
 	else:
 		value += profile.focus_weight * (1.0 - float(target.hp) / target.max_hp) * chance
 		for app in preview.statuses:
 			if not target.has_status(app.status):
-				value += profile.status_value * app.chance / 100.0 * chance
+				var odds := app.chance / 100.0 * chance
+				value += profile.status_value * odds
+				value += profile.combo_weight * _combo_potential(combat, unit, app.status) * odds
 	value += profile.dangerous_target_weight * target.attack * chance
+	if target.is_enemy_of(unit):
+		if target.data.skills.any(func(s: SkillData) -> bool: return target.get_effective(s).supports_allies()):
+			value += profile.support_target_weight * chance  # Healers and buffers first.
+		if target.is_protagonist:
+			value += profile.protagonist_target_weight * chance
 	return value if target.is_enemy_of(unit) else -value * 1.5
+
+
+## How many of the unit's team (itself included) can exploit [param status]
+## on a target: skills that always crit its kind, and vulnerability / lower
+## defense that every hit benefits from. 0 = nobody cares.
+func _combo_potential(combat: CombatState, unit: UnitState, status: StatusData) -> float:
+	var potential := 0.0
+	for ally in combat.get_living_units():
+		if ally.is_enemy_of(unit) or ally.is_structure():
+			continue
+		for skill in ally.data.skills:
+			var effective := ally.get_effective(skill)
+			if effective.crit_vs_status_kind >= 0 and effective.crit_vs_status_kind == status.kind:
+				potential += 1.0
+				break
+		if status.damage_taken_percent_bonus > 0 or status.defense_percent_bonus < 0:
+			potential += 0.5  # Every ally hits harder.
+	return potential
 
 
 func _best_attack_after_moving(combat: CombatState, unit: UnitState, reach: ReachMap,

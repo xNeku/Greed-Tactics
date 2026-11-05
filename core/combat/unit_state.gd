@@ -188,16 +188,6 @@ func heal(amount: int) -> int:
 	return hp - before
 
 
-## Flat % boost of max HP (current HP gains the same) and attack ("Lobo solitario").
-func apply_bonus_percent(percent: int) -> void:
-	if percent <= 0:
-		return
-	var extra_hp := roundi(max_hp * percent / 100.0)
-	max_hp += extra_hp
-	hp += extra_hp
-	attack = roundi(attack * (1.0 + percent / 100.0))
-
-
 ## Momentum (UnitData.hp_per_cell_moved / attack_per_cell_moved): walking
 ## [param cells] makes the unit bigger. Returns true if it grew.
 func gain_momentum(cells: int) -> bool:

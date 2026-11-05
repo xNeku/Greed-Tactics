@@ -1,0 +1,898 @@
+<title>Armería de Greed Tactics</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: armory bench (shares the hero workshop look).
+   Original: workshop bench. Hero rack on the left, the open hero on the right;
+   the pixel canvas is the centre of gravity, tools hug it. Single dark look
+   (it is a pixel-art tool: colours are judged against a dark neutral). */
+:root {
+  --bg: #16141b;
+  --panel: #1f1c26;
+  --panel-2: #282432;
+  --line: #363142;
+  --fg: #efe8dc;
+  --muted: #a29aaf;
+  --gold: #f2c14e;
+  --gold-ink: #2a1e05;
+  --ok: #7fd18b;
+  --warn: #f08a5d;
+  --check-a: #2b2734;
+  --check-b: #332e3d;
+  --font-display: "Pixelify Sans", "Nunito", system-ui, sans-serif;
+  --font-body: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.45;
+}
+.shell {
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 18px 32px;
+  max-width: 1440px;
+  margin: 0 auto;
+  display: grid;
+  gap: 16px;
+}
+header.top {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+}
+header.top h1 {
+  font-family: var(--font-display); font-weight: 700; font-size: 26px; letter-spacing: 0.5px;
+  margin: 0; color: var(--gold); text-wrap: balance;
+}
+header.top h1 span { color: var(--fg); font-weight: 500; }
+.save-state { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.save-state[data-state="saved"] .dot { background: var(--ok); }
+.save-state[data-state="saving"] .dot { background: var(--gold); }
+.save-state[data-state="error"] .dot { background: var(--warn); }
+
+.bench { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 16px; align-items: start; }
+
+/* Hero rack */
+.rack { display: grid; gap: 6px; }
+.rack-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); margin: 0 0 2px 4px; }
+.rack-title.group { margin-top: 14px; }
+.rack-add { justify-self: start; margin: 2px 0 0 10px; }
+.hero-btn {
+  display: grid; grid-template-columns: 44px 1fr; gap: 10px; align-items: center;
+  padding: 6px 10px 6px 6px; border: 1px solid transparent; border-radius: 6px;
+  background: transparent; color: var(--fg); text-align: left; cursor: pointer; font: inherit;
+}
+.hero-btn:hover { background: var(--panel); }
+.hero-btn[aria-current="true"] { background: var(--panel-2); border-color: var(--gold); }
+.hero-btn canvas { width: 44px; height: 44px; image-rendering: pixelated; background: var(--panel); border-radius: 4px; }
+.hero-btn b { display: block; font-weight: 800; }
+.hero-btn small { color: var(--muted); font-size: 12px; }
+
+/* Hero sheet */
+.sheet { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; min-width: 0; }
+.sheet-head { padding: 16px 18px 0; display: grid; gap: 10px; }
+.sheet-head h2 { font-family: var(--font-display); font-size: 30px; margin: 0; line-height: 1; }
+.sheet-head .sub { color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-family: var(--font-mono); font-size: 12px; padding: 3px 8px; border-radius: 4px; background: var(--panel-2); color: var(--fg); font-variant-numeric: tabular-nums; }
+.chip i { font-style: normal; color: var(--muted); margin-right: 4px; }
+.chip.res { background: var(--gold); color: var(--gold-ink); font-weight: 600; }
+
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); margin-top: 6px; overflow-x: auto; }
+.tab {
+  font: inherit; font-weight: 700; color: var(--muted); background: none; border: 0; cursor: pointer;
+  padding: 10px 14px; border-bottom: 2px solid transparent; white-space: nowrap;
+}
+.tab[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--gold); }
+.tab:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.pane { padding: 16px 18px 20px; }
+
+/* Pixel editor */
+.editor { display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 16px; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 10px; }
+.tool {
+  font: inherit; font-size: 13px; font-weight: 700; color: var(--fg); background: var(--panel-2);
+  border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; cursor: pointer;
+  display: inline-flex; gap: 6px; align-items: center;
+}
+.tool kbd { font-family: var(--font-mono); font-size: 10px; color: var(--muted); }
+.tool[aria-pressed="true"] { background: var(--gold); color: var(--gold-ink); border-color: var(--gold); }
+.tool[aria-pressed="true"] kbd { color: var(--gold-ink); }
+.tool:disabled { opacity: 0.4; cursor: default; }
+.sep { width: 1px; height: 24px; background: var(--line); margin: 0 2px; }
+.views { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+.stage {
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px; overflow: auto;
+  display: grid; place-items: center; padding: 16px; min-height: 360px; max-height: 72vh;
+}
+.stage canvas { image-rendering: pixelated; cursor: crosshair; touch-action: none; display: block; }
+.status-line { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 8px; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.side { display: grid; gap: 14px; align-content: start; }
+.side h4 { margin: 0 0 6px; font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); }
+.current { display: flex; gap: 10px; align-items: center; }
+.current input[type="color"] { width: 48px; height: 40px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel-2); padding: 2px; cursor: pointer; }
+.current code { font-family: var(--font-mono); font-size: 13px; }
+.swatches { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; }
+.swatch { aspect-ratio: 1; border-radius: 3px; border: 1px solid rgba(0,0,0,0.5); cursor: pointer; padding: 0; }
+.swatch[aria-pressed="true"] { outline: 2px solid var(--gold); outline-offset: 1px; }
+.link-btn { font: inherit; font-size: 12px; color: var(--gold); background: none; border: 0; padding: 0; cursor: pointer; }
+.previews { display: flex; gap: 8px; align-items: end; flex-wrap: wrap; }
+.previews canvas { image-rendering: pixelated; border-radius: 4px; }
+.size-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.size-row input { width: 58px; }
+input[type="number"], input[type="text"], textarea, select {
+  font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px;
+}
+textarea { resize: vertical; min-height: 64px; width: 100%; }
+
+/* Skill cards */
+.section { display: grid; gap: 10px; margin-bottom: 22px; }
+.section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.section-head h3 { font-family: var(--font-display); font-size: 20px; margin: 0; }
+.section-head p { margin: 0; color: var(--muted); font-size: 13px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+.card { background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 12px; display: grid; gap: 8px; min-width: 0; }
+.card .slot { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--gold); font-weight: 800; display: flex; justify-content: space-between; }
+.card input[type="text"] { width: 100%; font-weight: 700; }
+.card .row { display: grid; grid-template-columns: 1fr; gap: 6px; }
+.card label { font-size: 12px; color: var(--muted); display: grid; gap: 3px; }
+.remove { font: inherit; font-size: 12px; color: var(--muted); background: none; border: 0; cursor: pointer; }
+.remove:hover { color: var(--warn); }
+.empty { color: var(--muted); font-size: 13px; padding: 12px; border: 1px dashed var(--line); border-radius: 8px; }
+.add { justify-self: start; }
+.weapon-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 16px; }
+.weapon-form label { font-size: 12px; color: var(--muted); display: grid; gap: 3px; }
+.notice { padding: 14px 16px; border-radius: 8px; background: var(--panel); border: 1px solid var(--line); color: var(--muted); }
+.notice b { color: var(--fg); }
+
+@media (max-width: 900px) {
+  .bench { grid-template-columns: minmax(0, 1fr); }
+  .rack { grid-auto-flow: column; grid-auto-columns: 150px; overflow-x: auto; padding-bottom: 4px; align-items: center; }
+  .rack-title { display: none; }
+  .rack-add { white-space: nowrap; margin: 0 8px; }
+  .editor { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero-btn, .tool, .tab { transition: background-color 120ms, border-color 120ms, color 120ms; }
+}
+.rack-new { justify-self: start; margin-top: 12px; }
+.weapon-form.stats { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
+.hand-panel { margin-top: 22px; display: grid; gap: 10px; }
+.hand-stage { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 16px; overflow: auto; display: grid; place-items: center; }
+.hand-stage canvas { image-rendering: pixelated; cursor: crosshair; }
+.hint { margin: 0; color: var(--muted); font-size: 13px; }
+</style>
+
+<div class="shell">
+  <header class="top">
+    <h1>Greed Tactics <span>· armería</span></h1>
+    <div class="save-state" id="saveState" data-state="idle" aria-live="polite"><span class="dot"></span><span id="saveText">Conectando…</span></div>
+  </header>
+  <div class="bench">
+    <nav class="rack" id="rack" aria-label="Armas"><p class="rack-title">Armas</p></nav>
+    <main class="sheet" id="sheet">
+      <div class="pane"><div class="notice" id="bootNotice"><b>Cargando la armería…</b> Si tarda, recarga la página.</div></div>
+    </main>
+  </div>
+</div>
+
+<script>
+(() => {
+  "use strict";
+  const SYMBOLS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  const WEAPON_TYPES = ["Puños", "Una mano", "Dos manos", "Distancia", "Foco mágico", "Doble arma"];
+  const RARITIES = ["Común", "Rara", "Épica", "Legendaria"];
+  const RARITY_COLORS = { "Común": "#c9c3b8", "Rara": "#6fb6ff", "Épica": "#c78bff", "Legendaria": "#f2c14e" };
+  const SOURCES = ["Botín en la run", "Desbloqueo permanente", "Ambos"];
+  const STAT_FIELDS = [["hp", "PV"], ["attack", "Ataque"], ["defense", "Defensa"], ["speed", "Velocidad"], ["move", "PM"], ["evasion", "Evasión %"], ["crit", "Crítico %"]];
+  const SAVE_DELAY = 900;
+  const PREVIEW_SCALE = 7;
+
+  const state = {
+    db: null, downloads: null,
+    weapons: [], heroes: [], hands: {}, current: null, tab: "draw",
+    tool: "pencil", color: "#c9c3b8", mirror: false, grid: true, zoom: 0,
+    previewHero: null, previewView: "front",
+  };
+  const editors = {};
+  const saveTimers = {};
+  const saving = {};
+  const dirtyAgain = {};
+
+  // ---------- sprite <-> pixels ----------
+  function decode(sprite, fallbackW = 16, fallbackH = 16) {
+    if (!sprite || !sprite.rows) {
+      return { w: fallbackW, h: fallbackH, px: new Array(fallbackW * fallbackH).fill(null) };
+    }
+    const px = [];
+    for (const row of sprite.rows) {
+      for (let x = 0; x < sprite.w; x++) {
+        const ch = row[x] || ".";
+        px.push(ch === "." ? null : (sprite.palette[SYMBOLS.indexOf(ch)] || null));
+      }
+    }
+    return { w: sprite.w, h: sprite.h, px };
+  }
+  function encode(img) {
+    const palette = [];
+    const rows = [];
+    for (let y = 0; y < img.h; y++) {
+      let row = "";
+      for (let x = 0; x < img.w; x++) {
+        const c = img.px[y * img.w + x];
+        if (!c) { row += "."; continue; }
+        let i = palette.indexOf(c);
+        if (i === -1) { palette.push(c); i = palette.length - 1; }
+        row += SYMBOLS[i] || ".";
+      }
+      rows.push(row);
+    }
+    return { w: img.w, h: img.h, palette, rows };
+  }
+
+
+  // ---------- data ----------
+  function entryKey(h) { return "weapons/" + h.id; }
+  function hero() { return state.weapons.find(w => w.id === state.current); }
+  function imageFor(h) { return h._img.sprite; }
+  function ensureWeapon(w) {
+    w.type = w.type || "Una mano";
+    w.rarity = w.rarity || "Común";
+    w.source = w.source || "Ambos";
+    w.heroes = w.heroes || [];
+    w.basic = w.basic || { name: "", description: "", range: "1", power: 0 };
+    w.passive = w.passive || { name: "", description: "" };
+    w.stats = w.stats || {};
+    w.swatches = w.swatches || [];
+    w.layer = w.layer || "front";
+    w._img = { sprite: decode(w.sprite, 16, 16) };
+    return w;
+  }
+
+  function setSaveState(kind, text) {
+    const box = document.getElementById("saveState");
+    box.dataset.state = kind;
+    document.getElementById("saveText").textContent = text;
+  }
+  function scheduleSave(w) {
+    const key = entryKey(w);
+    clearTimeout(saveTimers[key]);
+    setSaveState("saving", "Cambios sin guardar…");
+    saveTimers[key] = setTimeout(() => save(w), SAVE_DELAY);
+  }
+  async function save(w) {
+    if (!state.db) { setSaveState("error", "Sin base de datos: los cambios no se guardan"); return; }
+    const key = entryKey(w);
+    if (saving[key]) { dirtyAgain[key] = true; return; }
+    saving[key] = true;
+    setSaveState("saving", "Guardando " + (w.name || "arma") + "…");
+    const doc = {};
+    for (const [k, v] of Object.entries(w)) if (!k.startsWith("_")) doc[k] = v;
+    doc.sprite = encode(w._img.sprite);
+    doc.editedAt = new Date().toISOString();
+    try {
+      await state.db.doc(key).set(doc);
+      setSaveState("saved", "Guardado · " + new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" }));
+    } catch (e) {
+      setSaveState("error", "No se pudo guardar (" + (e && e.code || "error") + "). Vuelve a intentarlo editando algo.");
+    } finally {
+      saving[key] = false;
+      if (dirtyAgain[key]) { dirtyAgain[key] = false; save(w); }
+    }
+  }
+  async function saveHand(heroId) {
+    if (!state.db) return;
+    try {
+      await state.db.doc("hands/" + heroId).set(JSON.parse(JSON.stringify(state.hands[heroId])));
+      setSaveState("saved", "Mano guardada");
+    } catch (e) {
+      setSaveState("error", "No se pudo guardar la mano (" + (e && e.code || "error") + ")");
+    }
+  }
+
+  // ---------- rack ----------
+  function drawThumb(canvas, img) {
+    const size = Math.max(img.w, img.h);
+    canvas.width = size; canvas.height = size;
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, size, size);
+    const ox = Math.floor((size - img.w) / 2), oy = size - img.h;
+    for (let y = 0; y < img.h; y++) for (let x = 0; x < img.w; x++) {
+      const c = img.px[y * img.w + x];
+      if (c) { ctx.fillStyle = c; ctx.fillRect(ox + x, oy + y, 1, 1); }
+    }
+  }
+
+  function renderRack() {
+    const rack = document.getElementById("rack");
+    rack.replaceChildren();
+    for (const type of WEAPON_TYPES) {
+      const group = state.weapons.filter(w => w.type === type);
+      if (!group.length) continue;
+      rack.append(el("p", { class: "rack-title group", text: type + " · " + group.length }));
+      for (const w of group) {
+        const b = el("button", { class: "hero-btn", type: "button", id: "weapon-" + w.id, "aria-current": String(w.id === state.current) });
+        const c = document.createElement("canvas");
+        drawThumb(c, w._img.sprite);
+        const sub = el("small", { text: w.rarity });
+        sub.style.color = RARITY_COLORS[w.rarity] || "";
+        b.append(c, el("span", {}, el("b", { text: w.name || "Sin nombre" }), sub));
+        b.addEventListener("click", () => { state.current = w.id; state.zoom = 0; render(); });
+        rack.append(b);
+      }
+    }
+    rack.append(el("button", { class: "tool rack-new", type: "button", id: "new-weapon", text: "+ Nueva arma", onclick: createWeapon }));
+  }
+  function refreshThumb(w) {
+    const b = document.getElementById("weapon-" + w.id);
+    if (b) drawThumb(b.querySelector("canvas"), w._img.sprite);
+  }
+  async function createWeapon() {
+    const current = hero();
+    const w = ensureWeapon({
+      id: "arma-" + Date.now().toString(36), order: state.weapons.length,
+      name: "Nueva arma", type: current ? current.type : "Una mano", description: "",
+    });
+    state.weapons.push(w);
+    state.current = w.id; state.tab = "stats"; state.zoom = 0;
+    render();
+    save(w);
+  }
+  async function deleteWeapon(w) {
+    clearTimeout(saveTimers[entryKey(w)]);
+    try {
+      if (state.db) await state.db.doc(entryKey(w)).delete();
+      state.weapons.splice(state.weapons.indexOf(w), 1);
+      state.current = state.weapons.length ? state.weapons[0].id : null;
+      state.tab = "draw";
+      setSaveState("saved", "Arma borrada");
+      render();
+    } catch (e) {
+      setSaveState("error", "No se pudo borrar (" + (e && e.code || "error") + ")");
+    }
+  }
+
+  // ---------- sheet ----------
+  function el(tag, attrs = {}, ...kids) {
+    const e = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) {
+      if (k === "class") e.className = v;
+      else if (k === "text") e.textContent = v;
+      else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+      else e.setAttribute(k, v);
+    }
+    for (const k of kids) if (k != null) e.append(k);
+    return e;
+  }
+
+  function textField(obj, key, h, opts = {}) {
+    const input = opts.multiline ? el("textarea", { id: opts.id }) : el("input", { type: "text", id: opts.id });
+    if (opts.placeholder) input.placeholder = opts.placeholder;
+    input.value = obj[key] || "";
+    input.addEventListener("input", () => { obj[key] = input.value; scheduleSave(h); });
+    return input;
+  }
+
+  function render() {
+    renderRack();
+    const w = hero();
+    const sheet = document.getElementById("sheet");
+    sheet.replaceChildren();
+    if (!w) {
+      sheet.append(el("div", { class: "pane" }, el("div", { class: "notice", text: "Todavía no hay armas. Usa «+ Nueva arma» para crear la primera." })));
+      return;
+    }
+    const rarity = el("span", { class: "chip res", text: w.rarity });
+    rarity.style.background = RARITY_COLORS[w.rarity];
+    const holders = w.heroes.length ? w.heroes.map(id => (state.heroes.find(h => h.id === id) || { name: id }).name).join(", ") : "Cualquiera de su tipo";
+    const head = el("div", { class: "sheet-head" },
+      el("h2", { id: "entryName", text: w.name || "Sin nombre" }),
+      el("div", { class: "sub", text: w.type + " · " + w.source }),
+      el("div", { class: "chips" }, rarity, el("span", { class: "chip", text: "Para: " + holders })));
+    const tabs = el("div", { class: "tabs", role: "tablist" });
+    for (const [key, label] of [["draw", "Dibujo"], ["stats", "Cualidades"]]) {
+      tabs.append(el("button", { class: "tab", role: "tab", type: "button", id: "tab-" + key, "aria-selected": String(state.tab === key),
+        text: label, onclick: () => { state.tab = key; render(); } }));
+    }
+    head.append(tabs);
+    const pane = el("div", { class: "pane" });
+    if (state.tab === "draw") {
+      pane.append(editorShell(), handPanel(w));
+    } else {
+      pane.append(statsPane(w));
+    }
+    sheet.append(head, pane);
+    if (state.tab === "draw") {
+      mountEditor(w);
+      drawHandPreview();
+    }
+  }
+
+  function select(id, options, value, onChange) {
+    const s = el("select", { id });
+    for (const o of options) { const opt = el("option", { text: o }); opt.value = o; s.append(opt); }
+    s.value = value;
+    s.addEventListener("change", () => onChange(s.value));
+    return s;
+  }
+  function numberField(obj, key, w, id) {
+    const input = el("input", { type: "number", id });
+    input.value = obj[key] ?? 0;
+    input.addEventListener("input", () => { obj[key] = Number(input.value) || 0; scheduleSave(w); });
+    return input;
+  }
+  function statsPane(w) {
+    const wrap = el("div");
+    const general = el("div", { class: "weapon-form" });
+    const name = textField(w, "name", w, { id: "w-name" });
+    name.addEventListener("input", () => { document.getElementById("entryName").textContent = name.value || "Sin nombre"; });
+    name.addEventListener("change", renderRack);
+    general.append(
+      el("label", {}, "Nombre", name),
+      el("label", {}, "Tipo", select("w-type", WEAPON_TYPES, w.type, v => { w.type = v; scheduleSave(w); render(); })),
+      el("label", {}, "Rareza", select("w-rarity", RARITIES, w.rarity, v => { w.rarity = v; scheduleSave(w); render(); })),
+      el("label", {}, "Cómo se consigue", select("w-source", SOURCES, w.source, v => { w.source = v; scheduleSave(w); render(); })),
+      el("label", { style: "grid-column: 1 / -1" }, "Descripción", textField(w, "description", w, { id: "w-desc", multiline: true, placeholder: "Qué estilo de juego da, de dónde sale…" })));
+    const holders = el("div", { class: "chips", role: "group", "aria-label": "Quién la puede llevar" });
+    for (const h of state.heroes) {
+      const b = el("button", { class: "tool", type: "button", "aria-pressed": String(w.heroes.includes(h.id)), text: h.name });
+      b.addEventListener("click", () => {
+        const i = w.heroes.indexOf(h.id);
+        if (i === -1) w.heroes.push(h.id); else w.heroes.splice(i, 1);
+        b.setAttribute("aria-pressed", String(i === -1));
+        scheduleSave(w);
+      });
+      holders.append(b);
+    }
+    const basic = el("div", { class: "weapon-form" },
+      el("label", {}, "Nombre del ataque", textField(w.basic, "name", w, { id: "b-name", placeholder: "Ej. Tajo amplio" })),
+      el("label", {}, "Alcance", textField(w.basic, "range", w, { id: "b-range", placeholder: "Ej. 1 o 2-4" })),
+      el("label", {}, "Poder", numberField(w.basic, "power", w, "b-power")),
+      el("label", { style: "grid-column: 1 / -1" }, "Qué hace", textField(w.basic, "description", w, { id: "b-desc", multiline: true, placeholder: "Ej. Golpea en arco a las 3 casillas de delante; 20% de sangrado" })));
+    const passive = el("div", { class: "weapon-form" },
+      el("label", {}, "Nombre", textField(w.passive, "name", w, { id: "p-name", placeholder: "Ej. Sed de batalla" })),
+      el("label", { style: "grid-column: 1 / -1" }, "Qué hace", textField(w.passive, "description", w, { id: "p-desc", multiline: true, placeholder: "Siempre activa mientras la lleve" })));
+    const stats = el("div", { class: "weapon-form stats" });
+    for (const [key, label] of STAT_FIELDS) stats.append(el("label", {}, label + " (+/-)", numberField(w.stats, key, w, "s-" + key)));
+    const confirmBox = el("div", { class: "chips" });
+    const del = el("button", { class: "tool", type: "button", id: "delete-weapon", text: "Borrar esta arma" });
+    del.addEventListener("click", () => confirmBox.replaceChildren(
+      el("span", { class: "sub", text: "¿Seguro? No se puede deshacer." }),
+      el("button", { class: "tool", type: "button", text: "Sí, borrar", onclick: () => deleteWeapon(w) }),
+      el("button", { class: "tool", type: "button", text: "Cancelar", onclick: () => confirmBox.replaceChildren(del) })));
+    confirmBox.append(del);
+    const section = (title, help, body) => el("div", { class: "section" },
+      el("div", { class: "section-head" }, el("h3", { text: title }), el("p", { text: help })), body);
+    wrap.append(
+      section("General", "Lo básico del arma.", general),
+      section("Quién la puede llevar", "Sin marcar ninguno = cualquiera que use este tipo de arma.", holders),
+      section("Ataque básico", "El arma cambia el ataque básico de quien la lleva.", basic),
+      section("Pasiva", "Un efecto siempre activo.", passive),
+      section("Estadísticas", "Lo que suma o resta al personaje (0 = nada).", stats),
+      confirmBox);
+    return wrap;
+  }
+
+  // ---------- in-hand preview ----------
+  function handPanel(w) {
+    // Each weapon opens on its own hero (or keeps the last one for weapons anyone can carry).
+    if (state.previewFor !== w.id && state.heroes.length) {
+      state.previewFor = w.id;
+      const owner = state.heroes.find(h => w.heroes.includes(h.id));
+      if (owner || !state.previewHero) state.previewHero = (owner || state.heroes[0]).id;
+    }
+    const heroSelect = el("select", { id: "preview-hero" });
+    for (const h of state.heroes) { const o = el("option", { text: h.name }); o.value = h.id; heroSelect.append(o); }
+    heroSelect.value = state.previewHero || "";
+    heroSelect.addEventListener("change", () => { state.previewHero = heroSelect.value; drawHandPreview(); });
+    const views = el("div", { class: "chips" });
+    for (const [key, label] of [["front", "Frente"], ["side", "Lado"]]) {
+      const b = el("button", { class: "tool", type: "button", "aria-pressed": String(state.previewView === key), text: label });
+      b.addEventListener("click", () => { state.previewView = key; views.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); drawHandPreview(); });
+      views.append(b);
+    }
+    const layer = el("button", { class: "tool", type: "button", id: "layer-toggle", text: w.layer === "back" ? "Arma detrás del cuerpo" : "Arma delante del cuerpo" });
+    layer.addEventListener("click", () => { w.layer = w.layer === "back" ? "front" : "back"; layer.textContent = w.layer === "back" ? "Arma detrás del cuerpo" : "Arma delante del cuerpo"; scheduleSave(w); drawHandPreview(); });
+    const canvas = el("canvas", { id: "handCanvas", "aria-label": "Prueba del arma en la mano: haz clic en la mano del héroe" });
+    const hint = el("p", { class: "hint", id: "handHint" });
+    canvas.addEventListener("click", e => {
+      const hero = state.heroes.find(h => h.id === state.previewHero);
+      if (!hero) return;
+      const r = canvas.getBoundingClientRect();
+      const px = Math.floor((e.clientX - r.left) / PREVIEW_SCALE) - HAND_MARGIN;
+      const py = Math.floor((e.clientY - r.top) / PREVIEW_SCALE) - HAND_MARGIN;
+      state.hands[hero.id] = state.hands[hero.id] || {};
+      state.hands[hero.id][state.previewView] = { x: px, y: py };
+      saveHand(hero.id);
+      drawHandPreview();
+    });
+    return el("div", { class: "hand-panel" },
+      el("div", { class: "section-head" }, el("h3", { text: "Prueba en la mano" }),
+        el("p", { text: "Haz clic en la mano del héroe para marcarla (una vez por héroe y vista). El arma se coloca con su punto de agarre ahí." })),
+      el("div", { class: "toolbar" }, heroSelect, views, layer),
+      el("div", { class: "hand-stage" }, canvas), hint);
+  }
+  const HAND_MARGIN = 14;
+  function drawHandPreview() {
+    const canvas = document.getElementById("handCanvas");
+    const w = hero();
+    const h = state.heroes.find(x => x.id === state.previewHero);
+    if (!canvas || !w || !h) return;
+    const body = h._img[state.previewView];
+    const weapon = w._img.sprite;
+    const cw = body.w + HAND_MARGIN * 2, ch = body.h + HAND_MARGIN * 2;
+    canvas.width = cw * PREVIEW_SCALE; canvas.height = ch * PREVIEW_SCALE;
+    canvas.style.width = canvas.width + "px"; canvas.style.height = canvas.height + "px";
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--panel-2").trim();
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    const paint = (img, ox, oy) => {
+      for (let y = 0; y < img.h; y++) for (let x = 0; x < img.w; x++) {
+        const c = img.px[y * img.w + x];
+        if (c) { ctx.fillStyle = c; ctx.fillRect((ox + x) * PREVIEW_SCALE, (oy + y) * PREVIEW_SCALE, PREVIEW_SCALE, PREVIEW_SCALE); }
+      }
+    };
+    const hand = (state.hands[h.id] || {})[state.previewView];
+    const grip = w.grip || { x: Math.floor(weapon.w / 2), y: Math.floor(weapon.h / 2) };
+    const anchor = hand || { x: Math.floor(body.w / 2), y: Math.floor(body.h * 0.6) };
+    const wx = HAND_MARGIN + anchor.x - grip.x, wy = HAND_MARGIN + anchor.y - grip.y;
+    if (w.layer === "back") paint(weapon, wx, wy);
+    paint(body, HAND_MARGIN, HAND_MARGIN);
+    if (w.layer !== "back") paint(weapon, wx, wy);
+    if (hand) {
+      ctx.strokeStyle = "#7fe0ff"; ctx.lineWidth = 2;
+      ctx.strokeRect((HAND_MARGIN + hand.x) * PREVIEW_SCALE, (HAND_MARGIN + hand.y) * PREVIEW_SCALE, PREVIEW_SCALE, PREVIEW_SCALE);
+    }
+    const hint = document.getElementById("handHint");
+    const missing = [];
+    if (!hand) missing.push("marca la mano de " + h.name + " (" + (state.previewView === "front" ? "frente" : "lado") + ") con un clic");
+    if (!w.grip) missing.push("marca el agarre del arma con la herramienta Agarre (A)");
+    hint.textContent = missing.length ? "Falta: " + missing.join(" y ") + "." : "Listo: así la llevará en el juego.";
+  }
+
+  // ---------- pixel editor ----------
+  function editorShell() {
+    const tools = [["pencil", "Lápiz", "B"], ["eraser", "Goma", "E"], ["picker", "Gotero", "I"], ["fill", "Cubo", "G"], ["grip", "Agarre", "A"]];
+    const bar = el("div", { class: "toolbar", role: "toolbar", "aria-label": "Herramientas" });
+    for (const [key, label, k] of tools) {
+      const b = el("button", { class: "tool", type: "button", "data-tool": key, "aria-pressed": String(state.tool === key) }, label, el("kbd", { text: k }));
+      b.addEventListener("click", () => setTool(key));
+      bar.append(b);
+    }
+    bar.append(el("span", { class: "sep" }));
+    bar.append(el("button", { class: "tool", type: "button", id: "mirrorBtn", "aria-pressed": String(state.mirror), title: "Pinta también en el lado opuesto" }, "Simetría", el("kbd", { text: "M" })));
+    bar.append(el("button", { class: "tool", type: "button", id: "gridBtn", "aria-pressed": String(state.grid) }, "Cuadrícula", el("kbd", { text: "R" })));
+    bar.append(el("span", { class: "sep" }));
+    bar.append(el("button", { class: "tool", type: "button", id: "undoBtn", title: "Ctrl+Z" }, "Deshacer"));
+    bar.append(el("button", { class: "tool", type: "button", id: "redoBtn", title: "Ctrl+Y" }, "Rehacer"));
+    bar.append(el("span", { class: "sep" }));
+    bar.append(el("button", { class: "tool", type: "button", id: "zoomOut", "aria-label": "Alejar" }, "−"));
+    bar.append(el("button", { class: "tool", type: "button", id: "zoomIn", "aria-label": "Acercar" }, "+"));
+
+    const stage = el("div", { class: "stage", id: "stage" }, el("canvas", { id: "pixelCanvas", "aria-label": "Lienzo de píxeles" }));
+    const status = el("div", { class: "status-line" }, el("span", { id: "cursorInfo", text: "—" }), el("span", { id: "sizeInfo" }));
+    const main = el("div", {}, bar, stage, status);
+
+    const side = el("div", { class: "side" },
+      el("div", {}, el("h4", { text: "Color" }),
+        el("div", { class: "current" }, el("input", { type: "color", id: "colorInput", value: state.color }), el("code", { id: "colorCode", text: state.color }),
+          el("button", { class: "link-btn", type: "button", id: "addSwatch", text: "Guardar en paleta" }))),
+      el("div", {}, el("h4", { text: "Paleta del sprite" }), el("div", { class: "swatches", id: "spriteSwatches" })),
+      el("div", {}, el("h4", { text: "Mis colores" }), el("div", { class: "swatches", id: "mySwatches" })),
+      el("div", {}, el("h4", { text: "Vista previa" }), el("div", { class: "previews", id: "previews" })),
+      el("div", {}, el("h4", { text: "Tamaño (se ajusta desde los pies)" }),
+        el("div", { class: "size-row" }, el("input", { type: "number", id: "sizeW", min: "4", max: "64" }), "×", el("input", { type: "number", id: "sizeH", min: "4", max: "64" }),
+          el("button", { class: "tool", type: "button", id: "applySize", text: "Aplicar" }))),
+      el("div", { id: "exportBox" }, el("h4", { text: "Exportar" }),
+        el("button", { class: "tool", type: "button", id: "exportPng", text: "Descargar PNG" })));
+    return el("div", { class: "editor" }, main, side);
+  }
+
+  function setTool(t) {
+    state.tool = t;
+    document.querySelectorAll("[data-tool]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.tool === t)));
+  }
+  function setColor(c) {
+    state.color = c;
+    const input = document.getElementById("colorInput");
+    if (input) input.value = c;
+    const code = document.getElementById("colorCode");
+    if (code) code.textContent = c;
+    document.querySelectorAll(".swatch").forEach(s => s.setAttribute("aria-pressed", String(s.dataset.color === c)));
+  }
+
+  function mountEditor(h) {
+    const view = "sprite";
+    const key = entryKey(h) + "/" + view;
+    const hist = editors[key] || (editors[key] = { undo: [], redo: [] });
+    let img = imageFor(h, view);
+    const canvas = document.getElementById("pixelCanvas");
+    const ctx = canvas.getContext("2d");
+    const stage = document.getElementById("stage");
+    let hover = null;
+
+    function fitZoom() {
+      const avail = Math.max(200, stage.clientWidth - 40);
+      const availH = Math.max(280, Math.min(window.innerHeight * 0.72, 760) - 40);
+      return Math.max(6, Math.min(32, Math.floor(Math.min(avail / img.w, availH / img.h))));
+    }
+    if (!state.zoom) state.zoom = fitZoom();
+
+    function draw() {
+      const z = state.zoom;
+      canvas.width = img.w * z; canvas.height = img.h * z;
+      canvas.style.width = canvas.width + "px"; canvas.style.height = canvas.height + "px";
+      const css = getComputedStyle(document.documentElement);
+      const ca = css.getPropertyValue("--check-a").trim(), cb = css.getPropertyValue("--check-b").trim();
+      for (let y = 0; y < img.h; y++) for (let x = 0; x < img.w; x++) {
+        const c = img.px[y * img.w + x];
+        if (c) ctx.fillStyle = c;
+        else ctx.fillStyle = ((x + y) % 2) ? ca : cb;
+        ctx.fillRect(x * z, y * z, z, z);
+      }
+      if (state.grid && z >= 6) {
+        ctx.strokeStyle = "rgba(255,255,255,0.08)"; ctx.lineWidth = 1;
+        ctx.beginPath();
+        for (let x = 1; x < img.w; x++) { ctx.moveTo(x * z + 0.5, 0); ctx.lineTo(x * z + 0.5, img.h * z); }
+        for (let y = 1; y < img.h; y++) { ctx.moveTo(0, y * z + 0.5); ctx.lineTo(img.w * z, y * z + 0.5); }
+        ctx.stroke();
+        ctx.strokeStyle = "rgba(242,193,78,0.35)";
+        ctx.beginPath();
+        const mid = Math.floor(img.w / 2);
+        ctx.moveTo(mid * z + 0.5, 0); ctx.lineTo(mid * z + 0.5, img.h * z);
+        ctx.stroke();
+      }
+      if (hover) {
+        ctx.strokeStyle = "#f2c14e"; ctx.lineWidth = 2;
+        ctx.strokeRect(hover.x * z + 1, hover.y * z + 1, z - 2, z - 2);
+        if (state.mirror) {
+          const mx = img.w - 1 - hover.x;
+          ctx.strokeStyle = "rgba(242,193,78,0.5)";
+          ctx.strokeRect(mx * z + 1, hover.y * z + 1, z - 2, z - 2);
+        }
+      }
+      if (h.grip) {
+        const gx = h.grip.x * z + z / 2, gy = h.grip.y * z + z / 2;
+        ctx.strokeStyle = "#7fe0ff"; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(gx, gy, Math.max(4, z * 0.45), 0, Math.PI * 2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(gx - z, gy); ctx.lineTo(gx + z, gy); ctx.moveTo(gx, gy - z); ctx.lineTo(gx, gy + z); ctx.stroke();
+      }
+      document.getElementById("sizeInfo").textContent = img.w + " × " + img.h + " px · zoom " + z + "×";
+      document.getElementById("sizeW").value = img.w;
+      document.getElementById("sizeH").value = img.h;
+      document.getElementById("undoBtn").disabled = !hist.undo.length;
+      document.getElementById("redoBtn").disabled = !hist.redo.length;
+      drawPreviews();
+    }
+    function drawPreviews() {
+      const box = document.getElementById("previews");
+      box.replaceChildren();
+      for (const [scale, bg] of [[1, "#4f7a4a"], [2, "#8a7a5c"], [4, "#2c2833"]]) {
+        const c = document.createElement("canvas");
+        c.width = img.w + 4; c.height = img.h + 4;
+        c.style.width = (img.w + 4) * scale + "px"; c.style.height = (img.h + 4) * scale + "px";
+        const p = c.getContext("2d");
+        p.fillStyle = bg; p.fillRect(0, 0, c.width, c.height);
+        for (let y = 0; y < img.h; y++) for (let x = 0; x < img.w; x++) {
+          const col = img.px[y * img.w + x];
+          if (col) { p.fillStyle = col; p.fillRect(x + 2, y + 2, 1, 1); }
+        }
+        box.append(c);
+      }
+    }
+    function renderSwatches() {
+      const used = [];
+      for (const c of img.px) if (c && !used.includes(c)) used.push(c);
+      fillSwatches(document.getElementById("spriteSwatches"), used);
+      fillSwatches(document.getElementById("mySwatches"), h.swatches, true);
+    }
+    function fillSwatches(box, colors, removable) {
+      box.replaceChildren();
+      if (!colors.length) { box.append(el("span", { class: "rack-title", style: "grid-column: 1 / -1; margin: 0", text: removable ? "Guarda colores aquí" : "Vacía" })); return; }
+      for (const c of colors) {
+        const s = el("button", { class: "swatch", type: "button", title: c + (removable ? " · clic derecho para quitar" : ""), "aria-label": "Color " + c, "aria-pressed": String(c === state.color) });
+        s.style.background = c; s.dataset.color = c;
+        s.addEventListener("click", () => setColor(c));
+        if (removable) s.addEventListener("contextmenu", e => { e.preventDefault(); h.swatches.splice(h.swatches.indexOf(c), 1); scheduleSave(h); renderSwatches(); });
+        box.append(s);
+      }
+    }
+
+    function snapshot() { return img.px.slice(); }
+    function pushUndo() { hist.undo.push({ w: img.w, h: img.h, px: snapshot() }); if (hist.undo.length > 120) hist.undo.shift(); hist.redo.length = 0; }
+    function restore(from, to) {
+      const s = from.pop(); if (!s) return;
+      to.push({ w: img.w, h: img.h, px: snapshot() });
+      img.w = s.w; img.h = s.h; img.px = s.px;
+      changed();
+    }
+    function changed() {
+      draw(); renderSwatches(); scheduleSave(h);
+      refreshThumb(h);
+      drawHandPreview();
+    }
+    function setPx(x, y, c) {
+      if (x < 0 || y < 0 || x >= img.w || y >= img.h) return;
+      img.px[y * img.w + x] = c;
+      if (state.mirror) img.px[y * img.w + (img.w - 1 - x)] = c;
+    }
+    function flood(x, y, c) {
+      const target = img.px[y * img.w + x];
+      if (target === c) return;
+      const stack = [[x, y]];
+      while (stack.length) {
+        const [cx, cy] = stack.pop();
+        if (cx < 0 || cy < 0 || cx >= img.w || cy >= img.h) continue;
+        if (img.px[cy * img.w + cx] !== target) continue;
+        img.px[cy * img.w + cx] = c;
+        stack.push([cx + 1, cy], [cx - 1, cy], [cx, cy + 1], [cx, cy - 1]);
+      }
+    }
+    function cellAt(e) {
+      const r = canvas.getBoundingClientRect();
+      const x = Math.floor((e.clientX - r.left) / state.zoom), y = Math.floor((e.clientY - r.top) / state.zoom);
+      return (x >= 0 && y >= 0 && x < img.w && y < img.h) ? { x, y } : null;
+    }
+    function line(a, b, c) {
+      let x0 = a.x, y0 = a.y; const dx = Math.abs(b.x - x0), dy = -Math.abs(b.y - y0);
+      const sx = x0 < b.x ? 1 : -1, sy = y0 < b.y ? 1 : -1; let err = dx + dy;
+      for (;;) { setPx(x0, y0, c); if (x0 === b.x && y0 === b.y) break; const e2 = 2 * err; if (e2 >= dy) { err += dy; x0 += sx; } if (e2 <= dx) { err += dx; y0 += sy; } }
+    }
+
+    let painting = null; // {last, color}
+    canvas.addEventListener("contextmenu", e => e.preventDefault());
+    canvas.addEventListener("pointerdown", e => {
+      const cell = cellAt(e); if (!cell) return;
+      canvas.setPointerCapture(e.pointerId);
+      const tool = e.button === 2 ? "eraser" : (e.altKey ? "picker" : state.tool);
+      if (tool === "grip") {
+        h.grip = { x: cell.x, y: cell.y };
+        scheduleSave(h); draw(); drawHandPreview();
+        return;
+      }
+      if (tool === "picker") {
+        const c = img.px[cell.y * img.w + cell.x];
+        if (c) { setColor(c); setTool("pencil"); }
+        return;
+      }
+      pushUndo();
+      if (tool === "fill") { flood(cell.x, cell.y, state.color); changed(); return; }
+      const c = tool === "eraser" ? null : state.color;
+      painting = { last: cell, color: c };
+      setPx(cell.x, cell.y, c);
+      draw();
+    });
+    canvas.addEventListener("pointermove", e => {
+      const cell = cellAt(e);
+      hover = cell;
+      const info = document.getElementById("cursorInfo");
+      if (cell) {
+        const c = img.px[cell.y * img.w + cell.x];
+        info.textContent = "x " + cell.x + " · y " + cell.y + " · " + (c || "transparente");
+      } else info.textContent = "—";
+      if (painting && cell) { line(painting.last, cell, painting.color); painting.last = cell; }
+      draw();
+    });
+    const stop = () => { if (painting) { painting = null; changed(); } };
+    canvas.addEventListener("pointerup", stop);
+    canvas.addEventListener("pointercancel", stop);
+    canvas.addEventListener("pointerleave", () => { hover = null; if (!painting) draw(); });
+
+    document.getElementById("undoBtn").onclick = () => restore(hist.undo, hist.redo);
+    document.getElementById("redoBtn").onclick = () => restore(hist.redo, hist.undo);
+    document.getElementById("zoomIn").onclick = () => { state.zoom = Math.min(48, state.zoom + 2); draw(); };
+    document.getElementById("zoomOut").onclick = () => { state.zoom = Math.max(4, state.zoom - 2); draw(); };
+    document.getElementById("mirrorBtn").onclick = e => { state.mirror = !state.mirror; e.currentTarget.setAttribute("aria-pressed", String(state.mirror)); };
+    document.getElementById("gridBtn").onclick = e => { state.grid = !state.grid; e.currentTarget.setAttribute("aria-pressed", String(state.grid)); draw(); };
+    document.getElementById("colorInput").addEventListener("input", e => setColor(e.target.value));
+    document.getElementById("addSwatch").onclick = () => { if (!h.swatches.includes(state.color)) { h.swatches.push(state.color); scheduleSave(h); renderSwatches(); } };
+    document.getElementById("applySize").onclick = () => {
+      const w = Math.max(4, Math.min(64, parseInt(document.getElementById("sizeW").value, 10) || img.w));
+      const hh = Math.max(4, Math.min(64, parseInt(document.getElementById("sizeH").value, 10) || img.h));
+      if (w === img.w && hh === img.h) return;
+      pushUndo();
+      const px = new Array(w * hh).fill(null);
+      const ox = Math.floor((w - img.w) / 2), oy = hh - img.h;
+      for (let y = 0; y < img.h; y++) for (let x = 0; x < img.w; x++) {
+        const nx = x + ox, ny = y + oy;
+        if (nx >= 0 && ny >= 0 && nx < w && ny < hh) px[ny * w + nx] = img.px[y * img.w + x];
+      }
+      img.w = w; img.h = hh; img.px = px; state.zoom = fitZoom();
+      changed();
+    };
+    const exportBtn = document.getElementById("exportPng");
+    if (!state.downloads) document.getElementById("exportBox").hidden = true;
+    exportBtn.onclick = async () => {
+      const c = document.createElement("canvas"); c.width = img.w; c.height = img.h;
+      const p = c.getContext("2d");
+      for (let y = 0; y < img.h; y++) for (let x = 0; x < img.w; x++) {
+        const col = img.px[y * img.w + x]; if (col) { p.fillStyle = col; p.fillRect(x, y, 1, 1); }
+      }
+      const blob = await new Promise(r => c.toBlob(r, "image/png"));
+      const names = { sprite: "weapon_" + h.id + ".png" };
+      try { await state.downloads.save({ filename: names[view], data: blob }); }
+      catch (e) { if (e && e.code !== "declined") setSaveState("error", "No se pudo descargar (" + (e.code || "error") + ")"); }
+    };
+    keyTarget = { undo: () => restore(hist.undo, hist.redo), redo: () => restore(hist.redo, hist.undo), draw };
+    draw(); renderSwatches(); setColor(state.color);
+  }
+
+  let keyTarget = null;
+  document.addEventListener("keydown", e => {
+    if (e.target.matches("input, textarea, select")) return;
+    if (!keyTarget || !document.getElementById("pixelCanvas")) return;
+    const k = e.key.toLowerCase();
+    if ((e.ctrlKey || e.metaKey) && k === "z") { e.preventDefault(); e.shiftKey ? keyTarget.redo() : keyTarget.undo(); return; }
+    if ((e.ctrlKey || e.metaKey) && k === "y") { e.preventDefault(); keyTarget.redo(); return; }
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (k === "b") setTool("pencil");
+    else if (k === "e") setTool("eraser");
+    else if (k === "i") setTool("picker");
+    else if (k === "g") setTool("fill");
+    else if (k === "a") setTool("grip");
+    else if (k === "m") document.getElementById("mirrorBtn")?.click();
+    else if (k === "r") document.getElementById("gridBtn")?.click();
+    else if (k === "+" || k === "=") document.getElementById("zoomIn")?.click();
+    else if (k === "-") document.getElementById("zoomOut")?.click();
+  });
+
+
+  // ---------- boot ----------
+  function showNotice(html) {
+    const n = document.getElementById("bootNotice");
+    if (n) n.innerHTML = html;
+  }
+  async function boot() {
+    const timer = setTimeout(() => showNotice("<b>La base de datos no responde.</b> Recarga la página en un momento."), 10000);
+    const db = await claude.use("db").catch(() => null);
+    state.downloads = await claude.use("downloads").catch(() => null);
+    state.db = db;
+    if (!db) {
+      clearTimeout(timer);
+      setSaveState("error", "Sin base de datos");
+      showNotice("<b>No hay acceso a los datos de la armería.</b> Ábrela con tu cuenta de claude.ai.");
+      return;
+    }
+    try {
+      const [weapons, heroes, hands] = await Promise.all([db.collection("weapons").get(), db.collection("heroes").get(), db.collection("hands").get()]);
+      clearTimeout(timer);
+      // Snapshots are frozen: work on plain copies.
+      const plain = (d) => JSON.parse(JSON.stringify(d.data()));
+      const byOrder = (a, b) => (a.order ?? 99) - (b.order ?? 99);
+      state.weapons = weapons.docs.map(d => ensureWeapon(plain(d))).sort(byOrder);
+      state.heroes = heroes.docs.map(d => {
+        const h = plain(d);
+        h._img = { front: decode(h.sprites && h.sprites.front, 20, 28), side: decode(h.sprites && h.sprites.side, 16, 28) };
+        return h;
+      }).sort(byOrder);
+      for (const d of hands.docs) state.hands[d.id] = plain(d);
+    } catch (e) {
+      clearTimeout(timer);
+      setSaveState("error", "Error al cargar");
+      showNotice("<b>No se pudo cargar la armería</b> (" + (e && e.code || "error") + "). Recarga la página.");
+      return;
+    }
+    setSaveState("saved", "Todo guardado");
+    state.current = state.weapons.length ? state.weapons[0].id : null;
+    render();
+  }
+  let waited = 0;
+  (function start() {
+    if (window.claude && typeof window.claude.use === "function") { boot(); return; }
+    if ((waited += 100) > 10000) {
+      setSaveState("error", "Sin conexión");
+      showNotice("<b>Abre esta página desde claude.ai</b> para cargar la armería.");
+      return;
+    }
+    setTimeout(start, 100);
+  })();
+
+})();
+</script>

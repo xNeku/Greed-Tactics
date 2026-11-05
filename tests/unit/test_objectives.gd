@@ -78,12 +78,16 @@ func test_escape_wins_when_the_protagonist_reaches_the_exit() -> void:
 	assert_true(combat.is_objective_met())
 
 
-func test_lone_wolf_bonus_boosts_only_the_protagonist() -> void:
+func test_protagonist_moves_and_acts_more() -> void:
 	var setup := _setup(2, 0)
-	setup.protagonist_bonus_percent = 40
-	var plain := CombatState.from_setup(_setup(2, 0), rules).get_living_units(UnitState.Team.PLAYER)
-	var boosted := CombatState.from_setup(setup, rules).get_living_units(UnitState.Team.PLAYER)
-	assert_eq(boosted[0].max_hp, roundi(plain[0].max_hp * 1.4))
-	assert_eq(boosted[0].hp, boosted[0].max_hp)
-	assert_eq(boosted[0].attack, roundi(plain[0].attack * 1.4))
-	assert_eq(boosted[1].max_hp, plain[1].max_hp, "companions get nothing")
+	setup.protagonist_move_bonus = 1
+	setup.protagonist_action_bonus = 1
+	var combat := CombatState.from_setup(setup, rules)
+	var heroes := combat.get_living_units(UnitState.Team.PLAYER)
+	assert_eq(heroes[0].move_points, heroes[1].move_points + 1)
+	assert_eq(heroes[0].action_points, heroes[1].action_points + 1)
+	for i in 50:
+		if combat.start_next_turn() == heroes[0]:
+			break
+		combat.end_turn(combat.active_unit.facing)
+	assert_eq(heroes[0].pa, heroes[0].data.action_points + 1, "every turn")

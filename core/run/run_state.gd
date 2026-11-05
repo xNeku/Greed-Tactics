@@ -104,11 +104,6 @@ func is_miniboss_phase() -> bool:
 	return current_node != null and current_node.kind == RunMap.Kind.MINIBOSS
 
 
-## "Lobo solitario": % extra HP and attack the protagonist gets with this party size.
-func get_protagonist_bonus() -> int:
-	return int(_party_value(config.protagonist_bonus_by_party, 0))
-
-
 func is_party_full() -> bool:
 	return heroes.size() >= config.party_size
 
@@ -221,7 +216,8 @@ func start_battle() -> BattleSetup:
 		setup.player_units.append(hero.data)
 		setup.player_hp.append(hero.hp)
 	setup.has_protagonist = true
-	setup.protagonist_bonus_percent = get_protagonist_bonus()
+	setup.protagonist_move_bonus = config.protagonist_move_bonus
+	setup.protagonist_action_bonus = config.protagonist_action_bonus
 	setup.player_level = level
 	setup.player_modifiers = modifiers.duplicate()
 	setup.objective = node.objective if node != null else RunMap.Objective.NONE
@@ -243,7 +239,7 @@ func complete_battle(victory: bool, survivors_hp: Array[int], enemies: Array[Uni
 	total_turns += turns
 	var living := get_living_heroes()
 	for i in mini(living.size(), survivors_hp.size()):
-		# Battle-only boosts (Lobo solitario) do not carry over.
+		# HP never goes above the hero's max between battles.
 		living[i].hp = mini(survivors_hp[i], living[i].get_max_hp(level))
 	if not victory or not get_protagonist().is_alive():
 		status = Status.LOST

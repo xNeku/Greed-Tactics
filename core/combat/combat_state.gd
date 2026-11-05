@@ -76,7 +76,8 @@ static func from_setup(setup: BattleSetup, p_rules: RulesConfig) -> CombatState:
 			players[i].hp = mini(setup.player_hp[i], players[i].max_hp)
 	if setup.has_protagonist and not players.is_empty():
 		players[0].is_protagonist = true
-		players[0].apply_bonus_percent(setup.protagonist_bonus_percent)
+		players[0].move_points += setup.protagonist_move_bonus
+		players[0].action_points += setup.protagonist_action_bonus
 	combat._spawn_team(setup.enemy_units, setup.map.enemy_spawns, UnitState.Team.ENEMY,
 		setup.enemy_level, setup.enemy_stat_scale)
 	combat._setup_objective(setup, players)

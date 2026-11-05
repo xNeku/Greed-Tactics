@@ -29,7 +29,8 @@ var phase_label: String = ""
 ## Runtime only (runs): player_units[0] is the protagonist (its fall loses the
 ## battle; run modifiers only apply to it).
 var has_protagonist := false
-## Runtime only (runs): "Lobo solitario" % of extra HP and attack for the protagonist.
-var protagonist_bonus_percent: int = 0
+## Runtime only (runs): extra PM / PA the protagonist gets every turn.
+var protagonist_move_bonus: int = 0
+var protagonist_action_bonus: int = 0
 ## Runtime only: optional battle objective (RunMap.Objective).
 var objective: int = 0
