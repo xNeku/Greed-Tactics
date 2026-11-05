@@ -75,7 +75,8 @@ func refresh_info() -> void:
 		resource = " · Ira %d" % unit.rage
 	elif unit.uses_mana():
 		resource = " · MP %d" % unit.mp
-	_info_label.text = "%s\nHP %d/%d%s" % [unit.display_name, unit.hp, unit.max_hp, resource]
+	var star := "★ " if unit.is_protagonist else ""
+	_info_label.text = "%s%s\nHP %d/%d%s" % [star, unit.display_name, unit.hp, unit.max_hp, resource]
 	_info_label.modulate = get_team_color().lightened(0.35)
 	_refresh_statuses()
 

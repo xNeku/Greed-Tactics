@@ -5,7 +5,8 @@ extends Node3D
 ## where a push leaves a target. Each layer is a child
 ## MultiMeshInstance3D with its own material, so colours are tuned in the scene.
 
-enum Layer { MOVE, PATH, TARGET, AREA, LANDING, PUSH, CURSOR }
+## OBJECTIVE stays on screen (escape zone): clear_all() leaves it alone.
+enum Layer { MOVE, PATH, TARGET, AREA, LANDING, PUSH, CURSOR, OBJECTIVE }
 
 ## Height above the surface, to avoid z-fighting with the terrain.
 const SURFACE_OFFSET := 0.02
@@ -18,6 +19,7 @@ const SURFACE_OFFSET := 0.02
 	Layer.LANDING: $Landing,
 	Layer.PUSH: $Push,
 	Layer.CURSOR: $Cursor,
+	Layer.OBJECTIVE: $Objective,
 }
 
 var _map: BattleMapView
@@ -48,4 +50,5 @@ func clear(layer: Layer) -> void:
 
 func clear_all() -> void:
 	for layer in _layers:
-		clear(layer)
+		if layer != Layer.OBJECTIVE:
+			clear(layer)

@@ -1,22 +1,30 @@
 class_name RunState
 extends RefCounted
-## State and rules of a roguelike run. No nodes: the run screens read it and
-## call its commands; CombatState runs each battle it builds.
+## State and rules of a roguelike run (GDD §2, v0.7). No nodes: the run screens
+## read it and call its commands; CombatState runs each battle it builds.
 ##
-## Flow:  MAP --start_battle()--> BATTLE --complete_battle()--> REWARD
-##        REWARD --(choose_modifier() if offered)--> advance() --> MAP
-##        ... after the last phase of the last stage: WON. All heroes down: LOST.
+## You start with ONE hero, the protagonist (if it falls the run is lost), and
+## recruit companions on the way. Each stage is a branching RunMap:
+##   MAP --choose_node(battle)--> start_battle() --> BATTLE --complete_battle()--> REWARD
+##   REWARD --(choose_modifier() if offered)--> advance() --> (RECRUIT after a miniboss) --> MAP
+##   MAP --choose_node(RECRUIT)--> RECRUIT --choose_recruit()/skip_recruit()--> MAP
+##   MAP --choose_node(REST)--> MAP (healed)
+## After the miniboss of the last stage: WON. Protagonist down: LOST.
 
 signal changed
 
-enum Status { MAP, BATTLE, REWARD, WON, LOST }
+enum Status { MAP, BATTLE, REWARD, RECRUIT, WON, LOST }
 
 ## What the last battle gave (shown on the reward screen).
 class Reward:
+	var kind: RunMap.Kind = RunMap.Kind.COMBAT
 	var gold: int = 0
 	var xp: int = 0
 	var levels_gained: int = 0
 	var offers_modifier: bool = false
+	## The battle had an optional objective / it was met.
+	var objective: RunMap.Objective = RunMap.Objective.NONE
+	var objective_met: bool = false
 
 var config: RunConfig
 var rules: RulesConfig
@@ -24,59 +32,91 @@ var seed_value: int
 var status: Status = Status.MAP
 
 var stage: int = 0
-var phase: int = 0
 var zones: Array[ZoneData] = []
+var maps: Array[RunMap] = []
+## Last node picked on the current stage map (null = stage not started).
+var current_node: RunMap.MapNode
+## heroes[0] is the protagonist.
 var heroes: Array[HeroState] = []
 var level: int = 1
 var xp: int = 0
 var gold: int = 0
+## Run modifiers. They only affect the protagonist.
 var modifiers: Array[ModifierData] = []
 var offer: Array[ModifierData] = []
+var recruit_offer: Array[UnitData] = []
 var rerolls_left: int = 0
 var last_reward: Reward
+## Text of what the last non-battle node did (rest, full party...).
+var last_event: String = ""
 var battles_won: int = 0
 var total_turns: int = 0
 
 var _rng := RandomNumberGenerator.new()
+var _recruit_after_reward := false
 
 
-## [param party] = heroes picked by the player (empty = config.heroes).
+## [param party] = the heroes to start with; party[0] is the protagonist
+## (empty = config.heroes[0] alone).
 func _init(p_config: RunConfig, p_rules: RulesConfig, p_seed: int = 0, party: Array[UnitData] = []) -> void:
 	config = p_config
 	rules = p_rules
 	seed_value = p_seed if p_seed != 0 else randi()
 	_rng.seed = seed_value
 	level = config.start_level
-	for data in (party if not party.is_empty() else config.heroes):
+	var start := party if not party.is_empty() else ([config.heroes[0]] as Array[UnitData])
+	for data in start:
 		heroes.append(HeroState.new(data, level))
 	var pool := config.zones.duplicate()
 	for i in config.stage_count:
 		if pool.is_empty():
 			pool = config.zones.duplicate()
 		zones.append(pool.pop_at(_rng.randi_range(0, pool.size() - 1)))
+		maps.append(RunMap.generate(config.phases_per_stage, config, _rng, config.recruits_per_stage))
 
 
 #region Queries
+
+func get_protagonist() -> HeroState:
+	return heroes[0]
+
 
 func get_zone() -> ZoneData:
 	return zones[stage]
 
 
-## 1-based phase number inside the current stage.
+func get_map() -> RunMap:
+	return maps[stage]
+
+
+func get_choices() -> Array[RunMap.MapNode]:
+	if status != Status.MAP:
+		return []
+	return get_map().get_choices(current_node)
+
+
+## 1-based step of the current stage (the node being played, or the next one).
 func get_phase_number() -> int:
-	return phase + 1
+	return (current_node.layer + 1) if current_node != null else 1
 
 
-func is_miniboss_phase(phase_index: int = phase) -> bool:
-	return phase_index == config.phases_per_stage - 1
+func is_miniboss_phase() -> bool:
+	return current_node != null and current_node.kind == RunMap.Kind.MINIBOSS
 
 
-func gives_modifier(phase_index: int = phase) -> bool:
-	return (phase_index + 1) % config.modifier_phase_interval == 0
+## "Lobo solitario": % extra HP and attack the protagonist gets with this party size.
+func get_protagonist_bonus() -> int:
+	return int(_party_value(config.protagonist_bonus_by_party, 0))
+
+
+func is_party_full() -> bool:
+	return heroes.size() >= config.party_size
 
 
 func get_enemy_level() -> int:
-	return config.enemy_base_level + stage * config.enemy_levels_per_stage + phase * config.enemy_levels_per_phase
+	var layer := current_node.layer if current_node != null else 0
+	var extra := config.elite_extra_levels if current_node != null and current_node.kind == RunMap.Kind.ELITE else 0
+	return config.enemy_base_level + stage * config.enemy_levels_per_stage + layer * config.enemy_levels_per_phase + extra
 
 
 func get_xp_to_next_level() -> int:
@@ -88,33 +128,109 @@ func get_living_heroes() -> Array[HeroState]:
 
 
 func get_title() -> String:
-	return "Etapa %d/%d · %s · Fase %d/%d%s" % [
-		stage + 1, config.stage_count, get_zone().display_name,
-		get_phase_number(), config.phases_per_stage, " (Miniboss)" if is_miniboss_phase() else ""]
+	var step := "Paso %d/%d" % [get_phase_number(), config.phases_per_stage]
+	if is_miniboss_phase():
+		step += " (Miniboss)"
+	return "Etapa %d/%d · %s · %s" % [stage + 1, config.stage_count, get_zone().display_name, step]
 
 #endregion
 
 
-#region Commands
+#region Map
 
-## Builds the next battle (procedural map + enemies) and enters BATTLE.
+## Picks the next node. Battles then need start_battle(); recruits open the
+## RECRUIT state; rests heal right away.
+func choose_node(node: RunMap.MapNode) -> bool:
+	if not get_choices().has(node):
+		return false
+	current_node = node
+	node.visited = true
+	last_event = ""
+	match node.kind:
+		RunMap.Kind.RECRUIT:
+			if is_party_full():
+				gold += config.recruit_gold_when_full
+				last_event = "Tu grupo está completo: te dan %d de oro." % config.recruit_gold_when_full
+				_after_node()
+			else:
+				_roll_recruits()
+				status = Status.RECRUIT
+		RunMap.Kind.REST:
+			for hero in heroes:
+				if hero.is_alive():
+					hero.heal_percent(config.rest_heal_percent, level)
+			last_event = "Descansáis: el grupo recupera un %d%% de vida." % config.rest_heal_percent
+			_after_node()
+	changed.emit()
+	return true
+
+
+func choose_recruit(data: UnitData) -> bool:
+	if status != Status.RECRUIT or not recruit_offer.has(data) or is_party_full():
+		return false
+	heroes.append(HeroState.new(data, level))
+	recruit_offer.clear()
+	last_event = "%s se une al grupo." % data.display_name
+	_after_node()
+	changed.emit()
+	return true
+
+
+func skip_recruit() -> void:
+	if status != Status.RECRUIT:
+		return
+	recruit_offer.clear()
+	_after_node()
+	changed.emit()
+
+
+func _roll_recruits() -> void:
+	recruit_offer.clear()
+	var taken := heroes.map(func(h: HeroState) -> UnitData: return h.data)
+	var pool := config.roster.filter(func(d: UnitData) -> bool: return not taken.has(d))
+	while recruit_offer.size() < config.recruit_offer_size and not pool.is_empty():
+		recruit_offer.append(pool.pop_at(_rng.randi_range(0, pool.size() - 1)))
+
+
+## The node is done: back to the map, or on to the next stage after a miniboss.
+func _after_node() -> void:
+	if current_node != null and current_node.kind == RunMap.Kind.MINIBOSS:
+		stage += 1
+		current_node = null
+		if stage >= config.stage_count:
+			stage = config.stage_count - 1
+			status = Status.WON
+			return
+	status = Status.MAP
+
+#endregion
+
+
+#region Battles
+
+## Builds the battle of the current node (procedural map + enemies) and enters BATTLE.
 func start_battle() -> BattleSetup:
 	var zone := get_zone()
+	var node := current_node
 	var setup := BattleSetup.new()
 	setup.zone = zone
 	setup.title = get_title()
 	setup.phase_label = get_title()
 	setup.rng_seed = _rng.randi()
-	var living := get_living_heroes()
-	for hero in living:
+	for hero in get_living_heroes():
 		setup.player_units.append(hero.data)
 		setup.player_hp.append(hero.hp)
+	setup.has_protagonist = true
+	setup.protagonist_bonus_percent = get_protagonist_bonus()
 	setup.player_level = level
 	setup.player_modifiers = modifiers.duplicate()
+	setup.objective = node.objective if node != null else RunMap.Objective.NONE
 	setup.enemy_units = _roll_enemies(zone)
 	setup.enemy_level = get_enemy_level()
 	setup.enemy_stat_scale = 1.0 + stage * config.enemy_scale_per_stage
-	setup.map = MapGenerator.generate(zone, rules, _rng.randi(), setup.player_units.size(), setup.enemy_units.size())
+	var extra_spawn := 1 if setup.objective == RunMap.Objective.PROTECT else 0
+	setup.map = MapGenerator.generate(zone, rules, _rng.randi(), setup.player_units.size() + extra_spawn, setup.enemy_units.size(),
+		_party_value(config.map_scale_by_party, 1.0))
 	status = Status.BATTLE
 	changed.emit()
 	return setup
@@ -122,12 +238,14 @@ func start_battle() -> BattleSetup:
 
 ## Applies the battle outcome. [param survivors_hp] = HP of each hero that
 ## took part, in the same order as BattleSetup.player_units.
-func complete_battle(victory: bool, survivors_hp: Array[int], enemies: Array[UnitData] = [], turns: int = 0) -> Reward:
+func complete_battle(victory: bool, survivors_hp: Array[int], enemies: Array[UnitData] = [], turns: int = 0,
+		objective_met := false) -> Reward:
 	total_turns += turns
 	var living := get_living_heroes()
 	for i in mini(living.size(), survivors_hp.size()):
-		living[i].hp = survivors_hp[i]
-	if not victory:
+		# Battle-only boosts (Lobo solitario) do not carry over.
+		living[i].hp = mini(survivors_hp[i], living[i].get_max_hp(level))
+	if not victory or not get_protagonist().is_alive():
 		status = Status.LOST
 		changed.emit()
 		return null
@@ -138,17 +256,27 @@ func complete_battle(victory: bool, survivors_hp: Array[int], enemies: Array[Uni
 			hero.hp = maxi(1, roundi(hero.get_max_hp(level) * config.revive_hp_percent / 100.0))
 
 	var reward := Reward.new()
-	reward.offers_modifier = gives_modifier()
+	reward.kind = current_node.kind if current_node != null else RunMap.Kind.COMBAT
+	reward.objective = current_node.objective if current_node != null else RunMap.Objective.NONE
+	reward.objective_met = objective_met and reward.objective != RunMap.Objective.NONE
 	reward.xp = config.xp_per_phase
 	for enemy in enemies:
 		reward.xp += enemy.xp_reward
-		if not reward.offers_modifier:
-			reward.gold += enemy.gold_reward
-	if not reward.offers_modifier:
-		reward.gold += config.gold_per_phase
+		reward.gold += enemy.gold_reward
+	reward.gold += config.gold_per_phase
+	match reward.kind:
+		RunMap.Kind.ELITE:
+			reward.offers_modifier = true
+			reward.xp = roundi(reward.xp * 1.5)
+		RunMap.Kind.MINIBOSS:
+			reward.offers_modifier = true
+	if reward.objective_met:
+		reward.offers_modifier = true
+		reward.gold += config.objective_gold
 	gold += reward.gold
 	reward.levels_gained = add_xp(reward.xp)
 	last_reward = reward
+	_recruit_after_reward = reward.kind == RunMap.Kind.MINIBOSS and not is_party_full() and stage + 1 < config.stage_count
 	if reward.offers_modifier:
 		rerolls_left = config.rerolls_per_offer
 		roll_offer()
@@ -157,6 +285,22 @@ func complete_battle(victory: bool, survivors_hp: Array[int], enemies: Array[Uni
 	status = Status.REWARD
 	changed.emit()
 	return reward
+
+
+## Leaves the reward screen: to a recruit choice after a miniboss, else the map.
+func advance() -> void:
+	if status != Status.REWARD:
+		return
+	offer.clear()
+	if _recruit_after_reward:
+		_recruit_after_reward = false
+		_roll_recruits()
+		if not recruit_offer.is_empty():
+			status = Status.RECRUIT
+			changed.emit()
+			return
+	_after_node()
+	changed.emit()
 
 
 ## Returns levels gained.
@@ -172,9 +316,14 @@ func add_xp(amount: int) -> int:
 				hero.heal_percent(config.level_up_heal_percent, level)
 	return gained
 
+#endregion
 
+
+#region Modifiers and gold
+
+## Offers only modifiers that affect the protagonist's skills.
 func roll_offer() -> void:
-	offer = ModifierOffer.roll(config.modifier_pool, modifiers, _party_tags(), config.offer_size, _rng)
+	offer = ModifierOffer.roll(config.modifier_pool, modifiers, _protagonist_tags(), config.offer_size, _rng)
 
 
 func can_reroll() -> bool:
@@ -214,47 +363,39 @@ func heal_party() -> bool:
 	changed.emit()
 	return true
 
-
-## Leaves the reward screen and moves to the next phase (or ends the run).
-func advance() -> void:
-	if status != Status.REWARD:
-		return
-	offer.clear()
-	phase += 1
-	if phase >= config.phases_per_stage:
-		phase = 0
-		stage += 1
-	status = Status.WON if stage >= config.stage_count else Status.MAP
-	if status == Status.WON:
-		stage = config.stage_count - 1
-		phase = config.phases_per_stage - 1
-	changed.emit()
-
 #endregion
 
 
 func _roll_enemies(zone: ZoneData) -> Array[UnitData]:
 	var enemies: Array[UnitData] = []
 	var count: int
-	if is_miniboss_phase() and not zone.miniboss_pool.is_empty():
+	var kind := current_node.kind if current_node != null else RunMap.Kind.COMBAT
+	if kind == RunMap.Kind.MINIBOSS and not zone.miniboss_pool.is_empty():
 		enemies.append(zone.miniboss_pool[_rng.randi_range(0, zone.miniboss_pool.size() - 1)])
-		count = config.miniboss_adds
+		count = int(_party_value(config.miniboss_adds_by_party, 0)) + stage
 	else:
-		var table := config.enemies_per_phase
-		count = table[mini(phase, table.size() - 1)] + stage
+		count = int(_party_value(config.enemies_by_party, 3)) + stage
+		if kind == RunMap.Kind.ELITE:
+			count += config.elite_extra_enemies
 	for i in count:
 		enemies.append(zone.enemy_pool[_rng.randi_range(0, zone.enemy_pool.size() - 1)])
 	return enemies
 
 
-func _party_tags() -> Array[StringName]:
+## Value of a per-party-size table for the current party (last value repeats).
+func _party_value(table: Variant, fallback: float) -> float:
+	if table.is_empty():
+		return fallback
+	return table[clampi(heroes.size() - 1, 0, table.size() - 1)]
+
+
+func _protagonist_tags() -> Array[StringName]:
 	var tags: Array[StringName] = []
-	for hero in heroes:
-		for skill in hero.data.skills:
-			for variant in [skill, skill.empowered_variant]:
-				if variant == null:
-					continue
-				for tag in variant.tags:
-					if not tags.has(tag):
-						tags.append(tag)
+	for skill in get_protagonist().data.skills:
+		for variant in [skill, skill.empowered_variant]:
+			if variant == null:
+				continue
+			for tag in variant.tags:
+				if not tags.has(tag):
+					tags.append(tag)
 	return tags

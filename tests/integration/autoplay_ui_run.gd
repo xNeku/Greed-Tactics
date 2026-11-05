@@ -1,6 +1,6 @@
 extends SceneTree
 ## End-to-end smoke test of the real screens: main menu -> run map -> battle
-## (autoplay) -> reward -> ... -> run end. Fails on script errors or timeout.
+## (autoplay) / recruit -> reward -> ... -> run end. Fails on script errors or timeout.
 ## With a display (or xvfb) and a folder argument it also saves one screenshot
 ## per screen: godot --script res://tests/integration/autoplay_ui_run.gd -- /tmp/shots
 
@@ -55,7 +55,17 @@ func _initialize() -> void:
 				await _frames(10)
 				if battles < 2:
 					await _shot("run_map")
-				game.start_run_battle()
+				var choices := game.run.get_choices()
+				var pick: RunMap.MapNode = choices[0]
+				for node in choices:
+					if node.kind == RunMap.Kind.RECRUIT and not game.run.is_party_full():
+						pick = node
+				game.choose_map_node(pick)
+				await _frames(10)
+			GameSession.RECRUIT:
+				await _frames(10)
+				await _shot("recruit")
+				game.recruit(game.run.recruit_offer[0])
 				await _frames(10)
 			GameSession.BATTLE:
 				var battle := scene as BattleController

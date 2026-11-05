@@ -84,6 +84,25 @@ theme_type_variation = &"MessageLabel"
 text = "Preparando el combate..."
 horizontal_alignment = 1
 
+[node name="ObjectivePanel" type="PanelContainer" parent="Root"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 24.0
+offset_top = 72.0
+offset_right = 384.0
+offset_bottom = 132.0
+mouse_filter = 2
+
+[node name="ObjectiveLabel" type="Label" parent="Root/ObjectivePanel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(340, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 1, 0.85, 1)
+theme_override_font_sizes/font_size = 15
+text = "Objetivo"
+autowrap_mode = 3
+
 [node name="BottomLeft" type="VBoxContainer" parent="Root"]
 layout_mode = 1
 anchors_preset = 2

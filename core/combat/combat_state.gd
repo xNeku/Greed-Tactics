@@ -33,6 +33,13 @@ var winner: int = NO_WINNER
 var turn_count: int = 0
 ## Unit turns in a row in which nobody lost HP (the AI gets bolder as it grows).
 var turns_without_damage: int = 0
+## Optional objective (RunMap.Objective): 0 none, 1 protect, 2 escape.
+var objective: int = 0
+## PROTECT: the structure that must survive.
+var objective_unit: UnitState
+## ESCAPE: cells the protagonist must reach (reaching them wins the battle).
+var exit_cells: Array[Vector2i] = []
+var escaped := false
 ## Last opponent each team hit (Team -> UnitState), for focus fire.
 var focus_target: Dictionary[int, UnitState] = {}
 ## Summons that died because their summoner died, not yet announced.
@@ -62,12 +69,75 @@ static func from_setup(setup: BattleSetup, p_rules: RulesConfig) -> CombatState:
 	var players := combat._spawn_team(setup.player_units, setup.map.player_spawns, UnitState.Team.PLAYER,
 		setup.player_level, 1.0)
 	for i in players.size():
-		players[i].modifiers = setup.player_modifiers.duplicate()
+		# In a run, modifiers belong to the protagonist only.
+		if not setup.has_protagonist or i == 0:
+			players[i].modifiers = setup.player_modifiers.duplicate()
 		if i < setup.player_hp.size() and setup.player_hp[i] > 0:
 			players[i].hp = mini(setup.player_hp[i], players[i].max_hp)
+	if setup.has_protagonist and not players.is_empty():
+		players[0].is_protagonist = true
+		players[0].apply_bonus_percent(setup.protagonist_bonus_percent)
 	combat._spawn_team(setup.enemy_units, setup.map.enemy_spawns, UnitState.Team.ENEMY,
 		setup.enemy_level, setup.enemy_stat_scale)
+	combat._setup_objective(setup, players)
 	return combat
+
+
+const OBJECTIVE_PROTECT := 1
+const OBJECTIVE_ESCAPE := 2
+const PROTECT_UNIT := preload("res://content/units/objectives/supply_cart.tres")
+
+
+func _setup_objective(setup: BattleSetup, players: Array[UnitState]) -> void:
+	objective = setup.objective
+	match objective:
+		OBJECTIVE_PROTECT:
+			var spawns := setup.map.player_spawns
+			var cell := spawns[players.size()] if spawns.size() > players.size() else NO_CELL
+			if cell == NO_CELL:
+				objective = 0
+				return
+			var facing := players[0].facing if not players.is_empty() else GridDir.Dir.SOUTH
+			objective_unit = add_unit(PROTECT_UNIT, UnitState.Team.PLAYER, cell, facing, setup.player_level)
+		OBJECTIVE_ESCAPE:
+			exit_cells = _find_exit_cells(setup.map.player_spawns)
+			if exit_cells.is_empty():
+				objective = 0
+
+
+## ESCAPE: walkable cells of the map edge (top or bottom row) farthest from the
+## player spawns, on the half of the map away from them.
+func _find_exit_cells(spawns: Array[Vector2i]) -> Array[Vector2i]:
+	var center := Vector2.ZERO
+	for cell in spawns:
+		center += Vector2(cell)
+	center /= maxf(spawns.size(), 1.0)
+	var row := 0 if center.y > grid.size.y / 2.0 else grid.size.y - 1
+	var cells: Array[Vector2i] = []
+	for x in grid.size.x:
+		var cell := Vector2i(x, row)
+		if absf(x - center.x) >= grid.size.x / 3.0 and grid.is_walkable(cell):
+			cells.append(cell)
+	return cells
+
+
+## True if the optional objective was achieved (only meaningful once finished).
+func is_objective_met() -> bool:
+	match objective:
+		OBJECTIVE_PROTECT:
+			return winner == UnitState.Team.PLAYER and objective_unit != null and objective_unit.is_alive()
+		OBJECTIVE_ESCAPE:
+			return escaped
+	return false
+
+
+## ESCAPE: the protagonist standing on an exit cell wins the battle.
+func _check_escape(unit: UnitState) -> void:
+	if objective != OBJECTIVE_ESCAPE or is_finished() or not unit.is_protagonist or not exit_cells.has(unit.cell):
+		return
+	escaped = true
+	winner = UnitState.Team.PLAYER
+	combat_finished.emit(winner)
 
 
 #region Setup
@@ -410,6 +480,7 @@ func move_active_unit(destination: Vector2i) -> Array[Vector2i]:
 	unit.gain_momentum(path.size())
 	unit_moved.emit(unit, path)
 	unit_stats_changed.emit(unit)
+	_check_escape(unit)
 	return path
 
 
@@ -474,6 +545,7 @@ func use_skill(skill: SkillData, target_cell: Vector2i) -> SkillResult:
 		if hit.defeated:
 			unit_defeated.emit(hit.target)
 	result.orphaned = take_orphaned()
+	_check_escape(user)
 	_check_victory()
 	return result
 
@@ -773,6 +845,8 @@ func _check_victory() -> void:
 		return
 	var players_alive := not _fighters(UnitState.Team.PLAYER).is_empty()
 	var enemies_alive := not _fighters(UnitState.Team.ENEMY).is_empty()
+	if units.any(func(u: UnitState) -> bool: return u.is_protagonist and not u.is_alive()):
+		players_alive = false
 	if players_alive and enemies_alive:
 		return
 	winner = UnitState.Team.PLAYER if players_alive else UnitState.Team.ENEMY

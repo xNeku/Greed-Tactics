@@ -1,8 +1,8 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scenes/run/run_map.gd" id="1_script"]
-[ext_resource type="PackedScene" path="res://scenes/ui/components/hero_card.tscn" id="2_ext"]
-[ext_resource type="PackedScene" path="res://scenes/ui/components/phase_node.tscn" id="3_ext"]
+[ext_resource type="PackedScene" path="res://scenes/ui/components/hero_card.tscn" id="2_card"]
+[ext_resource type="Script" path="res://scenes/run/components/stage_map_view.gd" id="3_map"]
 
 [node name="RunMap" type="Control"]
 layout_mode = 3
@@ -12,8 +12,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_script")
-hero_card_scene = ExtResource("2_ext")
-phase_node_scene = ExtResource("3_ext")
+hero_card_scene = ExtResource("2_card")
 
 [node name="Background" type="ColorRect" parent="."]
 layout_mode = 1
@@ -31,86 +30,110 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 48
-theme_override_constants/margin_top = 32
-theme_override_constants/margin_right = 48
-theme_override_constants/margin_bottom = 32
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 28
 
 [node name="Layout" type="VBoxContainer" parent="Margin"]
 layout_mode = 2
-theme_override_constants/separation = 18
+theme_override_constants/separation = 14
 
 [node name="Header" type="HBoxContainer" parent="Margin/Layout"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 24
 
 [node name="TitleLabel" type="Label" parent="Margin/Layout/Header"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 theme_type_variation = &"TitleLabel"
 text = "Etapa 1/2"
-horizontal_alignment = 0
-size_flags_horizontal = 3
 
 [node name="GoldLabel" type="Label" parent="Margin/Layout/Header"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"HeaderLabel"
-text = "Oro: 0"
-horizontal_alignment = 1
+theme_override_colors/font_color = Color(1, 0.82, 0.35, 1)
+text = "Oro 0"
 
 [node name="LevelLabel" type="Label" parent="Margin/Layout/Header"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"HeaderLabel"
 text = "Nivel 1"
-horizontal_alignment = 1
 
-[node name="Stages" type="VBoxContainer" parent="Margin/Layout"]
+[node name="Body" type="HBoxContainer" parent="Margin/Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 28
+
+[node name="MapColumn" type="VBoxContainer" parent="Margin/Layout/Body"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="HintLabel" type="Label" parent="Margin/Layout/Body/MapColumn"]
 unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"CaptionLabel"
+text = "Elige tu camino"
+
+[node name="StageMap" type="Control" parent="Margin/Layout/Body/MapColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+script = ExtResource("3_map")
+
+[node name="EventLabel" type="Label" parent="Margin/Layout/Body/MapColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 1, 0.65, 1)
+text = "Evento"
+autowrap_mode = 3
+
+[node name="Side" type="VBoxContainer" parent="Margin/Layout/Body"]
+custom_minimum_size = Vector2(440, 0)
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="PartyCaption" type="Label" parent="Margin/Layout"]
+[node name="PartyCaption" type="Label" parent="Margin/Layout/Body/Side"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"CaptionLabel"
 text = "Grupo"
-horizontal_alignment = 0
 
-[node name="Party" type="HBoxContainer" parent="Margin/Layout"]
+[node name="Party" type="GridContainer" parent="Margin/Layout/Body/Side"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 2
 
-[node name="ModifiersLabel" type="Label" parent="Margin/Layout"]
+[node name="ModifiersCaption" type="Label" parent="Margin/Layout/Body/Side"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Modificadores: ninguno"
-horizontal_alignment = 0
+theme_type_variation = &"CaptionLabel"
+text = "Modificadores"
+
+[node name="ModifiersLabel" type="Label" parent="Margin/Layout/Body/Side"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(440, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.85, 1, 1)
+text = "Ninguno"
 autowrap_mode = 3
 
-[node name="Actions" type="HBoxContainer" parent="Margin/Layout"]
+[node name="Spacer" type="Control" parent="Margin/Layout/Body/Side"]
 layout_mode = 2
-theme_override_constants/separation = 12
-alignment = 1
+size_flags_vertical = 3
 
-[node name="FightButton" type="Button" parent="Margin/Layout/Actions"]
+[node name="HealButton" type="Button" parent="Margin/Layout/Body/Side"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(280, 0)
 layout_mode = 2
-size_flags_horizontal = 4
-text = "Combatir"
-
-[node name="HealButton" type="Button" parent="Margin/Layout/Actions"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(280, 0)
-layout_mode = 2
-size_flags_horizontal = 4
 text = "Curar grupo"
 
-[node name="AbandonButton" type="Button" parent="Margin/Layout/Actions"]
+[node name="AbandonButton" type="Button" parent="Margin/Layout/Body/Side"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(280, 0)
 layout_mode = 2
-size_flags_horizontal = 4
 text = "Abandonar run"

@@ -21,7 +21,7 @@ func show_unit(unit: UnitState, is_active: bool) -> void:
 		return
 	visible = true
 	var data := unit.data
-	_name_label.text = "%s (Nv. %d %s • %s)" % [unit.display_name, unit.level, data.race, data.unit_class]
+	_name_label.text = "%s%s (Nv. %d %s • %s)" % ["★ " if unit.is_protagonist else "", unit.display_name, unit.level, data.race, data.unit_class]
 	_hp_label.text = "HP: %d / %d" % [unit.hp, unit.max_hp]
 	_hp_bar.max_value = unit.max_hp
 	_hp_bar.value = unit.hp

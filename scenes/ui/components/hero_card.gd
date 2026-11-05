@@ -34,6 +34,12 @@ func set_selected(value: bool) -> void:
 	modulate = Color.WHITE if value else Color(1, 1, 1, 0.55)
 
 
+## Run protagonist: star on the name and highlighted frame.
+func mark_protagonist() -> void:
+	_name_label.text = "★ " + _name_label.text
+	theme_type_variation = &"SelectedCard"
+
+
 ## [param hp] < 0 hides the HP bar (class showcase).
 func show_hero(data: UnitData, level: int, hp: int = -1, max_hp: int = -1) -> void:
 	_portrait.texture = data.sprite

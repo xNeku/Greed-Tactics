@@ -50,6 +50,8 @@ var taunted_by: UnitState
 var skip_turn: bool = false
 ## Uses of each skill (base SkillData) this turn, for max_uses_per_turn.
 var uses_this_turn: Dictionary[SkillData, int] = {}
+## Run protagonist: if it falls, the battle is lost.
+var is_protagonist := false
 ## Who summoned this unit (totems), or null.
 var summoner: UnitState
 
@@ -184,6 +186,16 @@ func heal(amount: int) -> int:
 	var before := hp
 	hp = mini(hp + amount, max_hp)
 	return hp - before
+
+
+## Flat % boost of max HP (current HP gains the same) and attack ("Lobo solitario").
+func apply_bonus_percent(percent: int) -> void:
+	if percent <= 0:
+		return
+	var extra_hp := roundi(max_hp * percent / 100.0)
+	max_hp += extra_hp
+	hp += extra_hp
+	attack = roundi(attack * (1.0 + percent / 100.0))
 
 
 ## Momentum (UnitData.hp_per_cell_moved / attack_per_cell_moved): walking

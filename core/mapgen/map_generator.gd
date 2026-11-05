@@ -15,6 +15,9 @@ extends RefCounted
 const MIN_OPEN_RATIO := 0.45
 const UNREACHABLE_PENALTY := 12
 
+## Smallest side of a generated map, whatever the scale.
+const MIN_SIZE := 10
+
 var _zone: ZoneData
 var _rules: RulesConfig
 var _rng := RandomNumberGenerator.new()
@@ -23,18 +26,21 @@ var _heights: PackedInt32Array = []
 var _terrain: Array[TerrainData] = []
 
 
+## [param size_scale] shrinks the zone's map size (small parties fight on small maps).
 static func generate(zone: ZoneData, rules: RulesConfig, rng_seed: int,
-		player_count: int, enemy_count: int) -> MapData:
+		player_count: int, enemy_count: int, size_scale: float = 1.0) -> MapData:
 	var generator := MapGenerator.new()
-	return generator._build(zone, rules, rng_seed, player_count, enemy_count)
+	return generator._build(zone, rules, rng_seed, player_count, enemy_count, size_scale)
 
 
-func _build(zone: ZoneData, rules: RulesConfig, rng_seed: int, player_count: int, enemy_count: int) -> MapData:
+func _build(zone: ZoneData, rules: RulesConfig, rng_seed: int, player_count: int, enemy_count: int,
+		size_scale: float = 1.0) -> MapData:
 	_zone = zone
 	_rules = rules
 	_rng.seed = rng_seed
-	var w := _rng.randi_range(zone.min_size.x, zone.max_size.x)
-	var h := _rng.randi_range(zone.min_size.y, mini(zone.max_size.y, w))
+	var w := maxi(MIN_SIZE, roundi(_rng.randi_range(zone.min_size.x, zone.max_size.x) * size_scale))
+	var h := maxi(MIN_SIZE, roundi(_rng.randi_range(zone.min_size.y, mini(zone.max_size.y, zone.max_size.x)) * size_scale))
+	h = mini(h, w)
 	_size = Vector2i(w, h)
 	_heights.resize(w * h)
 	_heights.fill(0)

@@ -1,4 +1,4 @@
-# GDD - Greed Tactics · Tactics Roguelite Isométrico (v0.6)
+# GDD - Greed Tactics · Tactics Roguelite Isométrico (v0.7)
 
 Nov 2, 2026 · @Neku
 
@@ -42,7 +42,28 @@ Roguelike táctico isométrico 2.5D. Combate por turnos rápido y legible, runs 
 - Persiste: personajes desbloqueados, habilidades del pool, armas desbloqueadas, razas y clases, maestría, fragmentos.
 - No persiste: compañeros reclutados, bendiciones, modificadores de la run, objetos temporales.
 
-**[Decidido v0.3] Estructura del prototipo de run** (`RunConfig` en `content/run/default_run.tres`, todo ajustable):
+**[Decidido v0.7, Neku] Nuevo bucle de run: protagonista + reclutas.** Sustituye a la estructura v0.3 (los 4 héroes juntos desde el principio).
+- **Protagonista:** en el menú eliges UN héroe. Empiezas la run solo con él. Si cae en un combate, se pierde la run aunque queden compañeros. La IA lo protege más cuando juega por él (doble miedo a las casillas amenazadas).
+- **Lobo solitario:** el protagonista tiene +50% de vida y daño yendo solo, +25% con 1 compañero, +10% con 2 y nada con el grupo completo (`RunConfig.protagonist_bonus_by_party`). Solo dura el combate.
+- **Reclutar:** casillas del mapa (2 por etapa garantizadas) y tras vencer al miniboss de la primera etapa. Te ofrecen 3 héroes del plantel que no tienes y eliges uno (o ninguno). Llegan a nivel del grupo con la vida llena y **los controlas tú**. Máximo 4. Con el grupo lleno, reclutar da oro.
+- **Los modificadores de la run solo afectan al protagonista** y solo se ofrecen los que tocan sus habilidades.
+- **Mapa de etapa con bifurcaciones** (`RunMap`): 5 pasos por etapa de 2-3 casillas cada uno, unidas por caminos; el último es el miniboss. Tipos:
+  - *Combate* (oro + XP)
+  - *Élite* (más enemigos y +2 niveles: modificador + XP×1.5)
+  - *Reclutar*
+  - *Descanso* (+40% de vida, solo justo antes del miniboss)
+  - *Miniboss* (modificador + recluta)
+- **Objetivos opcionales** en algunos combates (35%), con premio extra si se cumplen (modificador + 10 oro):
+  - *Proteger la carreta*: debe seguir en pie al ganar.
+  - *Escapar*: llevar al protagonista a la zona turquesa del borde, lo que **gana el combate al instante**.
+- **Escalado por tamaño de grupo:**
+  - enemigos por combate 2/3/4/5 según el grupo (+1 en la etapa 2);
+  - acompañantes del miniboss 0/1/2/3;
+  - **mapas más pequeños con poca gente** (60% / 72% / 86% / 100% del tamaño de la zona).
+- **Niveles:** los enemigos son nivel 1 en la etapa 1 y nivel 3 en la etapa 2 (+15% de estadísticas). Ya no suben en cada paso.
+- **Equilibrio (simulaciones):** el grupo controlado por la IA gana ~41% de las runs (13/32), recorriendo cada vez con un protagonista distinto del plantel.
+
+**[Decidido v0.3, sustituido en v0.7] Estructura del prototipo de run** (`RunConfig` en `content/run/default_run.tres`, todo ajustable):
 
 - **2 etapas × 4 fases.** Cada etapa toma una temática distinta al azar (Cueva, Bosque, Desierto). La **fase 4 de cada etapa es el miniboss** de la zona (+2 enemigos normales).
 - **Recompensas:** las fases **pares** (2 y 4) dan **1 modificador a elegir entre 3 + XP**; las **impares** dan **oro + XP**. Reroll: 1 por elección, cuesta 5 de oro.
@@ -259,7 +280,7 @@ Enemigos de prototipo: Goblin (Saqueador, melee) y Limo (Bestia, melee lento y r
 
 **[Decidido v0.6] Taller de héroes y enemigos:** artefacto privado de Neku en claude.ai (fuente `tools/hero_workshop/taller.html`). Guarda en su base de datos un documento por héroe (`heroes/<id>`) y por enemigo (`enemies/<id>`, con categoría jefe / miniboss / normal, zonas, comportamiento, estadísticas y recompensas; Neku puede crear enemigos nuevos desde ahí): sprites de frente/lado/arma como paleta + filas (`.` = transparente), skills, pasivas, desbloqueables y arma. `tools/export_hero_sheets.gd` genera esos documentos desde el juego (`{heroes, enemies}`) y `tools/hero_workshop/import_sheets.py` trae de vuelta los sprites editados (regenerando las animaciones de Kael). Desde v0.6.1 los PNG de `assets/` retocados por Neku son la fuente; los scripts de `art/src/` ya no se vuelven a ejecutar sobre ellos; Claude lee los cambios de Neku y los pasa a `assets/` y `content/`.
 
-**[Decidido v0.5] Plantel y grupo:** `RunConfig.roster` (8 héroes: Kael, Pablo, Tohil, Nyx, Sigrid, Elara, Grizka, Lyra) y `party_size` 4. En el menú se eligen 4 haciendo clic en sus tarjetas; el combate rápido usa el mismo grupo.
+**[Decidido v0.5, sustituido en v0.7: ahora se elige un único protagonista] Plantel y grupo:** `RunConfig.roster` (8 héroes: Kael, Pablo, Tohil, Nyx, Sigrid, Elara, Grizka, Lyra) y `party_size` 4. En el menú se eligen 4 haciendo clic en sus tarjetas; el combate rápido usa el mismo grupo.
 
 **[Decidido v0.5.1] Personajes de Neku = jugables:** los sprites que pasa Neku son héroes del jugador, nunca enemigos. El grupo inicial son los cuatro suyos (Kael, Pablo, Tohil, Sigrid) para ir probándolos; Nyx y Lyra quedan en el plantel. Las armas las dibuja Neku: no se añaden armas inventadas a sus sprites.
 
@@ -512,6 +533,7 @@ Cada hito tiene un criterio de salida. No se pasa al siguiente sin cumplirlo.
 
 ## Changelog
 
+- **v0.7 (Nov 5, 2026)** — Nuevo bucle de run (decisión de Neku): un protagonista, reclutas que controlas tú, mapa de etapa con bifurcaciones (combate, élite, reclutar, descanso, miniboss), objetivos opcionales (proteger la carreta, escapar), Lobo solitario, modificadores solo para el protagonista, mapas y enemigos según el tamaño del grupo. Pantallas nuevas: mapa de run con caminos, reclutar; menú de protagonista; panel de objetivo y estrella del protagonista en combate. Arreglado: la semilla de la run ya da siempre el mismo mapa.
 - **v0.6.4 (Nov 4, 2026)** — Bosque de Neku: luchador, asesina, berserker, viejo curandero, tres ratas y el **Ent** que rueda. Mecánicas: rodar, objetivo aliado, buffs, usos por turno, cargas que se gastan, crítico seguro por estado, prisa, vulnerabilidad. Arreglado: el troll podía invocar dos elementales por turno (ahora `max_uses_per_turn` = 1).
 - **v0.6.3 (Nov 4, 2026)** — Desierto de Neku (trasgos con daga, arco y brujo; escorpión nuevo) y su miniboss **Troll elemental de arena** con **Elementales de arena**. Reglas nuevas para todo el juego: las invocaciones las controla su invocador, mueren con él y tienen límite (`summon_limit`); crecimiento al moverse; foco compartido; refugio entre aliados; la IA escapa con teletransportes. IA anti-bloqueo (`patience_turns`). `autoplay_battle.gd` acepta zona y enemigos (`-- desert sand_troll,trasgo_dagger`).
 - **v0.6.2 (Nov 4, 2026)** — Tras la primera partida larga de Neku: menú de acciones en dos páginas (**1 Mover · 2 Atacar · 3 Esperar**; Atacar abre las habilidades 1-6; Esc vuelve atrás), sin bocadillos (solo el marco de la habilidad, también al pasar el ratón por el botón); al elegir una habilidad se ve su rango al momento y, si es sobre uno mismo o tiene una sola casilla posible, su zona y la previsión sin mover el ratón (se lanza pulsando otra vez su tecla, Enter o clic). **Subir escalones ya no cuesta PM extra** (`climb_up_cost` = 0 en las reglas). La IA busca las **casillas desde donde puede atacar** (alcance, área, altura, línea recta) y camina hacia ellas: encuentra rampas y no se queda huyendo cuando el jugador está en alto.

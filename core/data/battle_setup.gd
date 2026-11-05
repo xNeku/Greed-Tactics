@@ -26,3 +26,10 @@ var player_hp: Array[int] = []
 var player_modifiers: Array[ModifierData] = []
 ## Runtime only: short label of the run phase shown in the HUD (empty outside runs).
 var phase_label: String = ""
+## Runtime only (runs): player_units[0] is the protagonist (its fall loses the
+## battle; run modifiers only apply to it).
+var has_protagonist := false
+## Runtime only (runs): "Lobo solitario" % of extra HP and attack for the protagonist.
+var protagonist_bonus_percent: int = 0
+## Runtime only: optional battle objective (RunMap.Objective).
+var objective: int = 0

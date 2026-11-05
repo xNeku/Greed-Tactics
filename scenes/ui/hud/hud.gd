@@ -21,6 +21,8 @@ const MESSAGE_ENEMY_COLOR := Color(1.0, 0.62, 0.62)
 @onready var _previews: ActionPreviewLayer = %ActionPreviewLayer
 @onready var _result: ResultOverlay = %ResultOverlay
 @onready var _skill_info: SkillInfoPanel = %SkillInfoPanel
+@onready var _objective_panel: PanelContainer = %ObjectivePanel
+@onready var _objective_label: Label = %ObjectiveLabel
 
 ## Card of the skill being aimed (shown again when the mouse leaves a button).
 var _selected_skill: EffectiveSkill
@@ -42,6 +44,13 @@ func set_camera(camera: Camera3D) -> void:
 
 func set_title(text: String) -> void:
 	_title_label.text = text
+
+
+## Optional battle objective (empty text hides the panel).
+func set_objective(text: String, failed := false) -> void:
+	_objective_panel.visible = not text.is_empty()
+	_objective_label.text = text
+	_objective_label.modulate = Color(1, 0.55, 0.5) if failed else Color.WHITE
 
 
 func set_message(text: String, from_enemy := false) -> void:

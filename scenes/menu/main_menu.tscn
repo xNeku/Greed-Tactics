@@ -47,7 +47,7 @@ horizontal_alignment = 1
 [node name="Subtitle" type="Label" parent="Margin/Layout"]
 layout_mode = 2
 theme_type_variation = &"CaptionLabel"
-text = "Roguelike táctico · elige 4 héroes haciendo clic en sus tarjetas"
+text = "Roguelike táctico · elige a tu protagonista: empiezas solo y reclutas compañeros por el camino"
 horizontal_alignment = 1
 
 [node name="Classes" type="GridContainer" parent="Margin/Layout"]
@@ -83,7 +83,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(280, 0)
 layout_mode = 2
 size_flags_horizontal = 4
-text = "Combate rápido (zona aleatoria)"
+text = "Combate rápido (grupo de prueba)"
 
 [node name="QuitButton" type="Button" parent="Margin/Layout/Buttons"]
 unique_name_in_owner = true

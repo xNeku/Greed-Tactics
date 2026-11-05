@@ -20,6 +20,8 @@ const MOVE_COST_WEIGHT := 0.05
 ## How much the danger of the landing cell counts when the unit is attacking.
 ## Lower than 1 so cautious units still shoot instead of kiting forever.
 const ATTACK_POSITION_WEIGHT := 0.35
+## How much more a run protagonist fears threatened cells.
+const PROTAGONIST_CAUTION := 2.0
 
 var _default_profile := AiProfile.new()
 
@@ -224,6 +226,8 @@ func get_caution(combat: CombatState, profile: AiProfile) -> float:
 func position_value(combat: CombatState, unit: UnitState, cell: Vector2i,
 		threat: Dictionary[Vector2i, float], profile: AiProfile) -> float:
 	var value: float = -profile.threat_weight * get_caution(combat, profile) * threat.get(cell, 0.0)
+	if unit.is_protagonist:
+		value *= PROTAGONIST_CAUTION  # Losing it loses the battle: keep it safer.
 	var nearest := _nearest_opponent_distance(combat, unit, cell)
 	if nearest < profile.preferred_distance:
 		value -= profile.too_close_weight * (profile.preferred_distance - nearest)

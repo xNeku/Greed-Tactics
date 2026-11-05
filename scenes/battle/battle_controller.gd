@@ -65,6 +65,7 @@ func _ready() -> void:
 	_spawn_views()
 	_connect_signals()
 	_hud.set_title(setup.title)
+	_show_objective()
 	_hud.set_camera(_camera_rig.get_camera())
 	_hud.set_result_button_text(_game.get_result_button_text() if _owned_by_game() else "Reintentar")
 	_player_input.setup(self, _map_view, _highlighter, _arrows, _camera_rig.get_camera(), _hud)
@@ -357,7 +358,31 @@ func _on_unit_facing_changed(unit: UnitState) -> void:
 		_views[unit].face(unit.facing)
 
 
+## Objective panel and the escape zone on the ground.
+func _show_objective() -> void:
+	var hero := combat.units.filter(func(u: UnitState) -> bool: return u.is_protagonist)
+	var name := (hero[0] as UnitState).display_name if not hero.is_empty() else "tu protagonista"
+	match combat.objective:
+		CombatState.OBJECTIVE_ESCAPE:
+			_highlighter.show_cells(TileHighlighter.Layer.OBJECTIVE, combat.exit_cells)
+			_hud.set_objective("Objetivo opcional: lleva a %s a la zona turquesa del borde. Escapar gana el combate y da premio extra (modificador + oro)." % name)
+		CombatState.OBJECTIVE_PROTECT:
+			_update_protect_objective()
+		_:
+			_hud.set_objective("")
+
+
+func _update_protect_objective() -> void:
+	var cart := combat.objective_unit
+	if cart.is_alive():
+		_hud.set_objective("Objetivo opcional: que la carreta siga en pie al ganar (%d/%d PV). Premio extra: modificador + oro." % [cart.hp, cart.max_hp])
+	else:
+		_hud.set_objective("La carreta ha caído: ganarás sin premio extra.", true)
+
+
 func _on_unit_stats_changed(unit: UnitState) -> void:
+	if combat.objective == CombatState.OBJECTIVE_PROTECT and unit == combat.objective_unit:
+		_update_protect_objective()
 	if not _views.has(unit):
 		return
 	_views[unit].refresh_info()
@@ -370,6 +395,13 @@ func _on_combat_finished(winner: UnitState.Team) -> void:
 	_clear_feedback()
 	var victory := winner == UnitState.Team.PLAYER
 	_hud.set_message("¡Victoria!" if victory else "Derrota")
+	if combat.escaped:
+		_hud.set_message("¡Escapada! Objetivo cumplido")
+	elif victory and combat.objective != 0:
+		_hud.set_objective("Objetivo cumplido: premio extra." if combat.is_objective_met() else "Objetivo fallido: sin premio extra.",
+			not combat.is_objective_met())
+	elif not victory and combat.units.any(func(u: UnitState) -> bool: return u.is_protagonist and not u.is_alive()):
+		_hud.set_message("Derrota: ha caído tu protagonista")
 	# Let the last hit animation play before covering the screen.
 	await get_tree().create_timer(RESULT_DELAY).timeout
 	_hud.show_result(victory)

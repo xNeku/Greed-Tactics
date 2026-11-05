@@ -1,6 +1,7 @@
 extends Control
-## After a won battle: gold/XP summary and, on modifier phases, the 1-of-3
-## modifier choice with a limited reroll (GDD §5).
+## After a won battle: gold/XP summary, the optional objective result and,
+## after elites, objectives and minibosses, the 1-of-3 modifier choice for the
+## protagonist with a limited reroll (GDD §5).
 
 @export var modifier_card_scene: PackedScene
 
@@ -23,14 +24,23 @@ func _ready() -> void:
 	_continue_button.pressed.connect(_game.continue_after_reward)
 	var run := _game.run
 	var reward := run.last_reward
-	_title_label.text = "¡Miniboss derrotado!" if run.is_miniboss_phase() else "¡Fase superada!"
+	match reward.kind:
+		RunMap.Kind.MINIBOSS:
+			_title_label.text = "¡Miniboss derrotado!"
+		RunMap.Kind.ELITE:
+			_title_label.text = "¡Élite derrotado!"
+		_:
+			_title_label.text = "¡Combate ganado!"
 	var parts := PackedStringArray()
 	if reward.gold > 0:
 		parts.append("+%d oro" % reward.gold)
 	parts.append("+%d XP" % reward.xp)
 	if reward.levels_gained > 0:
 		parts.append("¡Nivel %d!" % run.level)
+	if reward.objective != RunMap.Objective.NONE:
+		parts.append("Objetivo cumplido: premio extra" if reward.objective_met else "Objetivo fallido: sin premio extra")
 	_summary_label.text = " · ".join(parts)
+	_offer_caption.text = "Elige un modificador para %s" % run.get_protagonist().data.display_name
 	_refresh_offer()
 
 
