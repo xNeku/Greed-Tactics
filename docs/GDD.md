@@ -466,6 +466,7 @@ Fases: CAST → movimiento → ARRIVE → IMPACT (por golpe) → END, y al final
 - **Mejoras:** si un estado te ayuda (más daño, defensa, movimiento o curación, como el del tótem de fuego), te rodea un aura de su color.
 - **Cinemáticas más escasas:** los personajes de ira solo las tienen al usar la habilidad **con furia** (mutada). El resto ve la cinemática entera (cielo, cámara, cámara lenta) la **primera vez por combate** y después solo los efectos del golpe.
 - **Sin sprites provisionales:** quitados Lyra y los enemigos sin arte de Neku (bandido, murciélago, jabalí, goblins, momia, ogro, limo, lobo, gusano). La **cueva sale de la run** (no tiene enemigos propios). La run usa bosque, desierto, castillo y fábrica.
+- **Orden de zonas:** castillo y fábrica **nunca son la primera etapa** (`ZoneData.min_stage` = 1); la primera siempre es bosque o desierto. Para compensar, los enemigos suben **1 nivel por etapa** (antes 2).
 
 **Proyectiles y sensación de golpe [Decidido v0.8.2]:** pixel art mezclado con luz 3D.
 
@@ -608,6 +609,7 @@ Cada hito tiene un criterio de salida. No se pasa al siguiente sin cumplirlo.
 
 ## Changelog
 
+- **v0.9.2 (Nov 6, 2026)** — Castillo y fábrica nunca son la primera etapa (`ZoneData.min_stage`); enemigos +1 nivel por etapa en vez de +2 (runs simuladas: 4/12 ganadas).
 - **v0.9.1 (Nov 6, 2026)** — Auras: élites (violeta), jefes (fuego multicolor con rayos, más grandes, modificadores innatos y habilidad nueva), modo furia (aura roja y ojos rojos que brillan), mejoras (aura del color del estado). Jefes nuevos: Rey berserker (castillo) y Archibrujo trasgo (fábrica). Cinemáticas solo con furia o la primera vez por combate. Fuera los sprites provisionales y la cueva de la run. No se graba nada sin pedirlo.
 - **v0.9 (Nov 6, 2026)** — Escenarios HD-2D (prueba para elegir): texturas pixel art, escaleras de verdad, ruinas con columnas y braseros, estrado del jefe con escalinata, zonas nuevas **Castillo** y **Fábrica abandonada**, árboles sprite, antorchas, estandartes, corte de muros. Ambientes de luz: día con sol que gira, atardecer, noche con luna, estrellas y rayos volumétricos, interiores; fondo de diorama, desenfoque de profundidad y corrección de color. **Línea de visión** para disparos directos y **alcance de las parábolas** según altura y obstáculos. Críticos sin texto y mucho más llamativos.
 - **v0.8.3 (Nov 6, 2026)** — Barras de vida pixel art que aparecen al pasar el ratón, en el turno activo, al recibir golpes o curas (Alt = todas), con fantasma que se vacía, parpadeo, temblor y número que rueda. Números de golpe con impacto, críticos dorados con «¡CRÍTICO!» y un número por golpe en habilidades de varios golpes. El nombre sobre la cabeza solo se ve con la barra.

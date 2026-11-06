@@ -69,9 +69,14 @@ func _init(p_config: RunConfig, p_rules: RulesConfig, p_seed: int = 0, party: Ar
 		heroes.append(HeroState.new(data, level))
 	var pool := config.zones.duplicate()
 	for i in config.stage_count:
-		if pool.is_empty():
+		# Zones not seen yet that may appear this early (ZoneData.min_stage).
+		var allowed := pool.filter(func(z: ZoneData) -> bool: return z.min_stage <= i)
+		if allowed.is_empty():
 			pool = config.zones.duplicate()
-		zones.append(pool.pop_at(_rng.randi_range(0, pool.size() - 1)))
+			allowed = pool.filter(func(z: ZoneData) -> bool: return z.min_stage <= i)
+		var zone: ZoneData = allowed[_rng.randi_range(0, allowed.size() - 1)]
+		pool.erase(zone)
+		zones.append(zone)
 		maps.append(RunMap.generate(config.phases_per_stage, config, _rng, config.recruits_per_stage))
 
 

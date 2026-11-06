@@ -28,6 +28,7 @@ script = ExtResource("1_script")
 id = &"castle"
 display_name = "Castillo"
 layout = 3
+min_stage = 1
 floor_terrain = ExtResource("r_0")
 alt_floor_terrain = ExtResource("r_1")
 high_terrain = ExtResource("r_2")

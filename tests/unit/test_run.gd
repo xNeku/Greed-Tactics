@@ -242,3 +242,16 @@ func test_battle_only_hp_bonus_does_not_carry_over() -> void:
 	var hp: Array[int] = [max_hp + 50]
 	run.complete_battle(true, hp, setup.enemy_units)
 	assert_true(run.get_protagonist().hp <= run.get_protagonist().get_max_hp(run.level))
+
+
+func test_late_zones_never_open_the_run() -> void:
+	var late := TestFixtures.zone(ZoneData.Layout.CASTLE)
+	late.min_stage = 1
+	late.enemy_pool = config.zones[0].enemy_pool
+	late.miniboss_pool = config.zones[0].miniboss_pool
+	config.zones = [late, config.zones[0]]
+	config.stage_count = 2
+	for s in 12:
+		var other := RunState.new(config, TestFixtures.rules(), s + 1)
+		assert_ne(other.zones[0], late, "seed %d" % (s + 1))
+		assert_eq(other.zones[1], late)

@@ -52,4 +52,4 @@ enemies_by_party = PackedInt32Array(2, 3, 4, 5)
 miniboss_adds_by_party = PackedInt32Array(0, 1, 2, 3)
 map_scale_by_party = PackedFloat32Array(0.6, 0.72, 0.86, 1)
 enemy_levels_per_phase = 0
-enemy_levels_per_stage = 2
+enemy_levels_per_stage = 1

@@ -28,6 +28,7 @@ script = ExtResource("1_script")
 id = &"factory"
 display_name = "Fábrica abandonada"
 layout = 4
+min_stage = 1
 floor_terrain = ExtResource("r_0")
 alt_floor_terrain = ExtResource("r_1")
 high_terrain = ExtResource("r_2")

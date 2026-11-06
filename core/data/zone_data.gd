@@ -14,6 +14,8 @@ enum Layout {
 @export var id: StringName = &""
 @export var display_name: String = ""
 @export var layout: Layout = Layout.FOREST
+## First stage of a run (0 = the first) where this zone can appear.
+@export_range(0, 9) var min_stage: int = 0
 
 @export_group("Terrains")
 ## Main walkable ground.
