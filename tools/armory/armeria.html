@@ -174,6 +174,7 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
 .hand-stage { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 16px; overflow: auto; display: grid; place-items: center; }
 .hand-stage canvas { image-rendering: pixelated; cursor: crosshair; }
 .hint { margin: 0; color: var(--muted); font-size: 13px; }
+.pose-readout { font-family: var(--font-mono); font-size: 12px; color: var(--muted); margin-left: 6px; }
 </style>
 
 <div class="shell">
@@ -525,10 +526,25 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
       b.addEventListener("click", () => { state.previewView = key; views.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); drawHandPreview(); });
       views.append(b);
     }
-    const layer = el("button", { class: "tool", type: "button", id: "layer-toggle", text: w.layer === "back" ? "Arma detrás del cuerpo" : "Arma delante del cuerpo" });
-    layer.addEventListener("click", () => { w.layer = w.layer === "back" ? "front" : "back"; layer.textContent = w.layer === "back" ? "Arma detrás del cuerpo" : "Arma delante del cuerpo"; scheduleSave(w); drawHandPreview(); });
-    const flip = el("button", { class: "tool", type: "button", id: "flip-toggle", "aria-pressed": String(!!w.flip), text: "Voltear arma" });
-    flip.addEventListener("click", () => { w.flip = !w.flip; flip.setAttribute("aria-pressed", String(w.flip)); scheduleSave(w); drawHandPreview(); });
+    // Pose of the weapon in the hand, per view: rotation, size, mirrored, in front of / behind the body.
+    const tweak = (change) => () => { change(getPose(w, state.previewView)); scheduleSave(w); drawHandPreview(); };
+    const btn = (id, text, title, onClick) => {
+      const b = el("button", { class: "tool", type: "button", id, text, title });
+      b.addEventListener("click", onClick);
+      return b;
+    };
+    const poseBar = el("div", { class: "toolbar pose-bar" },
+      btn("rot-left", "⟲ 15°", "Girar a la izquierda", tweak(p => { p.rot = (p.rot - 15 + 360) % 360; })),
+      btn("rot-right", "⟳ 15°", "Girar a la derecha", tweak(p => { p.rot = (p.rot + 15) % 360; })),
+      btn("rot-90", "⟳ 90°", "Girar un cuarto de vuelta", tweak(p => { p.rot = (p.rot + 90) % 360; })),
+      el("span", { class: "sep" }),
+      btn("size-down", "−", "Más pequeña", tweak(p => { p.scale = Math.max(0.25, +(p.scale - 0.25).toFixed(2)); })),
+      btn("size-up", "+", "Más grande", tweak(p => { p.scale = Math.min(3, +(p.scale + 0.25).toFixed(2)); })),
+      el("span", { class: "sep" }),
+      btn("flip-toggle", "Voltear", "Espejo horizontal", tweak(p => { p.flip = !p.flip; })),
+      btn("layer-toggle", "Delante", "Delante o detrás del cuerpo", tweak(p => { p.layer = p.layer === "back" ? "front" : "back"; })),
+      btn("pose-reset", "Restablecer", "Sin giro, tamaño ×1", tweak(p => { p.rot = 0; p.scale = 1; p.flip = false; p.layer = "front"; })),
+      el("span", { class: "pose-readout", id: "poseReadout" }));
     const canvas = el("canvas", { id: "handCanvas", "aria-label": "Prueba del arma en la mano: haz clic en la mano del héroe" });
     const hint = el("p", { class: "hint", id: "handHint" });
     canvas.addEventListener("click", e => {
@@ -544,49 +560,84 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
     });
     return el("div", { class: "hand-panel" },
       el("div", { class: "section-head" }, el("h3", { text: "Prueba en la mano" }),
-        el("p", { text: "Haz clic en la mano del héroe para marcarla (una vez por héroe y vista). El arma se coloca con su punto de agarre ahí." })),
-      el("div", { class: "toolbar" }, heroSelect, views, layer, flip),
+        el("p", { text: "Haz clic en la mano del héroe para marcarla (una vez por héroe y vista). El arma se coloca con su punto de agarre ahí; gírala y cámbiala de tamaño para cada vista. Se ve a la resolución real del juego." })),
+      el("div", { class: "toolbar" }, heroSelect, views), poseBar,
       el("div", { class: "hand-stage" }, canvas), hint);
   }
   const HAND_MARGIN = 14;
+  function getPose(w, view) {
+    w.pose = w.pose || {};
+    if (!w.pose[view]) w.pose[view] = { rot: 0, scale: 1, flip: !!w.flip, layer: w.layer || "front" };
+    return w.pose[view];
+  }
+  function spriteCanvas(img) {
+    const c = document.createElement("canvas");
+    c.width = img.w; c.height = img.h;
+    const g = c.getContext("2d");
+    for (let y = 0; y < img.h; y++) for (let x = 0; x < img.w; x++) {
+      const col = img.px[y * img.w + x];
+      if (col) { g.fillStyle = col; g.fillRect(x, y, 1, 1); }
+    }
+    return c;
+  }
+  // Composes body + weapon at the game's real resolution (1 px = 1 game pixel,
+  // nearest sampling, so rotations look as pixelated as they will in game),
+  // then blows it up for the screen.
   function drawHandPreview() {
     const canvas = document.getElementById("handCanvas");
     const w = hero();
     const h = state.heroes.find(x => x.id === state.previewHero);
     if (!canvas || !w || !h) return;
-    const body = h._img[state.previewView];
-    const raw = w._img.sprite;
-    // Flipped weapons are mirrored (and so is their grip) only in the preview and the game.
-    const weapon = w.flip ? { w: raw.w, h: raw.h, px: raw.px.map((_, i) => raw.px[Math.floor(i / raw.w) * raw.w + (raw.w - 1 - i % raw.w)]) } : raw;
+    const view = state.previewView;
+    const pose = getPose(w, view);
+    const body = h._img[view];
+    const weapon = w._img.sprite;
     const cw = body.w + HAND_MARGIN * 2, ch = body.h + HAND_MARGIN * 2;
+    const small = document.createElement("canvas");
+    small.width = cw; small.height = ch;
+    const g = small.getContext("2d");
+    g.imageSmoothingEnabled = false;
+    const hand = (state.hands[h.id] || {})[view];
+    const grip = w.grip || { x: Math.floor(weapon.w / 2), y: Math.floor(weapon.h / 2) };
+    const anchor = hand || { x: Math.floor(body.w / 2), y: Math.floor(body.h * 0.6) };
+    const drawWeapon = () => {
+      g.save();
+      g.translate(HAND_MARGIN + anchor.x + 0.5, HAND_MARGIN + anchor.y + 0.5);
+      g.rotate(pose.rot * Math.PI / 180);
+      g.scale(pose.scale * (pose.flip ? -1 : 1), pose.scale);
+      g.drawImage(spriteCanvas(weapon), -grip.x - 0.5, -grip.y - 0.5);
+      g.restore();
+    };
+    if (pose.layer === "back") drawWeapon();
+    g.drawImage(spriteCanvas(body), HAND_MARGIN, HAND_MARGIN);
+    if (pose.layer !== "back") drawWeapon();
+    // Snap to whole pixels: keep only fully drawn pixels, like the game's nearest filter.
+    const data = g.getImageData(0, 0, cw, ch);
+    for (let i = 3; i < data.data.length; i += 4) data.data[i] = data.data[i] >= 128 ? 255 : 0;
+    g.putImageData(data, 0, 0);
+
     canvas.width = cw * PREVIEW_SCALE; canvas.height = ch * PREVIEW_SCALE;
     canvas.style.width = canvas.width + "px"; canvas.style.height = canvas.height + "px";
     const ctx = canvas.getContext("2d");
+    ctx.imageSmoothingEnabled = false;
     ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--panel-2").trim();
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    const paint = (img, ox, oy) => {
-      for (let y = 0; y < img.h; y++) for (let x = 0; x < img.w; x++) {
-        const c = img.px[y * img.w + x];
-        if (c) { ctx.fillStyle = c; ctx.fillRect((ox + x) * PREVIEW_SCALE, (oy + y) * PREVIEW_SCALE, PREVIEW_SCALE, PREVIEW_SCALE); }
-      }
-    };
-    const hand = (state.hands[h.id] || {})[state.previewView];
-    const baseGrip = w.grip || { x: Math.floor(weapon.w / 2), y: Math.floor(weapon.h / 2) };
-    const grip = w.flip ? { x: weapon.w - 1 - baseGrip.x, y: baseGrip.y } : baseGrip;
-    const anchor = hand || { x: Math.floor(body.w / 2), y: Math.floor(body.h * 0.6) };
-    const wx = HAND_MARGIN + anchor.x - grip.x, wy = HAND_MARGIN + anchor.y - grip.y;
-    if (w.layer === "back") paint(weapon, wx, wy);
-    paint(body, HAND_MARGIN, HAND_MARGIN);
-    if (w.layer !== "back") paint(weapon, wx, wy);
+    ctx.drawImage(small, 0, 0, canvas.width, canvas.height);
     if (hand) {
       ctx.strokeStyle = "#7fe0ff"; ctx.lineWidth = 2;
       ctx.strokeRect((HAND_MARGIN + hand.x) * PREVIEW_SCALE, (HAND_MARGIN + hand.y) * PREVIEW_SCALE, PREVIEW_SCALE, PREVIEW_SCALE);
     }
+    const readout = document.getElementById("poseReadout");
+    if (readout) readout.textContent = "Giro " + pose.rot + "° · Tamaño ×" + pose.scale + (pose.flip ? " · volteada" : "") + " · " + (pose.layer === "back" ? "detrás" : "delante");
+    const flip = document.getElementById("flip-toggle");
+    if (flip) flip.setAttribute("aria-pressed", String(pose.flip));
+    const layer = document.getElementById("layer-toggle");
+    if (layer) layer.textContent = pose.layer === "back" ? "Detrás" : "Delante";
     const hint = document.getElementById("handHint");
     const missing = [];
-    if (!hand) missing.push("marca la mano de " + h.name + " (" + (state.previewView === "front" ? "frente" : "lado") + ") con un clic");
+    if (!hand) missing.push("marca la mano de " + h.name + " (" + (view === "front" ? "frente" : "lado") + ") con un clic");
     if (!w.grip) missing.push("marca el agarre del arma con la herramienta Agarre (A)");
-    hint.textContent = missing.length ? "Falta: " + missing.join(" y ") + "." : "Listo: así la llevará en el juego.";
+    hint.textContent = missing.length ? "Falta: " + missing.join(" y ") + "." : "Listo: así la llevará en el juego (" + (view === "front" ? "de frente" : "de lado") + ").";
   }
 
   // ---------- pixel editor ----------
