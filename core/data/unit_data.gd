@@ -11,6 +11,11 @@ enum ResourceKind {
 	RAGE,  ## Starts at 0, earned by hitting and being hit, boosts damage (warrior, assassin).
 }
 
+## Where the second dual weapon peeks out in the side view, from the main hand
+## (behind the body: a pixel back and two up).
+const OFF_HAND_SIDE_OFFSET := Vector2i(-1, -2)
+const NO_HAND := Vector2i(-1, -1)
+
 @export var id: StringName = &""
 @export var display_name: String = ""
 ## Abbreviation shown in the turn queue. Empty = first 3 letters of the name.
@@ -63,6 +68,18 @@ enum ResourceKind {
 ## The first BASIC one is the default attack.
 @export var skills: Array[SkillData] = []
 
+@export_group("Weapon")
+## Weapon carried from the start (drawn in the hand, see WeaponData).
+@export var weapon: WeaponData
+## Hand pixel in [member sprite] / [member sprite_side] (y down), marked in
+## the armory. (-1, -1) = no hand marked: the weapon is not drawn in that view.
+@export var hand_front: Vector2i = Vector2i(-1, -1)
+@export var hand_side: Vector2i = Vector2i(-1, -1)
+## Other hand, for dual weapons. (-1, -1) = automatic: mirrored across the
+## sprite in the front view, [member OFF_HAND_SIDE_OFFSET] in the side view.
+@export var off_hand_front: Vector2i = Vector2i(-1, -1)
+@export var off_hand_side: Vector2i = Vector2i(-1, -1)
+
 @export_group("Momentum")
 ## Max HP (and current HP) gained per cell walked in combat (sand elementals).
 @export_range(0, 50) var hp_per_cell_moved: int = 0
@@ -83,6 +100,25 @@ enum ResourceKind {
 @export_group("Rewards")
 @export_range(0, 999) var xp_reward: int = 10
 @export_range(0, 999) var gold_reward: int = 3
+
+
+## Hand pixel for the view, or [constant NO_HAND].
+func get_hand(side_view: bool) -> Vector2i:
+	return hand_side if side_view else hand_front
+
+
+## Hand holding the second copy of a dual weapon. [param sprite_width] is the
+## width of the sprite of that view.
+func get_off_hand(side_view: bool, sprite_width: int) -> Vector2i:
+	var manual := off_hand_side if side_view else off_hand_front
+	if manual != NO_HAND:
+		return manual
+	var hand := get_hand(side_view)
+	if hand == NO_HAND:
+		return NO_HAND
+	if side_view:
+		return hand + OFF_HAND_SIDE_OFFSET
+	return Vector2i(sprite_width - 1 - hand.x, hand.y)
 
 
 func get_short_name() -> String:

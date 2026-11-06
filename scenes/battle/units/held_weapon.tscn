@@ -1,0 +1,28 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/battle/units/held_weapon.gd" id="1_script"]
+[ext_resource type="Shader" path="res://assets/shaders/held_weapon.gdshader" id="2_shader"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_weapon"]
+render_priority = 0
+shader = ExtResource("2_shader")
+shader_parameter/weapon_size = null
+shader_parameter/grip = null
+shader_parameter/body_size = null
+shader_parameter/hand = null
+shader_parameter/rotation = null
+shader_parameter/weapon_scale = null
+shader_parameter/flip = null
+shader_parameter/body_flip = null
+shader_parameter/pixel_size = null
+shader_parameter/depth_bias = null
+shader_parameter/tint = null
+
+[sub_resource type="QuadMesh" id="QuadMesh_weapon"]
+
+[node name="HeldWeapon" type="MeshInstance3D"]
+cast_shadow = 0
+extra_cull_margin = 4.0
+material_override = SubResource("ShaderMaterial_weapon")
+mesh = SubResource("QuadMesh_weapon")
+script = ExtResource("1_script")

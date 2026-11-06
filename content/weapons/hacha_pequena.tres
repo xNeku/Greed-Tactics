@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="WeaponData" format=3]
+
+[ext_resource type="Script" path="res://core/data/weapon_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://core/data/weapon_pose.gd" id="2_pose"]
+[ext_resource type="Texture2D" path="res://assets/sprites/weapons/hacha_pequena.png" id="3_sprite"]
+
+[sub_resource type="Resource" id="Pose_front"]
+script = ExtResource("2_pose")
+flip = true
+
+[sub_resource type="Resource" id="Pose_side"]
+script = ExtResource("2_pose")
+flip = true
+behind = true
+
+[resource]
+script = ExtResource("1_script")
+id = &"hacha_pequena"
+display_name = "Hacha de leñador"
+kind = 5
+description = "Hacha pequeña y mellada. Arma inicial: poca cosa, para que luego se note la diferencia."
+sprite = ExtResource("3_sprite")
+grip = Vector2i(12, 10)
+front_pose = SubResource("Pose_front")
+side_pose = SubResource("Pose_side")

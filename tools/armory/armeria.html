@@ -544,6 +544,14 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
       btn("flip-toggle", "Voltear", "Espejo horizontal", tweak(p => { p.flip = !p.flip; })),
       btn("layer-toggle", "Delante", "Delante o detrás del cuerpo", tweak(p => { p.layer = p.layer === "back" ? "front" : "back"; })),
       btn("pose-reset", "Restablecer", "Sin giro, tamaño ×1", tweak(p => { p.rot = 0; p.scale = 1; p.flip = false; p.layer = "front"; })),
+      el("span", { class: "sep" }),
+      btn("dual-toggle", "Doble", "Una en cada mano: la segunda es el espejo de la primera", () => { w.dual = !isDual(w); state.markOff = false; scheduleSave(w); drawHandPreview(); }),
+      btn("off-mark", "Marcar 2ª mano", "El siguiente clic marca la otra mano (si no, se coloca sola)", () => { state.markOff = !state.markOff; drawHandPreview(); }),
+      btn("off-auto", "2ª mano automática", "Olvida la 2ª mano marcada: espejo de frente, asomando detrás de lado", () => {
+        const hands = state.hands[state.previewHero];
+        if (hands) { delete hands[state.previewView + "_off"]; saveHand(state.previewHero); }
+        state.markOff = false; drawHandPreview();
+      }),
       el("span", { class: "pose-readout", id: "poseReadout" }));
     const canvas = el("canvas", { id: "handCanvas", "aria-label": "Prueba del arma en la mano: haz clic en la mano del héroe" });
     const hint = el("p", { class: "hint", id: "handHint" });
@@ -554,7 +562,9 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
       const px = Math.floor((e.clientX - r.left) / PREVIEW_SCALE) - HAND_MARGIN;
       const py = Math.floor((e.clientY - r.top) / PREVIEW_SCALE) - HAND_MARGIN;
       state.hands[hero.id] = state.hands[hero.id] || {};
-      state.hands[hero.id][state.previewView] = { x: px, y: py };
+      const slot = state.markOff && isDual(w) ? state.previewView + "_off" : state.previewView;
+      state.hands[hero.id][slot] = { x: px, y: py };
+      state.markOff = false;
       saveHand(hero.id);
       drawHandPreview();
     });
@@ -565,6 +575,20 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
       el("div", { class: "hand-stage" }, canvas), hint);
   }
   const HAND_MARGIN = 14;
+  // Daggers and pistols go one in each hand unless the weapon says otherwise.
+  const DUAL_TYPES = ["Daga", "Pistola"];
+  function isDual(w) { return typeof w.dual === "boolean" ? w.dual : DUAL_TYPES.includes(w.type); }
+  // Same rule as UnitData.get_off_hand in the game: mirrored across the sprite
+  // in the front view, a pixel back and two up (behind the body) in the side view.
+  function offHand(hands, view, hand, body) {
+    if (hands && hands[view + "_off"]) return hands[view + "_off"];
+    if (!hand) return null;
+    return view === "front" ? { x: body.w - 1 - hand.x, y: hand.y } : { x: hand.x - 1, y: hand.y - 2 };
+  }
+  function offPose(pose, view) {
+    if (view === "front") return { rot: (360 - pose.rot) % 360, scale: pose.scale, flip: !pose.flip, layer: pose.layer };
+    return Object.assign({}, pose, { layer: "back" });
+  }
   function getPose(w, view) {
     w.pose = w.pose || {};
     if (!w.pose[view]) w.pose[view] = { rot: 0, scale: 1, flip: !!w.flip, layer: w.layer || "front" };
@@ -603,32 +627,43 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
     const grip = w.grip || { x: Math.floor(weapon.w / 2), y: Math.floor(weapon.h / 2) };
     const anchor = hand || { x: Math.floor(body.w / 2), y: Math.floor(body.h * 0.6) };
     const weaponCanvas = spriteCanvas(weapon);
-    const drawWeapon = () => {
+    const drawWeapon = (at, p) => {
       ctx.save();
-      ctx.translate((HAND_MARGIN + anchor.x + 0.5) * S, (HAND_MARGIN + anchor.y + 0.5) * S);
-      ctx.rotate(pose.rot * Math.PI / 180);
-      ctx.scale(S * pose.scale * (pose.flip ? -1 : 1), S * pose.scale);
+      ctx.translate((HAND_MARGIN + at.x + 0.5) * S, (HAND_MARGIN + at.y + 0.5) * S);
+      ctx.rotate(p.rot * Math.PI / 180);
+      ctx.scale(S * p.scale * (p.flip ? -1 : 1), S * p.scale);
       ctx.drawImage(weaponCanvas, -grip.x - 0.5, -grip.y - 0.5);
       ctx.restore();
     };
-    if (pose.layer === "back") drawWeapon();
+    const dual = isDual(w);
+    const copies = [[anchor, pose]];
+    const off = dual ? offHand(state.hands[h.id], view, hand, body) : null;
+    if (off) copies.push([off, offPose(pose, view)]);
+    for (const [at, p] of copies) if (p.layer === "back") drawWeapon(at, p);
     ctx.drawImage(spriteCanvas(body), HAND_MARGIN * S, HAND_MARGIN * S, body.w * S, body.h * S);
-    if (pose.layer !== "back") drawWeapon();
-    if (hand) {
-      ctx.strokeStyle = "#7fe0ff"; ctx.lineWidth = 2;
-      ctx.strokeRect((HAND_MARGIN + hand.x) * S, (HAND_MARGIN + hand.y) * S, S, S);
-    }
+    for (const [at, p] of copies) if (p.layer !== "back") drawWeapon(at, p);
+    const mark = (at, color) => { ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.strokeRect((HAND_MARGIN + at.x) * S, (HAND_MARGIN + at.y) * S, S, S); };
+    if (hand) mark(hand, "#7fe0ff");
+    if (off) mark(off, "#ffb86b");
     const readout = document.getElementById("poseReadout");
     if (readout) readout.textContent = "Giro " + pose.rot + "° · Tamaño ×" + pose.scale + (pose.flip ? " · volteada" : "") + " · " + (pose.layer === "back" ? "detrás" : "delante");
     const flip = document.getElementById("flip-toggle");
     if (flip) flip.setAttribute("aria-pressed", String(pose.flip));
     const layer = document.getElementById("layer-toggle");
     if (layer) layer.textContent = pose.layer === "back" ? "Detrás" : "Delante";
+    const dualBtn = document.getElementById("dual-toggle");
+    if (dualBtn) dualBtn.setAttribute("aria-pressed", String(dual));
+    const offMark = document.getElementById("off-mark");
+    if (offMark) { offMark.disabled = !dual; offMark.setAttribute("aria-pressed", String(!!state.markOff)); }
+    const offAuto = document.getElementById("off-auto");
+    if (offAuto) offAuto.disabled = !dual || !(state.hands[h.id] || {})[view + "_off"];
     const hint = document.getElementById("handHint");
     const missing = [];
     if (!hand) missing.push("marca la mano de " + h.name + " (" + (view === "front" ? "frente" : "lado") + ") con un clic");
     if (!w.grip) missing.push("marca el agarre del arma con la herramienta Agarre (A)");
-    hint.textContent = missing.length ? "Falta: " + missing.join(" y ") + "." : "Listo: así la llevará en el juego (" + (view === "front" ? "de frente" : "de lado") + ").";
+    hint.textContent = state.markOff ? "Haz clic en la otra mano (la segunda arma)."
+      : missing.length ? "Falta: " + missing.join(" y ") + "."
+      : "Listo: así la llevará en el juego (" + (view === "front" ? "de frente" : "de lado") + ")." + (dual ? " La segunda (marco naranja) es su espejo; puedes marcar su mano a mano." : "");
   }
 
   // ---------- pixel editor ----------

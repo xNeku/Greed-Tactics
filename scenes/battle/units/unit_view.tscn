@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" path="res://scenes/battle/units/damage_popup.tscn" id="2_popup"]
 [ext_resource type="Shader" path="res://assets/shaders/disc.gdshader" id="3_disc"]
 [ext_resource type="FontFile" path="res://assets/fonts/Nunito-ExtraBold.ttf" id="4_font"]
+[ext_resource type="PackedScene" path="res://scenes/battle/units/held_weapon.tscn" id="5_weapon"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_aura"]
 render_priority = 0
@@ -52,6 +53,7 @@ size = Vector3(0.22, 0.16, 0.03)
 [node name="UnitView" type="Node3D"]
 script = ExtResource("1_view")
 damage_popup_scene = ExtResource("2_popup")
+held_weapon_scene = ExtResource("5_weapon")
 
 [node name="AuraDisc" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0)

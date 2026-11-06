@@ -368,6 +368,8 @@ Fases: CAST → movimiento → ARRIVE → IMPACT (por golpe) → END, y al final
 - Cada arma define un playstyle (espada: control y golpes cortos; hacha: área y daño lento) y ofrece una estética propia.
 - Cada arma lleva **1 modificador de arma** que afecta a sus etiquetas (ej. el hacha tiene `basico` + `melee`). Usa el mismo sistema de la sección 5.
 - Las armas son permanentes una vez desbloqueadas.
+- **[Decidido v0.8.1] Se dibujan en la mano.** Cada arma es su propio sprite (`WeaponData`) con su punto de agarre y una pose por vista (frente/lado: giro, tamaño, espejo, delante o detrás del cuerpo). Cada héroe marca su mano en cada vista (`UnitData.hand_front/hand_side`). En combate el arma se gira y escala entera, sin deformar sus píxeles, y sigue al personaje (espejo, parpadeos, desvanecerse). Todo se coloca en la **Armería** y se importa con `tools/armory/import_weapons.py`.
+- **[Decidido v0.8.1] Armas dobles:** dagas y pistolas van una en cada mano. La segunda es el espejo de la primera de frente y asoma detrás del cuerpo de lado (un píxel atrás y dos arriba); se puede marcar su mano a mano en la Armería. Puños y Manos (magia) no se dibujan.
 
 **Gambling de desbloqueo (propuesta v0.1):**
 
@@ -555,6 +557,7 @@ Cada hito tiene un criterio de salida. No se pasa al siguiente sin cumplirlo.
 
 ## Changelog
 
+- **v0.8.1 (Nov 6, 2026)** — Las armas de la Armería entran en el juego: `WeaponData` con sprite, agarre y pose por vista; cada héroe lleva la suya en la mano (Nyx dos dagas, Grizka dos pistolas, Sigrid el hacha, Elara el mandoble, Pablo el arco; Kael, Lyra y Tohil sin arma dibujada). Armas dobles con la segunda en espejo. Armería: botón «Doble», segunda arma en la prueba y «Marcar 2ª mano». Grizka lleva las pistolas apuntando abajo de frente (cruzadas por la barriga se tapaban la una a la otra).
 - **v0.8 (Nov 6, 2026)** — Coreografías de habilidades: cielo, cámara, tiempo, luces dinámicas, partículas pixeladas, ondas, proyectiles con estela y efectos de pantalla, como datos. Muestra con 4 habilidades (2 cuerpo a cuerpo, 1 magia, 1 distancia).
 - **v0.7.1 (Nov 5, 2026)** — El protagonista pasa a tener +1 PM y +1 PA siempre (fuera el bonus de vida y daño). IA de combos (daño esperado con críticos, preparar estados que los aliados explotan) y prioridad a sanadores y al protagonista. Armería: artefacto para dibujar armas, marcar el agarre y la mano de cada héroe y definir sus cualidades.
 - **v0.7 (Nov 5, 2026)** — Nuevo bucle de run (decisión de Neku): un protagonista, reclutas que controlas tú, mapa de etapa con bifurcaciones (combate, élite, reclutar, descanso, miniboss), objetivos opcionales (proteger la carreta, escapar), Lobo solitario, modificadores solo para el protagonista, mapas y enemigos según el tamaño del grupo. Pantallas nuevas: mapa de run con caminos, reclutar; menú de protagonista; panel de objetivo y estrella del protagonista en combate. Arreglado: la semilla de la run ya da siempre el mismo mapa.

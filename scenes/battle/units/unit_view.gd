@@ -16,6 +16,7 @@ const RAGE_COLOR := Color(1.0, 0.45, 0.35)
 @export var step_duration := 0.14
 @export var hop_height := 0.3
 @export var damage_popup_scene: PackedScene
+@export var held_weapon_scene: PackedScene
 
 @onready var _body: Node3D = $Body
 @onready var _sprite: AnimatedSprite3D = $Body/Sprite
@@ -35,6 +36,8 @@ var _label_base_y := 0.0
 var _icons_base_y := 0.0
 ## Sprite colour when not flashing: white, or tinted by the strongest status.
 var _base_modulate := Color.WHITE
+## Weapon drawn in the hand (two for dual weapons).
+var _held_weapons: Array[HeldWeapon] = []
 
 
 func setup(p_unit: UnitState, map_view: BattleMapView, camera: Camera3D) -> void:
@@ -48,6 +51,7 @@ func setup(p_unit: UnitState, map_view: BattleMapView, camera: Camera3D) -> void
 	_sprite.animation_finished.connect(_on_animation_finished)
 	_play_state(&"idle")
 	_sprite.pixel_size *= unit.data.sprite_scale
+	_setup_weapon()
 	_info_label.position.y *= unit.data.sprite_scale
 	_status_icons.position.y *= unit.data.sprite_scale
 	_label_base_y = _info_label.position.y
@@ -60,6 +64,7 @@ func setup(p_unit: UnitState, map_view: BattleMapView, camera: Camera3D) -> void
 func _process(_delta: float) -> void:
 	_update_sprite_flip()
 	_compensate_camera_pitch()
+	_update_weapons()
 
 
 ## Snaps position, facing and labels to the current state, without animating.
@@ -410,6 +415,27 @@ func _update_sprite_flip() -> void:
 			_sprite.flip_h = screen_x < 0.0
 	else:
 		_sprite.flip_h = false
+
+
+## The starting weapon of the unit in its hand(s), if it is drawn.
+func _setup_weapon() -> void:
+	var weapon := unit.data.weapon
+	if weapon == null or not weapon.is_drawn() or held_weapon_scene == null:
+		return
+	for off_hand in ([false, true] if weapon.dual else [false]):
+		var held: HeldWeapon = held_weapon_scene.instantiate()
+		_sprite.add_child(held)
+		held.setup(weapon, unit.data, off_hand)
+		_held_weapons.append(held)
+
+
+func _update_weapons() -> void:
+	if _held_weapons.is_empty():
+		return
+	var frame := _sprite.sprite_frames.get_frame_texture(_sprite.animation, _sprite.frame)
+	var side_view := _view == &"side"
+	for held in _held_weapons:
+		held.follow(_sprite, frame, side_view, _sprite.flip_h)
 
 
 ## The sprite is a vertical (Y-fixed) billboard and the camera looks down at

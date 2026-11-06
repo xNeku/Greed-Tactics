@@ -7,6 +7,7 @@
 [ext_resource type="Resource" path="res://content/skills/mage/ice_lance.tres" id="4_ice_lance"]
 [ext_resource type="Resource" path="res://content/skills/mage/fireball.tres" id="5_fireball"]
 [ext_resource type="Resource" path="res://content/skills/mage/blink.tres" id="6_blink"]
+[ext_resource type="Resource" path="res://content/weapons/baston_de_lyra.tres" id="w_weapon"]
 
 [resource]
 script = ExtResource("1_script")
@@ -27,3 +28,4 @@ hp_per_level = 6
 mp_per_level = 4
 attack_per_level = 3
 skills = Array[ExtResource("2_yxhwp")]([ExtResource("3_arcane_bolt"), ExtResource("4_ice_lance"), ExtResource("5_fireball"), ExtResource("6_blink")])
+weapon = ExtResource("w_weapon")

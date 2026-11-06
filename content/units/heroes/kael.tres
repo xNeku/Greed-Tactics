@@ -9,6 +9,7 @@
 [ext_resource type="Resource" path="res://content/skills/warrior/tackle.tres" id="6_charge"]
 [ext_resource type="Texture2D" path="res://assets/sprites/units/kael_side.png" id="80_side"]
 [ext_resource type="SpriteFrames" path="res://content/units/heroes/kael_frames.tres" id="81_frames"]
+[ext_resource type="Resource" path="res://content/weapons/punos_de_kael.tres" id="w_weapon"]
 
 [resource]
 script = ExtResource("1_script")
@@ -30,3 +31,4 @@ hp_per_level = 12
 attack_per_level = 3
 defense_per_level = 2
 skills = Array[ExtResource("2_gymct")]([ExtResource("3_strike"), ExtResource("4_axe_throw"), ExtResource("5_whirlwind"), ExtResource("6_charge")])
+weapon = ExtResource("w_weapon")

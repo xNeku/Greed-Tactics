@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="WeaponData" format=3]
+
+[ext_resource type="Script" path="res://core/data/weapon_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://core/data/weapon_pose.gd" id="2_pose"]
+[ext_resource type="Texture2D" path="res://assets/sprites/weapons/espada_corta.png" id="3_sprite"]
+
+[sub_resource type="Resource" id="Pose_front"]
+script = ExtResource("2_pose")
+rotation_degrees = -15.0
+
+[sub_resource type="Resource" id="Pose_side"]
+script = ExtResource("2_pose")
+rotation_degrees = 105.0
+behind = true
+
+[resource]
+script = ExtResource("1_script")
+id = &"espada_corta"
+display_name = "Espada corta"
+description = "Espada sencilla de hierro. Arma inicial genérica."
+sprite = ExtResource("3_sprite")
+grip = Vector2i(16, 15)
+front_pose = SubResource("Pose_front")
+side_pose = SubResource("Pose_side")

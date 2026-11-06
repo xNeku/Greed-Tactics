@@ -8,6 +8,7 @@
 [ext_resource type="Resource" path="res://content/skills/barbarian/axe_hurl.tres" id="5_s"]
 [ext_resource type="Resource" path="res://content/skills/barbarian/blood_whirl.tres" id="6_s"]
 [ext_resource type="Resource" path="res://content/skills/barbarian/crushing_leap.tres" id="7_s"]
+[ext_resource type="Resource" path="res://content/weapons/hachas_de_sigrid.tres" id="w_weapon"]
 
 [resource]
 script = ExtResource("1_script")
@@ -29,3 +30,6 @@ crit_chance = 10
 hp_per_level = 11
 attack_per_level = 3
 skills = Array[ExtResource("2_c75y0")]([ExtResource("4_s"), ExtResource("5_s"), ExtResource("6_s"), ExtResource("7_s")])
+weapon = ExtResource("w_weapon")
+hand_front = Vector2i(10, 19)
+hand_side = Vector2i(9, 19)

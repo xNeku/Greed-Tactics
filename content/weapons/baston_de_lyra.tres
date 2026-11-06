@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="WeaponData" format=3]
+
+[ext_resource type="Script" path="res://core/data/weapon_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"baston_de_lyra"
+display_name = "Manos desnudas"
+kind = 12
+description = "Lyra empieza sin bastón: lanza la magia con las manos."

@@ -8,6 +8,7 @@
 [ext_resource type="Resource" path="res://content/skills/shaman/totem_throw.tres" id="5_s"]
 [ext_resource type="Resource" path="res://content/skills/shaman/ember_rain.tres" id="6_s"]
 [ext_resource type="Resource" path="res://content/skills/shaman/smoke_step.tres" id="7_s"]
+[ext_resource type="Resource" path="res://content/weapons/baston_de_tohil.tres" id="w_weapon"]
 
 [resource]
 script = ExtResource("1_script")
@@ -27,3 +28,4 @@ evasion = 10
 hp_per_level = 7
 mp_per_level = 4
 skills = Array[ExtResource("2_4fgtj")]([ExtResource("4_s"), ExtResource("5_s"), ExtResource("6_s"), ExtResource("7_s")])
+weapon = ExtResource("w_weapon")

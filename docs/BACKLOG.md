@@ -17,7 +17,7 @@ El estado por hito está en [`ROADMAP.md`](ROADMAP.md).
 | GT-260 | Importador del taller: los sprites ya se importan (`tools/hero_workshop/import_sheets.py`); falta pasar armas, pasivas y desbloqueables cuando existan en el juego | M4 | P1 | 🟡 |
 | GT-276 | Casillas de tienda y de evento en el mapa de run (gastar oro, decisiones con riesgo) | M2 | P1 | ⬜ |
 | GT-282 | Coreografías para el resto de habilidades (enemigos y jefes incluidos), anticipación y animaciones de lanzamiento por personaje | M5 | P1 | ⬜ |
-| GT-277 | Armas en el juego: importar de la Armería (sprite + agarre + mano), ataque básico, pasiva y estadísticas; botín en la run y desbloqueo permanente | M4 | P1 | ⬜ |
+| GT-277 | Armas en el juego: ataque básico, pasiva y estadísticas del arma; botín en la run y desbloqueo permanente (el dibujo en la mano ya está: GT-284) | M4 | P1 | ⬜ |
 | GT-280 | Equipamiento de habilidades: elegir qué habilidades llevas (y así qué modificadores te salen) | M3 | P1 | ⬜ |
 | GT-278 | Más objetivos de combate (matar al líder, aguantar X turnos) y que la IA enemiga persiga la carreta / tape la salida | M2 | P2 | ⬜ |
 | GT-274 | Varios golpes por habilidad suman el ataque entero en cada golpe: revisar si los golpes extra deben escalar menos (afecta a Sigrid, Kael, luchador, berserker) | M5 | P2 | ⬜ |
@@ -91,6 +91,7 @@ El estado por hito está en [`ROADMAP.md`](ROADMAP.md).
 | GT-241 | Kael camorrista: kit a puños, sprites de frente/lado y animaciones (idle, andar, puñetazo, golpe) | M4 | 2026-11-03 |
 | GT-242 | Sprite de Pablo de Neku: más delgado, moño frontal, aros dorados pegados a la oreja (sin tribales, v0.5.1); frente + lado | M4 | 2026-11-03 |
 | GT-243 | Terrenos con textura procedural, decoración, niebla, sol, glow, partículas por zona, viñeta | M5 | 2026-11-03 |
+| GT-284 | Armas de la Armería en el juego: `WeaponData` + pose por vista, dibujadas en la mano (shader que gira sin deformar), armas dobles en espejo, importador `tools/armory/import_weapons.py` | M4 | 2026-11-06 |
 | GT-283 | Armería por tipos de arma + 7 armas iniciales de Neku (sprites ajustados a escala, agarre estimado, voltear en la prueba); magos con «Manos (magia)» | M4 | 2026-11-06 |
 | GT-281 | v0.8: sistema de coreografías de efectos + 4 habilidades de muestra (Tiro certero, Lluvia de brasas, Salto aplastante, Paso sombrío) y grabador `tools/vfx_showcase.gd` | M5 | 2026-11-06 |
 | GT-279 | v0.7.1: protagonista +1 PM/+1 PA, IA de combos y prioridad a sanadores/protagonista, Armería (artefacto) | M2 | 2026-11-05 |

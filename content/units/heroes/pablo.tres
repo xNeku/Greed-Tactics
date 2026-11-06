@@ -8,6 +8,7 @@
 [ext_resource type="Resource" path="res://content/skills/archer/arrow_rain.tres" id="5_arrow_rain"]
 [ext_resource type="Resource" path="res://content/skills/archer/roll.tres" id="6_roll"]
 [ext_resource type="Texture2D" path="res://assets/sprites/units/pablo_side.png" id="80_side"]
+[ext_resource type="Resource" path="res://content/weapons/arco_de_pablo.tres" id="w_weapon"]
 
 [resource]
 script = ExtResource("1_script")
@@ -27,3 +28,6 @@ evasion = 15
 crit_chance = 10
 attack_per_level = 3
 skills = Array[ExtResource("2_nhvev")]([ExtResource("3_shot"), ExtResource("4_aimed_shot"), ExtResource("5_arrow_rain"), ExtResource("6_roll")])
+weapon = ExtResource("w_weapon")
+hand_front = Vector2i(15, 21)
+hand_side = Vector2i(13, 19)
