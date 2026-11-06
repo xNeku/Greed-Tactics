@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="UnitData" format=3]
 
+[ext_resource type="Script" path="res://core/data/modifier_data.gd" id="1_mxrc4"]
 [ext_resource type="Script" path="res://core/data/unit_data.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/sprites/units/paladin.png" id="2_r"]
 [ext_resource type="Texture2D" path="res://assets/sprites/units/paladin_side.png" id="3_r"]
@@ -30,6 +31,7 @@ hp_per_level = 12
 mp_per_level = 4
 attack_per_level = 3
 skills = Array[ExtResource("4_r")]([ExtResource("5_r"), ExtResource("6_r"), ExtResource("7_r"), ExtResource("8_r")])
+aura_colors = PackedColorArray()
 weapon = ExtResource("w_weapon")
 hand_front = Vector2i(15, 20)
 hand_side = Vector2i(11, 20)

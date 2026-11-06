@@ -6,6 +6,8 @@
 [ext_resource type="FontFile" path="res://assets/fonts/Nunito-ExtraBold.ttf" id="4_font"]
 [ext_resource type="PackedScene" path="res://scenes/battle/units/held_weapon.tscn" id="5_weapon"]
 [ext_resource type="PackedScene" path="res://scenes/battle/units/health_bar.tscn" id="6_bar"]
+[ext_resource type="PackedScene" path="res://scenes/battle/units/unit_aura.tscn" id="7_aura"]
+[ext_resource type="PackedScene" path="res://scenes/battle/units/eye_glow.tscn" id="8_eyes"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_aura"]
 render_priority = 0
@@ -83,6 +85,8 @@ mesh = SubResource("PrismMesh_arrow")
 
 [node name="Body" type="Node3D" parent="."]
 
+[node name="Aura" parent="Body" instance=ExtResource("7_aura")]
+
 [node name="Sprite" type="AnimatedSprite3D" parent="Body"]
 cast_shadow = 0
 pixel_size = 0.036
@@ -105,6 +109,8 @@ font = ExtResource("4_font")
 font_size = 30
 outline_size = 10
 line_spacing = -4.0
+
+[node name="Eyes" parent="Body/Sprite" instance=ExtResource("8_eyes")]
 
 [node name="HealthBar" parent="Body" instance=ExtResource("6_bar")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.14, 0)

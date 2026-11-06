@@ -71,15 +71,23 @@ static func from_setup(setup: BattleSetup, p_rules: RulesConfig) -> CombatState:
 	for i in players.size():
 		# In a run, modifiers belong to the protagonist only.
 		if not setup.has_protagonist or i == 0:
-			players[i].modifiers = setup.player_modifiers.duplicate()
+			players[i].modifiers.append_array(setup.player_modifiers)
 		if i < setup.player_hp.size() and setup.player_hp[i] > 0:
 			players[i].hp = mini(setup.player_hp[i], players[i].max_hp)
 	if setup.has_protagonist and not players.is_empty():
 		players[0].is_protagonist = true
 		players[0].move_points += setup.protagonist_move_bonus
 		players[0].action_points += setup.protagonist_action_bonus
-	combat._spawn_team(setup.enemy_units, setup.map.enemy_spawns, UnitState.Team.ENEMY,
+	var enemies := combat._spawn_team(setup.enemy_units, setup.map.enemy_spawns, UnitState.Team.ENEMY,
 		setup.enemy_level, setup.enemy_stat_scale)
+	# Elites: the first non-boss enemies, tougher and wearing an aura.
+	var elites := setup.elite_count
+	for enemy in enemies:
+		if elites <= 0:
+			break
+		if not enemy.data.is_boss() and not enemy.is_structure():
+			enemy.make_elite(p_rules.elite_hp_percent, p_rules.elite_attack_percent)
+			elites -= 1
 	combat._setup_objective(setup, players)
 	return combat
 

@@ -12,6 +12,10 @@ const DAMAGE_COLOR := Color(1.0, 1.0, 1.0)
 const CRIT_COLOR := Color(1.0, 0.75, 0.2)
 const HEAL_COLOR := Color(0.45, 1.0, 0.55)
 const RAGE_COLOR := Color(1.0, 0.45, 0.35)
+## Aura colours, outer -> inner.
+const BOSS_AURA: PackedColorArray = [Color(1.0, 0.22, 0.05), Color(1.0, 0.6, 0.12), Color(1.0, 0.95, 0.6)]
+const ELITE_AURA: PackedColorArray = [Color(0.62, 0.22, 1.0), Color(0.85, 0.55, 1.0)]
+const RAGE_AURA: PackedColorArray = [Color(1.0, 0.1, 0.05), Color(1.0, 0.42, 0.18)]
 
 @export var step_duration := 0.14
 @export var hop_height := 0.3
@@ -26,6 +30,8 @@ const RAGE_COLOR := Color(1.0, 0.45, 0.35)
 @onready var _status_icons: Node3D = $Body/StatusIcons
 @onready var _aura_disc: GeometryInstance3D = $AuraDisc
 @onready var _health_bar: HealthBar = $Body/HealthBar
+@onready var _aura: UnitAura = $Body/Aura
+@onready var _eyes: EyeGlow = $Body/Sprite/Eyes
 
 var unit: UnitState
 var _map: BattleMapView
@@ -73,6 +79,7 @@ func _process(_delta: float) -> void:
 	_update_sprite_flip()
 	_compensate_camera_pitch()
 	_update_weapons()
+	_update_eyes()
 	# Name over the bar only while the bar shows.
 	_info_label.visible = _health_bar.visible
 
@@ -94,6 +101,7 @@ func refresh_info() -> void:
 	_info_label.text = "%s%s%s" % [star, unit.display_name, resource]
 	_info_label.modulate = get_team_color().lightened(0.35)
 	_refresh_statuses()
+	_refresh_aura()
 
 
 func get_team_color() -> Color:
@@ -267,6 +275,8 @@ func play_hit(hit: SkillResult.Hit) -> void:
 
 func play_defeat() -> void:
 	_aura_disc.visible = false
+	_aura.show_aura(PackedColorArray(), 0.0, 0.0, false, 1.0, 0.036)
+	_eyes.visible = false
 	_health_bar.set_hp(0, unit.max_hp)
 	_play_state(&"hit")
 	var tween := create_tween().set_parallel()
@@ -471,6 +481,62 @@ func _update_sprite_flip() -> void:
 			_sprite.flip_h = screen_x < 0.0
 	else:
 		_sprite.flip_h = false
+
+
+## Aura from rank (boss: wild multicolour fire with lightning; elite:
+## violet), rage (red, and the eyes glow) and buffs (the buff's colour).
+func _refresh_aura() -> void:
+	if unit == null or not unit.is_alive():
+		_aura.show_aura(PackedColorArray(), 0.0, 0.0, false, 1.0, 0.036)
+		return
+	var colors := PackedColorArray()
+	var strength := 0.0
+	var wildness := 0.0
+	var lightning := false
+	var size := 1.0
+	if unit.data.is_boss():
+		colors = unit.data.aura_colors if not unit.data.aura_colors.is_empty() else BOSS_AURA
+		strength = 1.3
+		wildness = 1.0
+		lightning = unit.data.aura_lightning
+		size = 1.1
+	elif unit.is_elite:
+		colors = ELITE_AURA
+		strength = 0.85
+		wildness = 0.45
+	if unit.is_enraged():
+		if colors.is_empty():
+			colors = RAGE_AURA
+			strength = 1.0
+			wildness = 0.7
+		else:
+			colors = PackedColorArray([RAGE_AURA[0]]) + colors
+			wildness = minf(wildness + 0.3, 1.2)
+	var buffs := unit.get_buffs()
+	if not buffs.is_empty():
+		var buff := buffs[-1].color
+		if colors.is_empty():
+			colors = PackedColorArray([buff, buff.lerp(Color.WHITE, 0.45)])
+			strength = 0.65
+			wildness = 0.3
+		else:
+			colors.append(buff.lerp(Color.WHITE, 0.3))
+	var height := _frame_height() * _sprite.pixel_size * _sprite.scale.y
+	_aura.show_aura(colors.slice(0, 3), strength, wildness, lightning, height, _sprite.pixel_size, size)
+	_eyes.visible = unit.is_enraged() and not (unit.data.eyes_front.is_empty() and unit.data.eyes_side.is_empty())
+
+
+func _frame_height() -> float:
+	var texture := _sprite.sprite_frames.get_frame_texture(_sprite.animation, _sprite.frame)
+	return float(texture.get_height()) if texture != null else 28.0
+
+
+func _update_eyes() -> void:
+	if not _eyes.visible:
+		return
+	var frame := _sprite.sprite_frames.get_frame_texture(_sprite.animation, _sprite.frame)
+	var eyes := unit.data.eyes_side if _view == &"side" else unit.data.eyes_front
+	_eyes.follow(_sprite, frame, eyes, _sprite.flip_h, 0.5 + 0.5 * sin(Time.get_ticks_msec() * 0.006))
 
 
 ## The starting weapon of the unit in its hand(s), if it is drawn.

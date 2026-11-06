@@ -6,6 +6,10 @@ extends VfxStep
 @export_range(0.01, 2.0) var duration := 0.08
 
 
+func is_cinematic() -> bool:
+	return true
+
+
 func run(ctx: ChoreoContext, _at: Vector3) -> void:
 	var previous := Engine.time_scale
 	Engine.time_scale = previous * time_scale

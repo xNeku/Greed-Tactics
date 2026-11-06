@@ -26,7 +26,6 @@ func test_resources_per_class() -> void:
 		kinds[hero.unit_class] = hero.resource_kind
 	assert_eq(kinds["Camorrista"], UnitData.ResourceKind.RAGE)
 	assert_eq(kinds["Asesina"], UnitData.ResourceKind.RAGE)
-	assert_eq(kinds["Maga"], UnitData.ResourceKind.MANA)
 	assert_eq(kinds["Chamán de fuego"], UnitData.ResourceKind.MANA)
 	assert_eq(kinds["Arquero"], UnitData.ResourceKind.NONE)
 
@@ -53,7 +52,7 @@ func test_archer_uses_no_mana_nor_rage() -> void:
 
 func test_zones_are_complete_and_symbols_unique() -> void:
 	var config := _config()
-	assert_eq(config.zones.size(), 3)
+	assert_eq(config.zones.size(), 4, "forest, desert, castle, factory")
 	for zone in config.zones:
 		assert_not_null(zone.floor_terrain, zone.display_name)
 		assert_false(zone.enemy_pool.is_empty(), zone.display_name)
@@ -90,3 +89,12 @@ func test_roster_heroes_follow_the_template() -> void:
 		assert_true(hero.sprite != null, hero.display_name)
 	for hero in config.heroes:
 		assert_has(config.roster, hero)
+
+
+func test_minibosses_are_bosses_with_modifiers_and_aura() -> void:
+	for zone in _config().zones:
+		for boss in zone.miniboss_pool:
+			assert_true(boss.is_boss(), "%s is a boss" % boss.display_name)
+			assert_false(boss.innate_modifiers.is_empty(), "%s has modifiers" % boss.display_name)
+			assert_false(boss.aura_colors.is_empty(), "%s has an aura" % boss.display_name)
+			assert_true(boss.sprite_scale > 1.0, "%s is bigger" % boss.display_name)

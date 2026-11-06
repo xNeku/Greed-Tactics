@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="UnitData" format=3]
 
 [ext_resource type="Script" path="res://core/data/unit_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://core/data/modifier_data.gd" id="1_ywgju"]
 [ext_resource type="Texture2D" path="res://assets/sprites/units/gunner.png" id="2_r"]
 [ext_resource type="Texture2D" path="res://assets/sprites/units/gunner_side.png" id="3_r"]
 [ext_resource type="Script" path="res://core/data/skill_data.gd" id="4_r"]
@@ -30,6 +31,7 @@ crit_chance = 30
 hp_per_level = 6
 attack_per_level = 3
 skills = Array[ExtResource("4_r")]([ExtResource("5_r"), ExtResource("6_r"), ExtResource("7_r"), ExtResource("8_r")])
+aura_colors = PackedColorArray()
 weapon = ExtResource("w_weapon")
 hand_front = Vector2i(17, 19)
 hand_side = Vector2i(10, 18)

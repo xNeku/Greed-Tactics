@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ModifierData" format=3]
+
+[ext_resource type="Script" path="res://core/data/modifier_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"boss_chain"
+display_name = "Maldición encadenada"
+description = "Sus ataques saltan a otros 2 enemigos."
+effect = 2
+value = 0
+limit = 2

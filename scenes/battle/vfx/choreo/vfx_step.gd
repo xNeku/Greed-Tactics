@@ -27,6 +27,12 @@ enum Anchor {
 @export_range(-1.0, 6.0) var height := 0.45
 
 
+## Cinematic beats (sky, camera, time, screen tint) are skipped when the
+## skill plays its short version (repeated uses, see SkillChoreography).
+func is_cinematic() -> bool:
+	return false
+
+
 ## Runs the effect at [param at]. May await (wait = true makes the caller wait).
 func run(_ctx: ChoreoContext, _at: Vector3) -> void:
 	pass

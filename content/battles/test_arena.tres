@@ -5,14 +5,14 @@
 [ext_resource type="Resource" path="res://content/maps/test_arena.tres" id="2_test_arena"]
 [ext_resource type="Resource" path="res://content/units/heroes/kael.tres" id="3_kael"]
 [ext_resource type="Resource" path="res://content/units/heroes/pablo.tres" id="4_pablo"]
-[ext_resource type="Resource" path="res://content/units/enemies/goblin.tres" id="5_goblin"]
-[ext_resource type="Resource" path="res://content/units/enemies/slime.tres" id="6_slime"]
+[ext_resource type="Resource" path="res://content/units/enemies/forest_fighter.tres" id="pu_enemy_units_0"]
+[ext_resource type="Resource" path="res://content/units/enemies/rat.tres" id="pu_enemy_units_1"]
 
 [resource]
 script = ExtResource("1_script")
 title = "Arena de pruebas: vs Goblins"
 map = ExtResource("2_test_arena")
 player_units = Array[ExtResource("1_ku254")]([ExtResource("3_kael"), ExtResource("4_pablo")])
-enemy_units = Array[ExtResource("1_ku254")]([ExtResource("5_goblin"), ExtResource("5_goblin"), ExtResource("6_slime")])
+enemy_units = Array[ExtResource("1_ku254")]([ExtResource("pu_enemy_units_0"), ExtResource("pu_enemy_units_1")])
 player_level = 2
 enemy_level = 2

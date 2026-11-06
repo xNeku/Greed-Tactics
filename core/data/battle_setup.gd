@@ -12,6 +12,8 @@ extends Resource
 @export var enemy_units: Array[UnitData] = []
 ## 0 = random seed each time.
 @export var rng_seed: int = 0
+## How many enemies are elites (tougher, with an aura). Bosses never count.
+@export_range(0, 10) var elite_count: int = 0
 ## Miniboss fight: the map gets a raised dais with stairs for the boss.
 @export var is_boss_battle: bool = false
 ## Lighting mood id of the zone to use (empty = picked from the seed).

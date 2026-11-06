@@ -226,6 +226,10 @@ func start_battle() -> BattleSetup:
 	setup.enemy_stat_scale = 1.0 + stage * config.enemy_scale_per_stage
 	var extra_spawn := 1 if setup.objective == RunMap.Objective.PROTECT else 0
 	setup.is_boss_battle = node != null and node.kind == RunMap.Kind.MINIBOSS and not zone.miniboss_pool.is_empty()
+	if node != null and node.kind == RunMap.Kind.ELITE:
+		setup.elite_count = config.elite_units
+	elif setup.is_boss_battle:
+		setup.elite_count = config.miniboss_elite_adds
 	setup.map = MapGenerator.generate(zone, rules, _rng.randi(), setup.player_units.size() + extra_spawn, setup.enemy_units.size(),
 		_party_value(config.map_scale_by_party, 1.0), setup.is_boss_battle)
 	status = Status.BATTLE

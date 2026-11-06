@@ -12,6 +12,10 @@ extends VfxStep
 @export var hold_tint := false
 
 
+func is_cinematic() -> bool:
+	return true
+
+
 func run(ctx: ChoreoContext, _at: Vector3) -> void:
 	await ctx.screen_fx.pulse(flash_color, flash, aberration, tint_color, tint, duration, hold_tint)
 	if hold_tint:

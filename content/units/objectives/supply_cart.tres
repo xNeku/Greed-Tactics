@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="UnitData" format=3]
 
+[ext_resource type="Script" path="res://core/data/modifier_data.gd" id="1_in16b"]
 [ext_resource type="Script" path="res://core/data/unit_data.gd" id="1_script"]
 [ext_resource type="Script" path="res://core/data/skill_data.gd" id="2_cdj70"]
 [ext_resource type="Texture2D" path="res://assets/sprites/units/supply_cart.png" id="2_sprite"]
@@ -23,6 +24,7 @@ evasion = 0
 crit_chance = 0
 hp_per_level = 10
 attack_per_level = 0
+aura_colors = PackedColorArray()
 is_structure = true
 xp_reward = 0
 gold_reward = 0

@@ -6,10 +6,6 @@
 [ext_resource type="Resource" path="res://content/terrains/cave_floor_dark.tres" id="3_cave_floor_dark"]
 [ext_resource type="Resource" path="res://content/terrains/crystal.tres" id="6_crystal"]
 [ext_resource type="Resource" path="res://content/terrains/water.tres" id="8_water"]
-[ext_resource type="Resource" path="res://content/units/enemies/goblin.tres" id="9_goblin"]
-[ext_resource type="Resource" path="res://content/units/enemies/bat.tres" id="10_bat"]
-[ext_resource type="Resource" path="res://content/units/enemies/slime.tres" id="11_slime"]
-[ext_resource type="Resource" path="res://content/units/enemies/ogre.tres" id="12_ogre"]
 [ext_resource type="PackedScene" path="res://scenes/battle/atmosphere/cave_motes.tscn" id="71_particles"]
 [ext_resource type="Resource" path="res://content/terrains/cave_ledge.tres" id="kit_0"]
 [ext_resource type="Resource" path="res://content/terrains/cave_stairs.tres" id="kit_1"]
@@ -19,6 +15,11 @@
 [ext_resource type="Script" path="res://core/data/terrain_data.gd" id="kit_script"]
 [ext_resource type="Resource" path="res://content/lighting/cave_glow.tres" id="mood_0"]
 [ext_resource type="Script" path="res://core/data/lighting_mood.gd" id="mood_script"]
+[ext_resource type="Resource" path="res://content/units/enemies/rat_small.tres" id="pu_enemy_pool_0"]
+[ext_resource type="Resource" path="res://content/units/enemies/rat.tres" id="pu_enemy_pool_1"]
+[ext_resource type="Resource" path="res://content/units/enemies/rat_big.tres" id="pu_enemy_pool_2"]
+[ext_resource type="Resource" path="res://content/units/enemies/scorpion.tres" id="pu_enemy_pool_3"]
+[ext_resource type="Resource" path="res://content/units/enemies/sand_troll.tres" id="pu_miniboss_pool_0"]
 
 [resource]
 script = ExtResource("1_script")
@@ -56,5 +57,5 @@ fog_density = 0.016
 glow_intensity = 0.9
 moods = Array[ExtResource("mood_script")]([ExtResource("mood_0")])
 ambient_particles = ExtResource("71_particles")
-enemy_pool = Array[ExtResource("2_dgpva")]([ExtResource("9_goblin"), ExtResource("10_bat"), ExtResource("11_slime")])
-miniboss_pool = Array[ExtResource("2_dgpva")]([ExtResource("12_ogre")])
+enemy_pool = Array[ExtResource("2_dgpva")]([ExtResource("pu_enemy_pool_0"), ExtResource("pu_enemy_pool_1"), ExtResource("pu_enemy_pool_2"), ExtResource("pu_enemy_pool_3")])
+miniboss_pool = Array[ExtResource("2_dgpva")]([ExtResource("pu_miniboss_pool_0")])

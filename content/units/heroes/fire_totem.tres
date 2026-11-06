@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="UnitData" format=3]
 
 [ext_resource type="Script" path="res://core/data/unit_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://core/data/modifier_data.gd" id="2_gf2av"]
 [ext_resource type="Texture2D" path="res://assets/sprites/units/fire_totem.png" id="2_sprite"]
 [ext_resource type="Resource" path="res://content/auras/fire_totem_aura.tres" id="3_aura"]
 [ext_resource type="Script" path="res://core/data/skill_data.gd" id="3_itnap"]
@@ -24,6 +25,7 @@ evasion = 0
 crit_chance = 0
 hp_per_level = 7
 attack_per_level = 0
+aura_colors = PackedColorArray()
 is_structure = true
 aura = ExtResource("3_aura")
 xp_reward = 0

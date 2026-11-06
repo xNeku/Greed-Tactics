@@ -3,7 +3,7 @@ extends SceneTree
 ##   godot --write-movie out/frame.png --fixed-fps 30 --resolution 1280x720 \
 ##       --script res://tools/vfx_showcase.gd -- ember_rain
 ## Shows: ember_rain (Tohil), aimed_shot (Pablo), crushing_leap (Sigrid), shadow_step (Nyx),
-## and every kind of projectile (arcane_bolt, ice_lance, fireball, ember,
+## and every kind of projectile (ember,
 ## light_spear, shot, arrow_rain, point_blank, double_barrel, lead_fan,
 ## axe_hurl, rubble_throw, taunt_dart).
 
@@ -12,9 +12,6 @@ const SHOWS := {
 	"aimed_shot": ["pablo", "res://content/skills/archer/aimed_shot.tres", "forest", Vector2i(2, 4), [Vector2i(8, 4), Vector2i(9, 2)], Vector2i(8, 4)],
 	"crushing_leap": ["barbarian", "res://content/skills/barbarian/crushing_leap.tres", "desert", Vector2i(3, 4), [Vector2i(7, 3), Vector2i(7, 5), Vector2i(8, 4)], Vector2i(6, 4)],
 	"shadow_step": ["nyx", "res://content/skills/assassin/shadow_step.tres", "cave", Vector2i(3, 4), [Vector2i(7, 4), Vector2i(8, 6)], Vector2i(7, 4)],
-	"arcane_bolt": ["lyra", "res://content/skills/mage/arcane_bolt.tres", "cave", Vector2i(3, 4), [Vector2i(6, 4)], Vector2i(6, 4)],
-	"ice_lance": ["lyra", "res://content/skills/mage/ice_lance.tres", "cave", Vector2i(2, 4), [Vector2i(6, 4)], Vector2i(6, 4)],
-	"fireball": ["lyra", "res://content/skills/mage/fireball.tres", "cave", Vector2i(2, 4), [Vector2i(6, 4), Vector2i(6, 3), Vector2i(7, 4)], Vector2i(6, 4)],
 	"ember": ["shaman", "res://content/skills/shaman/ember.tres", "forest", Vector2i(2, 4), [Vector2i(7, 4)], Vector2i(7, 4)],
 	"light_spear": ["paladin", "res://content/skills/paladin/light_spear.tres", "cave", Vector2i(2, 4), [Vector2i(6, 4)], Vector2i(6, 4)],
 	"shot": ["pablo", "res://content/skills/archer/shot.tres", "forest", Vector2i(2, 4), [Vector2i(6, 4)], Vector2i(6, 4)],

@@ -17,6 +17,7 @@ shader_parameter/body_flip = null
 shader_parameter/pixel_size = null
 shader_parameter/depth_bias = null
 shader_parameter/tint = null
+shader_parameter/emission = null
 
 [sub_resource type="QuadMesh" id="QuadMesh_weapon"]
 

@@ -10,6 +10,10 @@ Responsable: @Neku (habla en español). Responde siempre en español.
 3. Si Neku cambia algo por su cuenta, avisa y el agente le dice qué ejecutar para sincronizar.
 4. En cada entrega se actualizan, si aplica: `docs/GDD.md` (decisiones + changelog), `docs/ROADMAP.md` y `docs/BACKLOG.md`.
 
+## Grabaciones (decisión de Neku)
+
+- **No grabes vídeos ni hagas capturas** salvo que Neku lo pida expresamente. Nada de `--write-movie` ni scripts de captura por iniciativa propia.
+
 ## Antes de entregar (obligatorio)
 
 ```bash

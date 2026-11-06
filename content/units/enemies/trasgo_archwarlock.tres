@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Script" path="res://core/data/unit_data.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/sprites/units/trasgo_warlock.png" id="2_r"]
+[ext_resource type="Texture2D" path="res://assets/sprites/units/trasgo_warlock_side.png" id="3_r"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="4_r"]
+[ext_resource type="Resource" path="res://content/ai/ranged.tres" id="5_r"]
+[ext_resource type="Resource" path="res://content/skills/enemies/venom_dart.tres" id="6_r"]
+[ext_resource type="Resource" path="res://content/skills/enemies/poison_cloud.tres" id="7_r"]
+[ext_resource type="Script" path="res://core/data/modifier_data.gd" id="b_modscript"]
+[ext_resource type="Resource" path="res://content/modifiers/boss_chain.tres" id="b_mod_boss_chain"]
+[ext_resource type="Resource" path="res://content/modifiers/boss_crit.tres" id="b_mod_boss_crit"]
+[ext_resource type="Resource" path="res://content/skills/enemies/acid_rain.tres" id="b_skill"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"trasgo_archwarlock"
+display_name = "Archibrujo trasgo"
+short_name = "ARC"
+race = "Trasgo"
+unit_class = "Brujo"
+sprite = ExtResource("2_r")
+sprite_side = ExtResource("3_r")
+sprite_scale = 1.5
+description = "Jefe de los trasgos de la fábrica: lluvia ácida, veneno que salta de uno a otro."
+max_hp = 160
+attack = 15
+defense = 3
+evasion = 8
+hp_per_level = 16
+skills = Array[ExtResource("4_r")]([ExtResource("6_r"), ExtResource("7_r"), ExtResource("b_skill")])
+rank = 1
+innate_modifiers = Array[ExtResource("b_modscript")]([ExtResource("b_mod_boss_chain"), ExtResource("b_mod_boss_crit")])
+aura_colors = PackedColorArray(0.3, 1, 0.2, 1, 0.65, 0.3, 1, 1, 0.9, 1, 0.8, 1)
+aura_lightning = true
+ai_profile = ExtResource("5_r")
+gold_reward = 5

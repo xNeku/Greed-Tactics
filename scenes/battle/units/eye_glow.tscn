@@ -1,0 +1,8 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/battle/units/eye_glow.gd" id="1_script"]
+[ext_resource type="Shader" path="res://assets/shaders/held_weapon.gdshader" id="2_shader"]
+
+[node name="EyeGlow" type="Node3D"]
+script = ExtResource("1_script")
+glow_shader = ExtResource("2_shader")

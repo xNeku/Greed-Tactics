@@ -61,3 +61,8 @@ extends Resource
 @export_range(1, 10) var arc_levels_per_range: int = 2
 ## Cap of the range an arcing shot gains or loses from height difference.
 @export_range(0, 5) var arc_max_height_range: int = 2
+
+@export_group("Elites")
+## Extra max HP and attack (percent) of elite enemies.
+@export_range(0, 300) var elite_hp_percent: int = 25
+@export_range(0, 300) var elite_attack_percent: int = 12

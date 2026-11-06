@@ -3,6 +3,12 @@
 [ext_resource type="Script" path="res://core/data/zone_data.gd" id="1_script"]
 [ext_resource type="Script" path="res://core/data/terrain_data.gd" id="kit_script"]
 [ext_resource type="Script" path="res://core/data/lighting_mood.gd" id="mood_script"]
+[ext_resource type="Resource" path="res://content/units/enemies/forest_fighter.tres" id="pu_enemy_pool_0"]
+[ext_resource type="Resource" path="res://content/units/enemies/rat.tres" id="pu_enemy_pool_1"]
+[ext_resource type="Resource" path="res://content/units/enemies/rat_small.tres" id="pu_enemy_pool_2"]
+[ext_resource type="Resource" path="res://content/units/enemies/forest_healer.tres" id="pu_enemy_pool_3"]
+[ext_resource type="Resource" path="res://content/units/enemies/forest_assassin.tres" id="pu_enemy_pool_4"]
+[ext_resource type="Resource" path="res://content/units/enemies/berserker_king.tres" id="pu_miniboss_pool_0"]
 [ext_resource type="Resource" path="res://content/terrains/castle_floor.tres" id="r_0"]
 [ext_resource type="Resource" path="res://content/terrains/castle_carpet.tres" id="r_1"]
 [ext_resource type="Resource" path="res://content/terrains/castle_gallery.tres" id="r_2"]
@@ -15,11 +21,6 @@
 [ext_resource type="Resource" path="res://content/lighting/castle_torches.tres" id="r_9"]
 [ext_resource type="Resource" path="res://content/lighting/castle_day.tres" id="r_10"]
 [ext_resource type="PackedScene" path="res://scenes/battle/atmosphere/cave_motes.tscn" id="r_11"]
-[ext_resource type="Resource" path="res://content/units/enemies/bandit.tres" id="r_12"]
-[ext_resource type="Resource" path="res://content/units/enemies/forest_fighter.tres" id="r_13"]
-[ext_resource type="Resource" path="res://content/units/enemies/forest_assassin.tres" id="r_14"]
-[ext_resource type="Resource" path="res://content/units/enemies/forest_healer.tres" id="r_15"]
-[ext_resource type="Resource" path="res://content/units/enemies/ogre.tres" id="r_16"]
 [ext_resource type="Script" path="res://core/data/unit_data.gd" id="unit_script"]
 
 [resource]
@@ -45,5 +46,5 @@ max_height = 0
 obstacle_density = 0.0
 moods = Array[ExtResource("mood_script")]([ExtResource("r_9"), ExtResource("r_10")])
 ambient_particles = ExtResource("r_11")
-enemy_pool = Array[ExtResource("unit_script")]([ExtResource("r_12"), ExtResource("r_13"), ExtResource("r_14"), ExtResource("r_15")])
-miniboss_pool = Array[ExtResource("unit_script")]([ExtResource("r_16")])
+enemy_pool = Array[ExtResource("unit_script")]([ExtResource("pu_enemy_pool_0"), ExtResource("pu_enemy_pool_1"), ExtResource("pu_enemy_pool_2"), ExtResource("pu_enemy_pool_3"), ExtResource("pu_enemy_pool_4")])
+miniboss_pool = Array[ExtResource("unit_script")]([ExtResource("pu_miniboss_pool_0")])

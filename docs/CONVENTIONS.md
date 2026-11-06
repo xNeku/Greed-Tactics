@@ -47,7 +47,7 @@
 - **Zonas:** `ZoneData`; los símbolos de terreno deben ser únicos dentro de la zona (hay test).
 - **Sprites de Neku:** se reconstruyen pixel perfect y se guardan como `<id>.png` (frente) y `<id>_side.png` (lado, mirando a la derecha), pies en el borde inferior. Los retoques viven en `art/src/<id>_sprites.py`.
 - **Animaciones:** `art/src/<id>_animations.py` genera `<id>_sheet.png` + `.json`; `godot --headless --script res://tools/build_sprite_frames.gd -- <sheet.png> <salida.tres>` crea el `SpriteFrames` que se asigna a `UnitData.sprite_frames`. Nombres: `<estado>_<vista>` (idle/walk/attack/hit × front/side).
-- **Sprites provisionales:** se regeneran con `python3 tools/generate_placeholder_sprites.py` (ASCII art, con intercambio de paleta `art_of` y espejo `flip`).
+- **Sin sprites provisionales:** solo se usa el arte de Neku. Las unidades sin arte suyo se quitaron (v0.9.1).
 
 ## Git
 

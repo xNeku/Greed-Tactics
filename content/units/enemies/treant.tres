@@ -8,6 +8,10 @@
 [ext_resource type="Resource" path="res://content/skills/enemies/root_punch.tres" id="6_r"]
 [ext_resource type="Resource" path="res://content/skills/enemies/ent_roll.tres" id="7_r"]
 [ext_resource type="Resource" path="res://content/skills/enemies/seed_bomb.tres" id="8_r"]
+[ext_resource type="Script" path="res://core/data/modifier_data.gd" id="b_modscript"]
+[ext_resource type="Resource" path="res://content/modifiers/boss_quake.tres" id="b_mod_boss_quake"]
+[ext_resource type="Resource" path="res://content/modifiers/boss_wrath.tres" id="b_mod_boss_wrath"]
+[ext_resource type="Resource" path="res://content/skills/enemies/ent_wrath.tres" id="b_skill"]
 
 [resource]
 script = ExtResource("1_script")
@@ -18,6 +22,7 @@ race = "Ent"
 unit_class = "Miniboss"
 sprite = ExtResource("2_r")
 sprite_side = ExtResource("3_r")
+sprite_scale = 1.25
 description = "Mucha vida y poco daño. Rueda de lado a lado del mapa arrollando y lanzando por los aires; tras rodar dos veces lanza bombitas a cualquier distancia. Mientras rueda es vulnerable (daño x2, defensa a la mitad)."
 max_hp = 340
 speed = 7
@@ -26,7 +31,11 @@ attack = 12
 defense = 8
 evasion = 0
 hp_per_level = 28
-skills = Array[ExtResource("4_r")]([ExtResource("6_r"), ExtResource("7_r"), ExtResource("8_r")])
+skills = Array[ExtResource("4_r")]([ExtResource("6_r"), ExtResource("7_r"), ExtResource("8_r"), ExtResource("b_skill")])
+rank = 1
+innate_modifiers = Array[ExtResource("b_modscript")]([ExtResource("b_mod_boss_quake"), ExtResource("b_mod_boss_wrath")])
+aura_colors = PackedColorArray(0.3, 0.9, 0.2, 1, 0.95, 0.8, 0.2, 1, 1, 1, 0.8, 1)
+aura_lightning = true
 ai_profile = ExtResource("5_r")
 xp_reward = 60
 gold_reward = 25

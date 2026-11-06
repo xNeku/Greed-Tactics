@@ -36,8 +36,10 @@ var pa: int = 0
 var ct: int = 0
 ## Turns left before each skill (base SkillData) can be used again.
 var cooldowns: Dictionary[SkillData, int] = {}
-## Run modifiers that affect this unit's skills.
+## Run modifiers that affect this unit's skills (and its innate ones).
 var modifiers: Array[ModifierData] = []
+## Elite of this battle: tougher, with an aura (BattleSetup.elite_count).
+var is_elite := false
 ## How many REFUND_AP triggers happened this turn.
 var refunds_this_turn: int = 0
 ## Active statuses and the turns they have left.
@@ -68,6 +70,7 @@ func _init(p_id: int, p_data: UnitData, p_team: Team, p_cell: Vector2i, p_facing
 	_compute_stats(stat_scale)
 	hp = max_hp
 	mp = max_mp
+	modifiers = p_data.innate_modifiers.duplicate()
 
 
 func is_alive() -> bool:
@@ -139,6 +142,34 @@ func get_basic_skill() -> SkillData:
 		if skill.skill_type == SkillData.SkillType.BASIC:
 			return skill
 	return data.skills[0] if not data.skills.is_empty() else null
+
+
+## Makes this unit an elite: more HP and attack (percent).
+func make_elite(hp_percent: int, attack_percent: int) -> void:
+	is_elite = true
+	max_hp += roundi(max_hp * hp_percent / 100.0)
+	hp = max_hp
+	attack += roundi(attack * attack_percent / 100.0)
+
+
+## Rage mode: enough rage that some skill mutates (red aura and eyes).
+func is_enraged() -> bool:
+	if not uses_rage():
+		return false
+	for skill in data.skills:
+		if skill.empowered_variant != null and rage >= skill.empowered_rage_threshold:
+			return true
+	return false
+
+
+## Statuses on it that help it (more damage, defence, movement, healing).
+func get_buffs() -> Array[StatusData]:
+	var result: Array[StatusData] = []
+	for status in statuses:
+		if status.damage_percent_bonus > 0 or status.defense_percent_bonus > 0 or status.move_bonus > 0 \
+				or status.heal_percent_per_turn > 0 or status.damage_taken_percent_bonus < 0:
+			result.append(status)
+	return result
 
 
 ## The skill as it would be used right now (rage mutation + modifiers).

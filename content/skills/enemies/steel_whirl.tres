@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/status_data.gd" id="1_0xbmr"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"steel_whirl"
+display_name = "Torbellino de acero"
+description = "Gira con sus hachas: dos golpes a todo lo que tenga alrededor (3x3) y los empuja."
+skill_type = 2
+tags = Array[StringName]([&"area", &"melee", &"hacha"])
+cooldown = 2
+target_rule = 3
+range_min = 0
+range_max = 0
+area_shape = 2
+area_size = 1
+power = 9
+knockback = 1
+strikes = 2
+vfx_style = 5
+vfx_color = Color(1, 0.35, 0.25, 1)

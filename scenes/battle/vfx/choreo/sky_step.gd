@@ -11,6 +11,10 @@ extends VfxStep
 @export_range(0.05, 3.0) var fade_in := 0.35
 
 
+func is_cinematic() -> bool:
+	return true
+
+
 func run(ctx: ChoreoContext, _at: Vector3) -> void:
 	ctx.save_sky()
 	var env := ctx.environment

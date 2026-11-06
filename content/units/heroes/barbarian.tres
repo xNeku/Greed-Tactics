@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="UnitData" format=3]
 
+[ext_resource type="Script" path="res://core/data/modifier_data.gd" id="1_2bxmr"]
 [ext_resource type="Script" path="res://core/data/unit_data.gd" id="1_script"]
 [ext_resource type="Script" path="res://core/data/skill_data.gd" id="2_c75y0"]
 [ext_resource type="Texture2D" path="res://assets/sprites/units/barbarian.png" id="2_sprite"]
@@ -30,6 +31,9 @@ crit_chance = 10
 hp_per_level = 11
 attack_per_level = 3
 skills = Array[ExtResource("2_c75y0")]([ExtResource("4_s"), ExtResource("5_s"), ExtResource("6_s"), ExtResource("7_s")])
+aura_colors = PackedColorArray()
+eyes_front = Array[Vector2i]([Vector2i(6, 9), Vector2i(7, 9), Vector2i(11, 9), Vector2i(12, 9)])
+eyes_side = Array[Vector2i]([Vector2i(10, 9), Vector2i(11, 9)])
 weapon = ExtResource("w_weapon")
 hand_front = Vector2i(10, 19)
 hand_side = Vector2i(9, 19)

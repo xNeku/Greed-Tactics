@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="UnitData" format=3]
 
 [ext_resource type="Script" path="res://core/data/unit_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://core/data/modifier_data.gd" id="1_wtqc6"]
 [ext_resource type="Script" path="res://core/data/skill_data.gd" id="2_gymct"]
 [ext_resource type="Texture2D" path="res://assets/sprites/units/kael.png" id="2_kael"]
 [ext_resource type="Resource" path="res://content/skills/warrior/punch.tres" id="3_strike"]
@@ -31,4 +32,7 @@ hp_per_level = 12
 attack_per_level = 3
 defense_per_level = 2
 skills = Array[ExtResource("2_gymct")]([ExtResource("3_strike"), ExtResource("4_axe_throw"), ExtResource("5_whirlwind"), ExtResource("6_charge")])
+aura_colors = PackedColorArray()
+eyes_front = Array[Vector2i]([Vector2i(10, 11), Vector2i(11, 11), Vector2i(15, 11), Vector2i(16, 11)])
+eyes_side = Array[Vector2i]([Vector2i(11, 11), Vector2i(12, 11)])
 weapon = ExtResource("w_weapon")

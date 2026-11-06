@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="UnitData" format=3]
 
+[ext_resource type="Script" path="res://core/data/modifier_data.gd" id="1_kfhtv"]
 [ext_resource type="Script" path="res://core/data/unit_data.gd" id="1_script"]
 [ext_resource type="Script" path="res://core/data/skill_data.gd" id="2_nhvev"]
 [ext_resource type="Texture2D" path="res://assets/sprites/units/pablo.png" id="2_pablo"]
@@ -28,6 +29,7 @@ evasion = 15
 crit_chance = 10
 attack_per_level = 3
 skills = Array[ExtResource("2_nhvev")]([ExtResource("3_shot"), ExtResource("4_aimed_shot"), ExtResource("5_arrow_rain"), ExtResource("6_roll")])
+aura_colors = PackedColorArray()
 weapon = ExtResource("w_weapon")
 hand_front = Vector2i(15, 21)
 hand_side = Vector2i(13, 19)

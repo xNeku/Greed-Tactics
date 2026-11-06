@@ -1,6 +1,9 @@
 class_name SkillChoreography
 extends Resource
 ## The show of a skill (SkillData.choreography): an ordered list of VfxSteps
+## grouped by phase. Rage users only get it with rage (the mutated skill);
+## the others get the full cinematic once per battle, then the short version.
+## (Below: the original summary.)
 ## grouped by phase. BattleController plays CAST, then the motion, ARRIVE, the
 ## hits (IMPACT per landed hit) and END, then restores sky, camera and time.
 
@@ -16,9 +19,10 @@ func has_phase(phase: VfxStep.Phase) -> bool:
 
 
 ## Plays every step of [param phase]. IMPACT steps go to [param impact_at].
-func play(phase: VfxStep.Phase, ctx: ChoreoContext, impact_at := Vector3.INF) -> void:
+## [param short]: only the effects, without the cinematic beats.
+func play(phase: VfxStep.Phase, ctx: ChoreoContext, impact_at := Vector3.INF, short := false) -> void:
 	for step in steps:
-		if step.phase != phase:
+		if step.phase != phase or (short and step.is_cinematic()):
 			continue
 		var at := impact_at if impact_at != Vector3.INF and step.anchor == VfxStep.Anchor.TARGET \
 			else ctx.anchor_position(step.anchor)

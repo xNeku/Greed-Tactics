@@ -1,0 +1,41 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Script" path="res://core/data/unit_data.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/sprites/units/forest_berserker.png" id="2_r"]
+[ext_resource type="Texture2D" path="res://assets/sprites/units/forest_berserker_side.png" id="3_r"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="4_r"]
+[ext_resource type="Resource" path="res://content/ai/melee_aggressive.tres" id="5_r"]
+[ext_resource type="Resource" path="res://content/skills/enemies/thirsty_axes.tres" id="6_r"]
+[ext_resource type="Resource" path="res://content/skills/enemies/wild_leap.tres" id="7_r"]
+[ext_resource type="Script" path="res://core/data/modifier_data.gd" id="b_modscript"]
+[ext_resource type="Resource" path="res://content/modifiers/boss_lifesteal.tres" id="b_mod_boss_lifesteal"]
+[ext_resource type="Resource" path="res://content/modifiers/boss_wrath.tres" id="b_mod_boss_wrath"]
+[ext_resource type="Resource" path="res://content/skills/enemies/steel_whirl.tres" id="b_skill"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"berserker_king"
+display_name = "Rey berserker"
+short_name = "REY"
+race = "Humana"
+unit_class = "Berserker"
+sprite = ExtResource("2_r")
+sprite_side = ExtResource("3_r")
+sprite_scale = 1.45
+description = "El caudillo de los berserkers: gira con sus hachas, salta sobre ti y se cura con cada golpe."
+max_hp = 190
+speed = 11
+attack = 15
+defense = 5
+evasion = 10
+crit_chance = 8
+hp_per_level = 20
+attack_per_level = 1
+skills = Array[ExtResource("4_r")]([ExtResource("6_r"), ExtResource("7_r"), ExtResource("b_skill")])
+rank = 1
+innate_modifiers = Array[ExtResource("b_modscript")]([ExtResource("b_mod_boss_lifesteal"), ExtResource("b_mod_boss_wrath")])
+aura_colors = PackedColorArray(0.85, 0.05, 0.08, 1, 1, 0.45, 0.1, 1, 1, 0.9, 0.5, 1)
+aura_lightning = true
+ai_profile = ExtResource("5_r")
+xp_reward = 11
+gold_reward = 5

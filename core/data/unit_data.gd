@@ -18,6 +18,10 @@ const NO_HAND := Vector2i(-1, -1)
 
 @export var id: StringName = &""
 @export var display_name: String = ""
+## Rank: bosses (minibosses) are bigger, wear wild auras and carry modifiers.
+## Elites are picked per battle (BattleSetup.elite_count), not here.
+enum Rank { NORMAL, BOSS }
+
 ## Abbreviation shown in the turn queue. Empty = first 3 letters of the name.
 @export var short_name: String = ""
 @export var race: String = ""
@@ -67,6 +71,22 @@ const NO_HAND := Vector2i(-1, -1)
 ## Equipped skills, in display order (template: basic, launch, area, movement).
 ## The first BASIC one is the default attack.
 @export var skills: Array[SkillData] = []
+
+@export_group("Rank")
+@export var rank: Rank = Rank.NORMAL
+## Modifiers this unit always fights with (bosses), on top of any run ones.
+@export var innate_modifiers: Array[ModifierData] = []
+## Colours of a boss aura, outer to inner (fire, lightning...). Empty = default.
+@export var aura_colors: PackedColorArray = PackedColorArray()
+## Lightning arcs crackling in the aura (bosses).
+@export var aura_lightning: bool = false
+
+@export_group("Eyes")
+## Eye pixels (y down) on the frames shown: [member sprite] / [member sprite_side], or the
+## animation canvas when [member sprite_frames] is set. They glow
+## red while the unit is in rage mode.
+@export var eyes_front: Array[Vector2i] = []
+@export var eyes_side: Array[Vector2i] = []
 
 @export_group("Weapon")
 ## Weapon carried from the start (drawn in the hand, see WeaponData).
@@ -119,6 +139,10 @@ func get_off_hand(side_view: bool, sprite_width: int) -> Vector2i:
 	if side_view:
 		return hand + OFF_HAND_SIDE_OFFSET
 	return Vector2i(sprite_width - 1 - hand.x, hand.y)
+
+
+func is_boss() -> bool:
+	return rank == Rank.BOSS
 
 
 func get_short_name() -> String:

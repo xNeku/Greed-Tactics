@@ -454,6 +454,19 @@ Fases: CAST → movimiento → ARRIVE → IMPACT (por golpe) → END, y al final
 - **Fondo de diorama:** cielo pintado en pantalla con degradado pixelado, estrellas, luna o sol y nubes.
 - **Post:** desenfoque de profundidad (tilt-shift del HD-2D), bloom, tonemap fílmico, contraste y saturación por ambiente; niebla volumétrica solo sobre el mapa.
 
+**Auras y rangos [Decidido v0.9.1]:**
+
+- **Élites:** en las casillas élite de la run, 1 enemigo es élite (+25% PV, +12% ataque, `RulesConfig`) y lleva un **aura violeta**.
+- **Jefes** (`UnitData.rank = BOSS`): **más grandes**, con un **aura de fuego de tres colores** propia de cada uno y **rayos** que chisporrotean alrededor. Llevan **modificadores innatos** (`innate_modifiers`, fuera del pool de la run) y una **habilidad bestia** nueva:
+  - **Ent:** *Furia del bosque* (raíces en rombo de 2 que empujan 2 y ralentizan). Golpes que retumban y Furia de jefe. Aura verde y oro.
+  - **Troll de arena:** *Tormenta de arena* (5×5 en parábola, ralentiza). Ojo maligno y Furia de jefe. Aura de arena.
+  - **Rey berserker** (castillo): *Torbellino de acero* (dos golpes en 3×3 que empujan). Se cura un 25% de lo que pega. Aura roja.
+  - **Archibrujo trasgo** (fábrica): *Lluvia ácida* (rombo de 2 con veneno). Sus ataques saltan a 2 enemigos más. Aura verde y violeta.
+- **Modo furia:** cuando a un personaje de ira le mutan las habilidades, se rodea de un **aura roja** y le **brillan los ojos en rojo** (píxeles marcados por personaje en `UnitData.eyes_front/side`: Sigrid, Kael, Nyx).
+- **Mejoras:** si un estado te ayuda (más daño, defensa, movimiento o curación, como el del tótem de fuego), te rodea un aura de su color.
+- **Cinemáticas más escasas:** los personajes de ira solo las tienen al usar la habilidad **con furia** (mutada). El resto ve la cinemática entera (cielo, cámara, cámara lenta) la **primera vez por combate** y después solo los efectos del golpe.
+- **Sin sprites provisionales:** quitados Lyra y los enemigos sin arte de Neku (bandido, murciélago, jabalí, goblins, momia, ogro, limo, lobo, gusano). La **cueva sale de la run** (no tiene enemigos propios). La run usa bosque, desierto, castillo y fábrica.
+
 **Proyectiles y sensación de golpe [Decidido v0.8.2]:** pixel art mezclado con luz 3D.
 
 - Cada proyectil tiene un `ProjectileLook` (datos en `content/vfx/projectiles/`): flechas, balas, dardos, rocas, lanzas y hachas son **sprites pixel art** que giran hacia donde vuelan (la lanzada gira sobre sí misma); la magia es un **orbe/cometa pixelado** animado por shader con bandas de color (borde, medio, núcleo al rojo blanco), con el mismo tamaño de pixel que los personajes.
@@ -595,6 +608,7 @@ Cada hito tiene un criterio de salida. No se pasa al siguiente sin cumplirlo.
 
 ## Changelog
 
+- **v0.9.1 (Nov 6, 2026)** — Auras: élites (violeta), jefes (fuego multicolor con rayos, más grandes, modificadores innatos y habilidad nueva), modo furia (aura roja y ojos rojos que brillan), mejoras (aura del color del estado). Jefes nuevos: Rey berserker (castillo) y Archibrujo trasgo (fábrica). Cinemáticas solo con furia o la primera vez por combate. Fuera los sprites provisionales y la cueva de la run. No se graba nada sin pedirlo.
 - **v0.9 (Nov 6, 2026)** — Escenarios HD-2D (prueba para elegir): texturas pixel art, escaleras de verdad, ruinas con columnas y braseros, estrado del jefe con escalinata, zonas nuevas **Castillo** y **Fábrica abandonada**, árboles sprite, antorchas, estandartes, corte de muros. Ambientes de luz: día con sol que gira, atardecer, noche con luna, estrellas y rayos volumétricos, interiores; fondo de diorama, desenfoque de profundidad y corrección de color. **Línea de visión** para disparos directos y **alcance de las parábolas** según altura y obstáculos. Críticos sin texto y mucho más llamativos.
 - **v0.8.3 (Nov 6, 2026)** — Barras de vida pixel art que aparecen al pasar el ratón, en el turno activo, al recibir golpes o curas (Alt = todas), con fantasma que se vacía, parpadeo, temblor y número que rueda. Números de golpe con impacto, críticos dorados con «¡CRÍTICO!» y un número por golpe en habilidades de varios golpes. El nombre sobre la cabeza solo se ve con la barra.
 - **v0.8.2 (Nov 6, 2026)** — Proyectiles nuevos: sprites pixel art que giran con la trayectoria, orbes mágicos pixelados por shader, estelas, luces que iluminan el suelo, carga de la magia, fogonazo/humo/casquillo en las balas, flechas que se clavan, lluvia de flechas y perdigones a cada casilla, estrella de impacto pixelada, chispas con gravedad, humo, parón de impacto, sacudida y aberración. Las armas en la mano dan el tajo o retroceden al atacar. Muestra en vídeo con `tools/vfx_showcase.gd`.

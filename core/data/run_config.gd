@@ -40,6 +40,9 @@ extends Resource
 @export var map_scale_by_party: PackedFloat32Array = [0.6, 0.72, 0.86, 1.0]
 @export_range(0, 4) var elite_extra_enemies: int = 1
 @export_range(0, 10) var elite_extra_levels: int = 2
+## Enemies that are elites in an ELITE node (and adds at a miniboss).
+@export_range(0, 6) var elite_units: int = 1
+@export_range(0, 6) var miniboss_elite_adds: int = 0
 
 @export_group("Protagonist")
 ## The protagonist always moves and acts more than everyone else.

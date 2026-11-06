@@ -22,6 +22,8 @@ uniform float pixel_size = 0.036;
 // World units towards (+) or away from (-) the camera: in front of / behind the body.
 uniform float depth_bias = 0.01;
 uniform vec4 tint : source_color = vec4(1.0);
+// > 1 glows (rage eyes).
+uniform float emission = 1.0;
 
 void vertex() {
 	// Texel position of this corner (QuadMesh UV: 0,0 top-left).
@@ -43,7 +45,7 @@ void vertex() {
 
 void fragment() {
 	vec4 texel = texture(weapon_texture, UV);
-	ALBEDO = texel.rgb * tint.rgb;
+	ALBEDO = texel.rgb * tint.rgb * emission;
 	ALPHA = texel.a * tint.a;
 	ALPHA_SCISSOR_THRESHOLD = 0.5;
 }

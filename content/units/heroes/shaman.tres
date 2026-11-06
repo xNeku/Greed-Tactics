@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="UnitData" format=3]
 
+[ext_resource type="Script" path="res://core/data/modifier_data.gd" id="1_guoxp"]
 [ext_resource type="Script" path="res://core/data/unit_data.gd" id="1_script"]
 [ext_resource type="Script" path="res://core/data/skill_data.gd" id="2_4fgtj"]
 [ext_resource type="Texture2D" path="res://assets/sprites/units/shaman.png" id="2_sprite"]
@@ -28,4 +29,5 @@ evasion = 10
 hp_per_level = 7
 mp_per_level = 4
 skills = Array[ExtResource("2_4fgtj")]([ExtResource("4_s"), ExtResource("5_s"), ExtResource("6_s"), ExtResource("7_s")])
+aura_colors = PackedColorArray()
 weapon = ExtResource("w_weapon")

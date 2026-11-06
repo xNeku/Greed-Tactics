@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://core/data/status_data.gd" id="1_d1vb1"]
+[ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
+[ext_resource type="Resource" path="res://content/vfx/projectiles/sand.tres" id="look_1"]
+[ext_resource type="Resource" path="res://content/statuses/slow.tres" id="st_1"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"sand_storm"
+display_name = "Tormenta de arena"
+description = "Levanta una tormenta sobre un cuadrado de 5x5 a 2-7 casillas: daño y ralentiza. En parábola."
+skill_type = 2
+tags = Array[StringName]([&"area", &"arena"])
+cooldown = 4
+range_min = 2
+range_max = 7
+vertical_reach = 9
+area_shape = 2
+area_size = 2
+power = 9
+status = ExtResource("st_1")
+status_chance = 60
+vfx_style = 4
+vfx_color = Color(0.95, 0.78, 0.45, 1)
+projectile_look = ExtResource("look_1")

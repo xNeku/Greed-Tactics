@@ -1,0 +1,92 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/battle/units/unit_aura.gd" id="1_script"]
+[ext_resource type="Shader" path="res://assets/shaders/aura_flame.gdshader" id="2_flame"]
+[ext_resource type="Shader" path="res://assets/shaders/pixel_particle.gdshader" id="3_particle"]
+[ext_resource type="Shader" path="res://assets/shaders/disc.gdshader" id="4_disc"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_flame"]
+render_priority = -1
+shader = ExtResource("2_flame")
+shader_parameter/quad_size = null
+shader_parameter/pixel_size = null
+shader_parameter/outer = null
+shader_parameter/mid = null
+shader_parameter/inner = null
+shader_parameter/strength = null
+shader_parameter/wildness = null
+shader_parameter/speed = null
+shader_parameter/seed = null
+shader_parameter/depth_bias = null
+
+[sub_resource type="QuadMesh" id="QuadMesh_flame"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_particle"]
+render_priority = 4
+shader = ExtResource("3_particle")
+shader_parameter/energy = 1.8
+
+[sub_resource type="QuadMesh" id="QuadMesh_particle"]
+material = SubResource("ShaderMaterial_particle")
+size = Vector2(0.045, 0.045)
+
+[sub_resource type="Gradient" id="Gradient_fade"]
+offsets = PackedFloat32Array(0, 0.7, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_glow"]
+render_priority = 1
+shader = ExtResource("4_disc")
+shader_parameter/softness = 0.6
+shader_parameter/rim_width = 0.1
+shader_parameter/rim_brightness = 0.8
+shader_parameter/center_alpha = 0.5
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_glow"]
+material = SubResource("ShaderMaterial_glow")
+size = Vector2(1.2, 1.2)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bolt"]
+render_priority = 6
+cull_mode = 2
+no_depth_test = true
+shading_mode = 0
+vertex_color_use_as_albedo = true
+
+[node name="UnitAura" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="Flames" type="MeshInstance3D" parent="."]
+cast_shadow = 0
+extra_cull_margin = 4.0
+material_override = SubResource("ShaderMaterial_flame")
+mesh = SubResource("QuadMesh_flame")
+
+[node name="Embers" type="CPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
+amount = 16
+lifetime = 1.1
+local_coords = false
+mesh = SubResource("QuadMesh_particle")
+emission_shape = 3
+emission_box_extents = Vector3(0.3, 0.05, 0.1)
+direction = Vector3(0, 1, 0)
+spread = 12.0
+gravity = Vector3(0, 0.8, 0)
+initial_velocity_min = 0.5
+initial_velocity_max = 1.2
+color_ramp = SubResource("Gradient_fade")
+
+[node name="Glow" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.03, 0)
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_glow")
+
+[node name="Light" type="OmniLight3D" parent="."]
+light_energy = 1.0
+omni_range = 2.5
+shadow_enabled = false
+
+[node name="Bolts" type="MeshInstance3D" parent="."]
+cast_shadow = 0
+material_override = SubResource("StandardMaterial3D_bolt")

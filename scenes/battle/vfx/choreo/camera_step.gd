@@ -9,6 +9,10 @@ extends VfxStep
 @export_range(0.0, 1.0) var shake := 0.0
 
 
+func is_cinematic() -> bool:
+	return true
+
+
 func run(ctx: ChoreoContext, at: Vector3) -> void:
 	if focus:
 		ctx.camera_rig.focus_on(at)
