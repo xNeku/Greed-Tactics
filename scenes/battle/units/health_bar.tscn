@@ -1,0 +1,47 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/battle/units/health_bar.gd" id="1_script"]
+[ext_resource type="Shader" path="res://assets/shaders/health_bar.gdshader" id="2_shader"]
+[ext_resource type="FontFile" path="res://assets/fonts/Nunito-ExtraBold.ttf" id="3_font"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_bar"]
+render_priority = 6
+shader = ExtResource("2_shader")
+shader_parameter/pixels = null
+shader_parameter/hp = null
+shader_parameter/ghost = null
+shader_parameter/flash = null
+shader_parameter/tick = null
+shader_parameter/low_pulse = null
+shader_parameter/alpha = null
+shader_parameter/fill_color = null
+shader_parameter/fill_dark = null
+shader_parameter/ghost_color = null
+shader_parameter/heal_color = null
+shader_parameter/back_color = null
+shader_parameter/frame_color = null
+
+[sub_resource type="QuadMesh" id="QuadMesh_bar"]
+size = Vector2(0.84, 0.15)
+
+[node name="HealthBar" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="Bar" type="MeshInstance3D" parent="."]
+cast_shadow = 0
+extra_cull_margin = 2.0
+material_override = SubResource("ShaderMaterial_bar")
+mesh = SubResource("QuadMesh_bar")
+
+[node name="Number" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.47, 0.005, 0)
+pixel_size = 0.004
+no_depth_test = true
+render_priority = 7
+outline_render_priority = 6
+outline_modulate = Color(0.04, 0.04, 0.07, 1)
+text = "0"
+font = ExtResource("3_font")
+font_size = 34
+outline_size = 10
+horizontal_alignment = 0

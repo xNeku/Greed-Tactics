@@ -24,6 +24,10 @@ const SHOWS := {
 	"lead_fan": ["gunner", "res://content/skills/gunner/lead_fan.tres", "desert", Vector2i(3, 4), [Vector2i(5, 4), Vector2i(5, 3), Vector2i(5, 5)], Vector2i(5, 4)],
 	"axe_hurl": ["barbarian", "res://content/skills/barbarian/axe_hurl.tres", "desert", Vector2i(3, 4), [Vector2i(6, 4)], Vector2i(6, 4)],
 	"rubble_throw": ["kael", "res://content/skills/warrior/rubble_throw.tres", "desert", Vector2i(3, 4), [Vector2i(6, 4)], Vector2i(6, 4)],
+	# Combat feedback: multi-strike numbers, criticals, health bars (Alt).
+	"carnage": ["barbarian", "res://content/skills/barbarian/savage_cleave.tres", "desert", Vector2i(3, 4), [Vector2i(4, 4), Vector2i(6, 2)], Vector2i(4, 4), {"rage": 100, "enemy_hp": 160}],
+	"double_sting": ["nyx", "res://content/skills/assassin/sting.tres", "cave", Vector2i(3, 4), [Vector2i(4, 4), Vector2i(6, 6)], Vector2i(4, 4), {"rage": 100, "enemy_hp": 120}],
+	"crit_shot": ["pablo", "res://content/skills/archer/shot.tres", "forest", Vector2i(2, 4), [Vector2i(6, 4), Vector2i(6, 6)], Vector2i(6, 4), {"crit": true, "enemy_hp": 130}],
 	"taunt_dart": ["nyx", "res://content/skills/assassin/taunt_dart.tres", "forest", Vector2i(2, 4), [Vector2i(6, 4)], Vector2i(6, 4)],
 }
 
@@ -32,8 +36,11 @@ func _initialize() -> void:
 	await process_frame
 	var key := OS.get_cmdline_user_args()[0]
 	var show: Array = SHOWS[key]
+	var options: Dictionary = show[6] if show.size() > 6 else {}
 	var hero := (load("res://content/units/heroes/%s.tres" % show[0]) as UnitData).duplicate()
 	hero.speed = 60  # Acts first.
+	if options.get("crit", false):
+		hero.crit_chance = 100
 	var skill := load(show[1]) as SkillData
 	var zone := load("res://content/zones/%s.tres" % show[2]) as ZoneData
 	var setup := BattleSetup.new()
@@ -44,7 +51,8 @@ func _initialize() -> void:
 	setup.player_level = 6
 	setup.enemy_level = 1
 	var dummy := (zone.enemy_pool[0] as UnitData).duplicate()
-	dummy.max_hp = 400
+	dummy.max_hp = options.get("enemy_hp", 400)
+	dummy.hp_per_level = 0
 	for i in show[4].size():
 		setup.enemy_units.append(dummy)
 	setup.rng_seed = 11
@@ -56,7 +64,9 @@ func _initialize() -> void:
 		await process_frame
 	input.end_turn_input()
 	var unit := battle.combat.active_unit
-	if unit.uses_rage():
+	if options.has("rage"):
+		unit.rage = options["rage"]  # Rage mutation (more strikes).
+	elif unit.uses_rage():
 		unit.rage = skill.rage_cost  # Enough to cast it, below the mutation threshold.
 	var camera := battle.get_node("%CameraRig") as CameraRig
 	camera.focus_on(battle.get_node("%BattleMap").cell_to_world(show[3]).lerp(battle.get_node("%BattleMap").cell_to_world(show[5]), 0.5), true)
@@ -65,10 +75,26 @@ func _initialize() -> void:
 	_caption(battle, "%s · %s" % [hero.display_name, skill.display_name])
 	for i in 20:
 		await process_frame
+	if options.has("enemy_hp"):
+		await _show_bars()
 	await battle.execute_skill(skill, show[5])
 	for i in 30:
 		await process_frame
 	quit()
+
+
+## Holds Alt for a moment: every health bar shows.
+func _show_bars() -> void:
+	var alt := InputEventKey.new()
+	alt.keycode = KEY_ALT
+	alt.physical_keycode = KEY_ALT
+	alt.pressed = true
+	Input.parse_input_event(alt)
+	for i in 30:
+		await process_frame
+	var release := alt.duplicate() as InputEventKey
+	release.pressed = false
+	Input.parse_input_event(release)
 
 
 ## Name of the hero and skill in the corner of the recording.

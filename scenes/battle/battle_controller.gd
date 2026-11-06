@@ -44,6 +44,7 @@ const HIT_SHAKE := 0.08
 var combat: CombatState
 
 var _views: Dictionary[UnitState, UnitView] = {}
+var _hovered_view: UnitView
 var _ai := BasicAI.new()
 var _game: GameSession
 
@@ -94,6 +95,7 @@ func execute_move(destination: Vector2i) -> void:
 	if unit.max_hp != max_hp or unit.attack != attack:
 		_views[unit].play_text("+%d PV · +%d ATQ" % [unit.max_hp - max_hp, unit.attack - attack], UnitView.HEAL_COLOR)
 		_views[unit].refresh_info()
+		_views[unit].settle_bar()
 
 
 func execute_skill(skill: SkillData, target_cell: Vector2i) -> void:
@@ -101,6 +103,7 @@ func execute_skill(skill: SkillData, target_cell: Vector2i) -> void:
 	if result == null:
 		return
 	await _play_skill_result(result)
+	_settle_bars()
 	_refresh_turn_queue()
 
 
@@ -111,11 +114,50 @@ func execute_end_turn(facing: GridDir.Dir) -> void:
 #endregion
 
 
+#region Health bars
+
+## Bars show for the unit under the mouse (sprite or cell) and for every
+## unit while Alt is held.
+func _process(_delta: float) -> void:
+	if combat == null:
+		return
+	var camera := _camera_rig.get_camera()
+	var mouse := get_viewport().get_mouse_position()
+	var hovered: UnitView = null
+	for view: UnitView in _views.values():
+		if view.covers_screen_point(mouse):
+			hovered = view
+			break
+	if hovered == null:
+		var unit := combat.get_unit_at(_map_view.pick_cell(camera.project_ray_origin(mouse), camera.project_ray_normal(mouse)))
+		if unit != null and _views.has(unit):
+			hovered = _views[unit]
+	if hovered != _hovered_view:
+		if is_instance_valid(_hovered_view):
+			_hovered_view.set_hovered(false)
+		_hovered_view = hovered
+		if hovered != null:
+			hovered.set_hovered(true)
+	var show_all := Input.is_key_pressed(KEY_ALT)
+	for view: UnitView in _views.values():
+		view.set_bar_forced(show_all)
+
+
+## Every bar to its unit's real HP once the animations are over.
+func _settle_bars() -> void:
+	for view: UnitView in _views.values():
+		if is_instance_valid(view) and view.unit.is_alive():
+			view.settle_bar()
+
+#endregion
+
+
 #region Turn loop
 
 func _run_next_turn() -> void:
 	if combat.is_finished():
 		return
+	_settle_bars()
 	var unit := combat.start_next_turn()
 	_refresh_turn_queue()
 	_hud.show_unit(unit)

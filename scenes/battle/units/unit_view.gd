@@ -25,6 +25,7 @@ const RAGE_COLOR := Color(1.0, 0.45, 0.35)
 @onready var _facing_pivot: Node3D = $FacingPivot
 @onready var _status_icons: Node3D = $Body/StatusIcons
 @onready var _aura_disc: GeometryInstance3D = $AuraDisc
+@onready var _health_bar: HealthBar = $Body/HealthBar
 
 var unit: UnitState
 var _map: BattleMapView
@@ -34,6 +35,10 @@ var _state: StringName = &"idle"
 var _view: StringName = &"front"
 var _label_base_y := 0.0
 var _icons_base_y := 0.0
+var _bar_base_y := 0.0
+## Streak of hits landing close together (multi-strike skills fan out).
+var _hit_streak := 0
+var _last_hit_msec := -10000
 ## Sprite colour when not flashing: white, or tinted by the strongest status.
 var _base_modulate := Color.WHITE
 ## Weapon drawn in the hand (two for dual weapons).
@@ -54,6 +59,9 @@ func setup(p_unit: UnitState, map_view: BattleMapView, camera: Camera3D) -> void
 	_setup_weapon()
 	_info_label.position.y *= unit.data.sprite_scale
 	_status_icons.position.y *= unit.data.sprite_scale
+	_health_bar.position.y *= unit.data.sprite_scale
+	_bar_base_y = _health_bar.position.y
+	_health_bar.setup(unit.max_hp, unit.hp, unit.team == UnitState.Team.PLAYER)
 	_label_base_y = _info_label.position.y
 	_icons_base_y = _status_icons.position.y
 	_ring.scale = Vector3.ONE * clampf(unit.data.sprite_scale, 1.0, 1.3)
@@ -65,6 +73,8 @@ func _process(_delta: float) -> void:
 	_update_sprite_flip()
 	_compensate_camera_pitch()
 	_update_weapons()
+	# Name over the bar only while the bar shows.
+	_info_label.visible = _health_bar.visible
 
 
 ## Snaps position, facing and labels to the current state, without animating.
@@ -81,7 +91,7 @@ func refresh_info() -> void:
 	elif unit.uses_mana():
 		resource = " · MP %d" % unit.mp
 	var star := "★ " if unit.is_protagonist else ""
-	_info_label.text = "%s%s\nHP %d/%d%s" % [star, unit.display_name, unit.hp, unit.max_hp, resource]
+	_info_label.text = "%s%s%s" % [star, unit.display_name, resource]
 	_info_label.modulate = get_team_color().lightened(0.35)
 	_refresh_statuses()
 
@@ -92,6 +102,33 @@ func get_team_color() -> Color:
 
 func set_active(active: bool) -> void:
 	_ring.set_instance_shader_parameter(&"disc_color", ACTIVE_COLOR if active else get_team_color())
+	_health_bar.active = active
+
+
+## Mouse over the unit: shows its bar and name.
+func set_hovered(hovered: bool) -> void:
+	_health_bar.hovered = hovered
+
+
+## Show the bar whatever happens (Alt held).
+func set_bar_forced(forced: bool) -> void:
+	_health_bar.forced = forced
+
+
+## Bar to the unit's real HP (after animations, or when HP changed off-screen).
+func settle_bar() -> void:
+	_health_bar.set_hp(unit.hp, unit.max_hp, unit.hp != _health_bar.get_shown_hp())
+
+
+## Whether [param screen_point] falls on the sprite (for hover).
+func covers_screen_point(screen_point: Vector2) -> bool:
+	if _camera == null or not visible or _camera.is_position_behind(global_position):
+		return false
+	var feet := _camera.unproject_position(global_position)
+	var head := _camera.unproject_position(global_position + Vector3.UP * 1.0 * unit.data.sprite_scale)
+	var half_width := absf(feet.y - head.y) * 0.32
+	return screen_point.x > feet.x - half_width and screen_point.x < feet.x + half_width \
+		and screen_point.y < feet.y + 4.0 and screen_point.y > head.y
 
 
 ## Turns the facing arrow (and sprite flip) towards [param dir].
@@ -167,6 +204,7 @@ func play_push(to_cell: Vector2i) -> void:
 func play_heal(amount: int) -> void:
 	if amount > 0:
 		_spawn_popup("+%d" % amount, HEAL_COLOR)
+		_health_bar.set_hp(mini(unit.max_hp, _health_bar.get_shown_hp() + amount), unit.max_hp)
 	refresh_info()
 
 
@@ -216,7 +254,8 @@ func play_hit(hit: SkillResult.Hit) -> void:
 		dodge.tween_property(_body, "position:x", 0.0, 0.1)
 		await dodge.finished
 		return
-	_spawn_popup(("%d!" if hit.critical else "%d") % hit.damage, CRIT_COLOR if hit.critical else DAMAGE_COLOR)
+	_spawn_hit_number(hit.damage, hit.critical)
+	_health_bar.set_hp(maxi(unit.hp, _health_bar.get_shown_hp() - hit.damage), unit.max_hp)
 	refresh_info()
 	_play_state(&"hit")
 	var flash := create_tween()
@@ -228,6 +267,7 @@ func play_hit(hit: SkillResult.Hit) -> void:
 
 func play_defeat() -> void:
 	_aura_disc.visible = false
+	_health_bar.set_hp(0, unit.max_hp)
 	_play_state(&"hit")
 	var tween := create_tween().set_parallel()
 	tween.tween_property(_sprite, "modulate:a", 0.0, 0.4)
@@ -261,7 +301,8 @@ func _play_knockup() -> void:
 func play_status_events(events: Array[StatusEvent]) -> void:
 	for event in events:
 		if event.damage > 0:
-			_spawn_popup("%d" % event.damage, event.status.color)
+			_spawn_hit_number(event.damage, false, event.status.color)
+			_health_bar.set_hp(maxi(unit.hp, _health_bar.get_shown_hp() - event.damage), unit.max_hp)
 			var flash := create_tween()
 			flash.tween_property(_sprite, "modulate", event.status.color, 0.08)
 			flash.tween_property(_sprite, "modulate", _base_modulate, 0.12)
@@ -309,6 +350,20 @@ func _refresh_statuses() -> void:
 	_base_modulate = tint
 	if unit.is_alive():
 		_sprite.modulate = Color(tint, _sprite.modulate.a)
+
+
+## A damage number; hits landing within ~1 s of each other stack up.
+func _spawn_hit_number(amount: int, critical: bool, color: Color = DAMAGE_COLOR) -> void:
+	if damage_popup_scene == null:
+		return
+	var now := Time.get_ticks_msec()
+	_hit_streak = _hit_streak + 1 if now - _last_hit_msec < 1300 else 0
+	_last_hit_msec = now
+	var popup: DamagePopup = damage_popup_scene.instantiate()
+	add_child(popup)
+	# From the top of the sprite, beside the bar.
+	popup.global_position = global_position + Vector3.UP * (0.9 * unit.data.sprite_scale * _sprite.scale.y)
+	popup.show_hit(amount, critical, float(amount) / maxi(unit.max_hp, 1), _hit_streak, color)
 
 
 func _spawn_popup(text: String, color: Color, height_offset: float = 0.0) -> void:
@@ -470,4 +525,5 @@ func _compensate_camera_pitch() -> void:
 	_sprite.scale.y = stretch
 	# Keep the floating info above the (now taller) sprite.
 	_info_label.position.y = _label_base_y * stretch
+	_health_bar.position.y = _bar_base_y * stretch
 	_status_icons.position.y = _icons_base_y * stretch

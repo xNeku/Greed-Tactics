@@ -440,6 +440,12 @@ Fases: CAST → movimiento → ARRIVE → IMPACT (por golpe) → END, y al final
 - Las habilidades eligen su proyectil por etiqueta (el elemento manda: fuego, hielo, luz, arcano, veneno, pólvora, flecha, hacha, puño) o con su propio `projectile_look`.
 - Las armas en la mano se mueven al atacar: tajo (preparar, golpe, vuelta) en cuerpo a cuerpo y retroceso en arcos y pistolas.
 
+**Barras de vida y números [Decidido v0.8.3]:**
+
+- Barra pixel art sobre cada unidad (verde aliados, roja enemigos) con su número de PV al lado y marcas cada 25 PV. **Solo se ve cuando importa:** ratón encima (sobre el sprite o su casilla), turno activo, o un rato después de recibir daño o curación. **Alt** muestra todas.
+- Al recibir daño la barra cae al momento, el trozo perdido parpadea en blanco y queda un "fantasma" amarillo que se vacía tras una pausa; la barra tiembla más cuanto más grande es el golpe y el número baja rodando. Las curas rellenan primero en verde claro. Con poca vida la barra late en rojo.
+- Números de golpe: entran de golpe (grandes, en blanco), toman su color y salen en arco. Tamaño según el daño respecto a la vida máxima. **Críticos** dorados, más grandes, temblando y con «¡CRÍTICO!». Las habilidades de **varios golpes** muestran un número por golpe, escalonados, y la barra baja golpe a golpe.
+
 **Personajes:**
 
 - Sprites pixel art como billboard que siempre miran a cámara.
@@ -566,6 +572,7 @@ Cada hito tiene un criterio de salida. No se pasa al siguiente sin cumplirlo.
 
 ## Changelog
 
+- **v0.8.3 (Nov 6, 2026)** — Barras de vida pixel art que aparecen al pasar el ratón, en el turno activo, al recibir golpes o curas (Alt = todas), con fantasma que se vacía, parpadeo, temblor y número que rueda. Números de golpe con impacto, críticos dorados con «¡CRÍTICO!» y un número por golpe en habilidades de varios golpes. El nombre sobre la cabeza solo se ve con la barra.
 - **v0.8.2 (Nov 6, 2026)** — Proyectiles nuevos: sprites pixel art que giran con la trayectoria, orbes mágicos pixelados por shader, estelas, luces que iluminan el suelo, carga de la magia, fogonazo/humo/casquillo en las balas, flechas que se clavan, lluvia de flechas y perdigones a cada casilla, estrella de impacto pixelada, chispas con gravedad, humo, parón de impacto, sacudida y aberración. Las armas en la mano dan el tajo o retroceden al atacar. Muestra en vídeo con `tools/vfx_showcase.gd`.
 - **v0.8.1 (Nov 6, 2026)** — Las armas de la Armería entran en el juego: `WeaponData` con sprite, agarre y pose por vista; cada héroe lleva la suya en la mano (Nyx dos dagas, Grizka dos pistolas, Sigrid el hacha, Elara el mandoble, Pablo el arco; Kael, Lyra y Tohil sin arma dibujada). Armas dobles con la segunda en espejo. Armería: botón «Doble», segunda arma en la prueba y «Marcar 2ª mano». Grizka lleva las pistolas apuntando abajo de frente (cruzadas por la barriga se tapaban la una a la otra).
 - **v0.8 (Nov 6, 2026)** — Coreografías de habilidades: cielo, cámara, tiempo, luces dinámicas, partículas pixeladas, ondas, proyectiles con estela y efectos de pantalla, como datos. Muestra con 4 habilidades (2 cuerpo a cuerpo, 1 magia, 1 distancia).
