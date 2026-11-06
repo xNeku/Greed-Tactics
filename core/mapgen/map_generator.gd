@@ -10,6 +10,10 @@ extends RefCounted
 ##      movement rules (carving paths and ramps if needed).
 ##   5. Randomly mirror the map so players do not always start on the left.
 ##
+##   6. Structures (v0.9): raised ruins with stairs and pillars, and for boss
+##      fights a dais at the enemy side reached by a grand staircase; the boss
+##      spawns on top.
+##
 ## Usage: MapGenerator.generate(zone, rules, seed, 4, 5) -> MapData
 
 const MIN_OPEN_RATIO := 0.45
@@ -17,6 +21,7 @@ const UNREACHABLE_PENALTY := 12
 
 ## Smallest side of a generated map, whatever the scale.
 const MIN_SIZE := 10
+const NO_CELL := Vector2i(-1, -1)
 
 var _zone: ZoneData
 var _rules: RulesConfig
@@ -24,17 +29,22 @@ var _rng := RandomNumberGenerator.new()
 var _size: Vector2i
 var _heights: PackedInt32Array = []
 var _terrain: Array[TerrainData] = []
+## Boss spawn on top of the dais (NO_CELL when there is none).
+var _boss_cell := Vector2i(-1, -1)
+## Cells structures own: later passes (obstacles, carving) leave them alone.
+var _built: Dictionary[Vector2i, bool] = {}
 
 
 ## [param size_scale] shrinks the zone's map size (small parties fight on small maps).
+## [param boss]: the first enemy is a boss and gets a raised dais.
 static func generate(zone: ZoneData, rules: RulesConfig, rng_seed: int,
-		player_count: int, enemy_count: int, size_scale: float = 1.0) -> MapData:
+		player_count: int, enemy_count: int, size_scale: float = 1.0, boss: bool = false) -> MapData:
 	var generator := MapGenerator.new()
-	return generator._build(zone, rules, rng_seed, player_count, enemy_count, size_scale)
+	return generator._build(zone, rules, rng_seed, player_count, enemy_count, size_scale, boss)
 
 
 func _build(zone: ZoneData, rules: RulesConfig, rng_seed: int, player_count: int, enemy_count: int,
-		size_scale: float = 1.0) -> MapData:
+		size_scale: float = 1.0, boss: bool = false) -> MapData:
 	_zone = zone
 	_rules = rules
 	_rng.seed = rng_seed
@@ -54,9 +64,23 @@ func _build(zone: ZoneData, rules: RulesConfig, rng_seed: int, player_count: int
 			_shape_desert()
 		ZoneData.Layout.CAVE:
 			_shape_cave()
+		ZoneData.Layout.CASTLE:
+			_shape_castle()
+		ZoneData.Layout.FACTORY:
+			_shape_factory()
+	if zone.layout in [ZoneData.Layout.FOREST, ZoneData.Layout.DESERT, ZoneData.Layout.CAVE]:
+		for i in _rng.randi_range(zone.structure_count.x, zone.structure_count.y):
+			_build_ruin()
+	if (boss or zone.layout == ZoneData.Layout.CASTLE) and zone.platform_terrain != null and zone.stairs_terrain != null:
+		_build_dais(boss)
 
 	var players := _place_spawns(player_count, true)
-	var enemies := _place_spawns(enemy_count, false)
+	var enemies: Array[Vector2i] = []
+	if boss and _boss_cell != NO_CELL and enemy_count > 0:
+		enemies.append(_boss_cell)
+		enemies.append_array(_place_spawns(enemy_count - 1, false).filter(func(c: Vector2i) -> bool: return c != _boss_cell))
+	else:
+		enemies = _place_spawns(enemy_count, false)
 	_ensure_connectivity(players + enemies)
 	if _rng.randf() < 0.5:
 		_mirror_x(players, enemies)
@@ -257,13 +281,246 @@ func _scatter_obstacles(noise: FastNoiseLite, cluster_threshold: float, allowed:
 	if _zone.obstacle_terrains.is_empty():
 		return
 	for cell in _cells():
-		if not allowed.call(cell):
+		if not allowed.call(cell) or _built.has(cell):
 			continue
 		var clustered := noise.get_noise_2d(cell.x, cell.y) > cluster_threshold
 		var chance := _zone.obstacle_density * (2.2 if clustered else 0.35)
 		if _rng.randf() < chance:
 			var index := _rng.randi_range(0, _zone.obstacle_terrains.size() - 1)
 			_set_terrain(cell, _zone.obstacle_terrains[index])
+
+
+#region Structures
+
+## A raised ruin: a platform two or three levels above the ground under it,
+## a broken wall on one edge, pillars on some corners and a staircase down
+## (one level per cell) on the side facing the middle of the map.
+func _build_ruin() -> void:
+	if _zone.platform_terrain == null or _zone.stairs_terrain == null:
+		return
+	var size := Vector2i(_rng.randi_range(3, 5), _rng.randi_range(3, 4))
+	var origin := Vector2i(_rng.randi_range(2, _size.x - size.x - 2), _rng.randi_range(1, _size.y - size.y - 1))
+	var rect := Rect2i(origin, size)
+	for cell in _rect_cells(rect.grow(1)):
+		if not _inside(cell) or _is_liquid(cell) or _built.has(cell):
+			return
+	var ground := 0
+	for cell in _rect_cells(rect):
+		ground = maxi(ground, _height(cell))
+	var top := ground + _rng.randi_range(2, 3)
+	_raise(rect, top, _zone.platform_terrain)
+	# Broken wall on the edge facing away from the middle.
+	if _zone.structure_wall_terrain != null:
+		var back_y := rect.position.y if rect.get_center().y < _size.y / 2.0 else rect.end.y - 1
+		for x in range(rect.position.x, rect.end.x):
+			if _rng.randf() < 0.65:
+				var wall := Vector2i(x, back_y)
+				_set_terrain(wall, _zone.structure_wall_terrain)
+				_set_height(wall, top + _rng.randi_range(1, 2))
+	if _zone.pillar_terrain != null:
+		for corner in [rect.position, Vector2i(rect.end.x - 1, rect.position.y),
+				Vector2i(rect.position.x, rect.end.y - 1), rect.end - Vector2i.ONE]:
+			if _terrain_at(corner) == _zone.platform_terrain and _rng.randf() < 0.55:
+				_set_terrain(corner, _zone.pillar_terrain)
+	var toward := Vector2i(signi(_size.x / 2 - rect.get_center().x), 0)
+	if toward == Vector2i.ZERO:
+		toward = Vector2i(0, signi(_size.y / 2 - rect.get_center().y))
+	var start := _edge_cell(rect, toward)
+	_stairs_down(start, toward, top, 1)
+	_scatter_clutter(rect.grow(2), 2)
+
+
+## Boss dais at the enemy side: a 3x3 platform four levels above the ground,
+## a wall and a throne behind, pillars on the front corners and a grand
+## staircase three cells wide down towards the players, flanked by braziers.
+func _build_dais(boss: bool) -> void:
+	var center := Vector2i(_size.x - 4, _size.y / 2)
+	var rect := Rect2i(center - Vector2i.ONE, Vector2i(3, 3))
+	var ground := 0
+	for cell in _rect_cells(rect.grow(1)):
+		if _inside(cell):
+			ground = maxi(ground, _height(cell) if _terrain_at(cell).walkable else 0)
+	var top := ground + 4
+	_raise(rect.grow_individual(0, 0, 1, 0), top, _zone.platform_terrain)
+	# Back wall and throne.
+	var back_x := rect.end.x + 1
+	if back_x < _size.x and _zone.structure_wall_terrain != null:
+		for y in range(rect.position.y - 1, rect.end.y + 1):
+			var wall := Vector2i(back_x, y)
+			if _inside(wall):
+				_set_terrain(wall, _zone.structure_wall_terrain)
+				_set_height(wall, top + 3)
+				_built[wall] = true
+	if _zone.throne_terrain != null:
+		_set_terrain(Vector2i(rect.end.x, center.y), _zone.throne_terrain)
+	if _zone.pillar_terrain != null:
+		for corner in [rect.position, Vector2i(rect.position.x, rect.end.y - 1)]:
+			_set_terrain(corner, _zone.pillar_terrain)
+	for dy in [-1, 0, 1]:
+		_stairs_down(Vector2i(rect.position.x - 1, center.y + dy), Vector2i.LEFT, top, 0)
+	# Braziers on both sides of the foot of the stairs.
+	if _zone.dais_flank_terrain != null:
+		for dy in [-2, 2]:
+			var flank := Vector2i(rect.position.x - 1, center.y + dy)
+			if _inside(flank) and not _is_border(flank, 0):
+				_set_terrain(flank, _zone.dais_flank_terrain)
+				_built[flank] = true
+	if boss:
+		_boss_cell = center
+
+
+## Platform of [param terrain] at [param top] over [param rect].
+func _raise(rect: Rect2i, top: int, terrain: TerrainData) -> void:
+	for cell in _rect_cells(rect):
+		if _inside(cell):
+			_set_terrain(cell, terrain)
+			_set_height(cell, top)
+			_built[cell] = true
+
+
+## Stair cells from [param start] going [param dir], one level down each
+## (starting one below [param top]) until they meet the ground. [param side_walls]
+## > 0 adds low parapets on both sides now and then.
+func _stairs_down(start: Vector2i, dir: Vector2i, top: int, side_walls: int) -> void:
+	var cell := start
+	var level := top - 1
+	while _inside(cell) and not _is_border(cell, 0) and level > 0:
+		var ground := _height(cell) if _terrain_at(cell).walkable else 0
+		if ground >= level:
+			break
+		_set_terrain(cell, _zone.stairs_terrain)
+		_set_height(cell, level)
+		_built[cell] = true
+		if side_walls > 0 and _zone.structure_wall_terrain != null and _rng.randf() < 0.3:
+			var side := cell + Vector2i(dir.y, dir.x)
+			if _inside(side) and not _built.has(side) and _height(side) < level:
+				_set_terrain(side, _zone.structure_wall_terrain)
+				_set_height(side, level + 1)
+				_built[side] = true
+		cell += dir
+		level -= 1
+
+
+## Crates, barrels... on free cells around [param area].
+func _scatter_clutter(area: Rect2i, count: int) -> void:
+	if _zone.clutter_terrains.is_empty():
+		return
+	for i in count:
+		var cell := Vector2i(_rng.randi_range(area.position.x, area.end.x - 1), _rng.randi_range(area.position.y, area.end.y - 1))
+		if _inside(cell) and not _is_border(cell, 1) and not _built.has(cell) and _is_open_floor(cell):
+			_set_terrain(cell, _zone.clutter_terrains[_rng.randi_range(0, _zone.clutter_terrains.size() - 1)])
+			_built[cell] = true
+
+
+func _edge_cell(rect: Rect2i, dir: Vector2i) -> Vector2i:
+	var mid := rect.get_center()
+	if dir.x > 0:
+		return Vector2i(rect.end.x, mid.y)
+	if dir.x < 0:
+		return Vector2i(rect.position.x - 1, mid.y)
+	if dir.y > 0:
+		return Vector2i(mid.x, rect.end.y)
+	return Vector2i(mid.x, rect.position.y - 1)
+
+
+func _rect_cells(rect: Rect2i) -> Array[Vector2i]:
+	var cells: Array[Vector2i] = []
+	for y in range(rect.position.y, rect.end.y):
+		for x in range(rect.position.x, rect.end.x):
+			cells.append(Vector2i(x, y))
+	return cells
+
+#endregion
+
+
+#region Interior layouts
+
+## Hall inside tall walls (windows: lower gaps that let the moon in), a
+## carpet nave west to east, rows of pillars, raised galleries along the long
+## walls with stairs down, braziers. The throne dais is added by _build_dais.
+func _shape_castle() -> void:
+	var cy := _size.y / 2
+	for cell in _cells():
+		_set_height(cell, 0)
+		_set_terrain(cell, _zone.floor_terrain)
+	# Hall walls; every few cells on the north and south a lower window.
+	for cell in _cells():
+		if _is_border(cell, 1):
+			_set_terrain(cell, _zone.wall_terrain)
+			var window := (cell.y == 0 or cell.y == _size.y - 1) and cell.x % 4 == 2
+			_set_height(cell, 4 if window else 8)
+			_built[cell] = true
+	# Carpet nave (two rows when the hall is even).
+	for x in range(1, _size.x - 1):
+		for y in ([cy] if _size.y % 2 == 1 else [cy - 1, cy]):
+			_set_terrain(Vector2i(x, y), _zone.alt_floor_terrain)
+			_built[Vector2i(x, y)] = true
+	# Galleries along both long walls, three levels up, with stairs into the hall.
+	for side: int in [1, _size.y - 2]:
+		var x0 := _rng.randi_range(3, 5)
+		var x1 := _size.x - _rng.randi_range(8, 10)
+		var depth := 2 if _size.y >= 13 else 1
+		var y0: int = side if side == 1 else side - depth + 1
+		var gallery := Rect2i(x0, y0, x1 - x0, depth)
+		_raise(gallery, 3, _zone.platform_terrain)
+		var inward := 1 if side == 1 else -1
+		for x: int in [x0 + 1, (x0 + x1) / 2, x1 - 2]:
+			var start := Vector2i(x, (y0 + depth) if inward > 0 else y0 - 1)
+			_stairs_down(start, Vector2i(0, inward), 3, 0)
+	# Pillar rows on both sides of the nave.
+	if _zone.pillar_terrain != null:
+		for x in range(3, _size.x - 6, 3):
+			for y in [cy - 3, cy + 2 + (1 if _size.y % 2 == 1 else 0)]:
+				var cell := Vector2i(x, y)
+				if _inside(cell) and not _built.has(cell):
+					_set_terrain(cell, _zone.pillar_terrain)
+					_built[cell] = true
+	_scatter_clutter(Rect2i(2, 2, _size.x - 8, _size.y - 4), 4)
+
+
+## Concrete floor with metal patches, big machines (tall, unwalkable) with
+## catwalks along them and metal stairs, a broken corrugated wall on the
+## north, oil puddles, crates and barrels.
+func _shape_factory() -> void:
+	var patches := _noise(0.12, _rng.randi())
+	for cell in _cells():
+		_set_height(cell, 0)
+		_set_terrain(cell, _zone.alt_floor_terrain if patches.get_noise_2d(cell.x, cell.y) > 0.25 else _zone.floor_terrain)
+	# North wall, broken.
+	for x in _size.x:
+		if _rng.randf() < 0.8:
+			var cell := Vector2i(x, 0)
+			_set_terrain(cell, _zone.wall_terrain)
+			_set_height(cell, _rng.randi_range(5, 7))
+			_built[cell] = true
+	# Machines with a catwalk along one side.
+	for i in 12:  # Attempts: keeps the ones that fit (3-4 usually).
+		var size := Vector2i(_rng.randi_range(2, 3), _rng.randi_range(2, 3))
+		var origin := Vector2i(_rng.randi_range(4, _size.x - size.x - 5), _rng.randi_range(2, _size.y - size.y - 3))
+		var rect := Rect2i(origin, size)
+		var free := true
+		for cell in _rect_cells(rect.grow(1)):
+			if not _inside(cell) or _built.has(cell):
+				free = false
+				break
+		if not free:
+			continue
+		var top := _rng.randi_range(4, 6)
+		_raise(rect, top, _zone.high_terrain)
+		var walk := Rect2i(Vector2i(rect.position.x, rect.end.y), Vector2i(rect.size.x, 1))
+		_raise(walk, 3, _zone.platform_terrain)
+		_stairs_down(Vector2i(walk.end.x, walk.position.y), Vector2i.RIGHT, 3, 0)
+		_stairs_down(Vector2i(walk.position.x - 1, walk.position.y), Vector2i.LEFT, 3, 0)
+	# Oil puddles.
+	for i in roundi(_zone.liquid_amount * 40.0):
+		var cell := Vector2i(_rng.randi_range(2, _size.x - 3), _rng.randi_range(2, _size.y - 3))
+		for pool in AreaShape.get_cells(AreaShape.Shape.DIAMOND, cell, _rng.randi_range(0, 1)):
+			if _inside(pool) and not _built.has(pool):
+				_set_terrain(pool, _zone.liquid_terrain)
+	_scatter_clutter(Rect2i(2, 1, _size.x - 4, _size.y - 2), 6)
+	_scatter_obstacles(_noise(0.3, _rng.randi()), 0.3, func(c: Vector2i) -> bool: return _is_open_floor(c) and not _is_liquid(c))
+
+#endregion
 
 
 func _place_spawns(count: int, west: bool) -> Array[Vector2i]:
@@ -275,7 +532,7 @@ func _place_spawns(count: int, west: bool) -> Array[Vector2i]:
 	for y in range(1, _size.y - 1):
 		for x in range(x_from, x_to + 1):
 			var cell := Vector2i(x, y)
-			if _is_open_floor(cell):
+			if _is_open_floor(cell) and cell != _boss_cell:
 				candidates.append(cell)
 	if candidates.size() < count:
 		# Not enough room: clear the band around the anchor.

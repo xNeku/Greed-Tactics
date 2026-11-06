@@ -106,6 +106,11 @@ Roguelike táctico isométrico 2.5D. Combate por turnos rápido y legible, runs 
   - Probabilidad de golpe = `100 − evasión × factor` (frente 1, flanco 0.5, espalda 0). Entre 5% y 100%.
   - Crítico = crítico base de la unidad, +15 puntos por la espalda. Daño crítico ×1.5.
   - El alcance vertical de cada habilidad (`vertical_reach`) limita la diferencia de altura con la casilla objetivo (melee: 1, arco: 3).
+  - **[Decidido v0.9] Línea de visión y parábolas** (`SkillData.trajectory`; AUTO = según su aspecto):
+    - **Directos** (flechas, balas, rayos): necesitan **línea limpia** desde el ojo del tirador (1,5 niveles sobre su casilla) hasta el pecho del objetivo (1 nivel). La tapa cualquier casilla intermedia cuya cima, más su `TerrainData.sight_block` (árbol 4, columna 5-6, cajas 1), quede por encima de la línea. Desde lo alto se dispara por encima de lo que hay abajo. Las unidades no tapan.
+    - **En parábola** (áreas a distancia: bola de fuego, lluvia de flechas, bombas): **siempre se pueden lanzar**, pero cuanto más tenga que subir el arco para salvar lo que hay en medio, menos llega: −1 casilla de alcance por cada 2 niveles de más (`RulesConfig.arc_levels_per_range`). Además, cuesta abajo llegan más lejos y cuesta arriba menos: ±1 por cada 2 niveles de diferencia, máximo ±2 (`arc_max_height_range`).
+    - **Cuerpo a cuerpo y magia que aparece en el objetivo:** sin línea de visión.
+    - Previsión: las casillas a tiro pero tapadas se ven en **violeta tenue**, y al pasar el ratón avisa de que algo se interpone. La IA usa las mismas reglas.
 - **[Decidido v0.2] Previsión:** al pasar el ratón por un objetivo se muestra una ficha por cada unidad afectada con lado (Frente/Flanco/Espalda), daño, % de golpe y % de crítico, calculados con las mismas funciones que resuelven el ataque.
 - **[Decidido v0.3] Bonus de altura:** +5% de daño por cada nivel por encima del objetivo (`RulesConfig.height_damage_bonus`, 0 para desactivarlo).
 - **[Decidido v0.3] Recursos por clase** (`UnitData.resource_kind`):
@@ -403,7 +408,13 @@ Fases: CAST → movimiento → ARRIVE → IMPACT (por golpe) → END, y al final
   - **Garantía de conectividad:** se comprueba con las reglas reales de movimiento que todos los spawns se alcanzan entre sí; si no, se excava el camino más barato y se suavizan sus alturas.
   - Cada zona define además su luz (fondo, ambiente, sol) y su pool de enemigos y minibosses.
   - Decorado: cada terreno puede tener un `prop_scene` (árbol, cactus, roca, estalagmita, cristal).
-
+- **[Decidido v0.9] Escenarios con estructuras** (prueba para que Neku elija qué se queda):
+  - **Ruinas** en bosque, desierto y cueva (`ZoneData.structure_count`): plataformas 2-3 niveles más altas con **escalera** (un nivel por casilla, que se dibuja con peldaños), muro roto, columnas en las esquinas y braseros.
+  - **Estrado del jefe** en las batallas de miniboss: plataforma 3×3 cuatro niveles arriba, al fondo del lado enemigo, con **escalinata de 3 de ancho** hacia los jugadores, braseros a los lados, columnas y muro detrás (trono en el castillo). El jefe empieza arriba.
+  - **Zona nueva: Castillo** (interior): sala con muros altos y ventanas, nave con alfombra hasta el trono, filas de columnas, **galerías elevadas** a lo largo de los muros con escaleras, braseros, antorchas y estandartes. Siempre tiene estrado.
+  - **Zona nueva: Fábrica abandonada:** hormigón y chapa, **máquinas** altas con tuberías, **pasarelas** de rejilla con escaleras metálicas, muro de chapa roto, manchas de aceite (cuestan 2 PM), cajas, barriles y farolas que fallan.
+  - Enemigos de castillo y fábrica: provisionales, prestados de otras zonas (bandidos, luchadores; trasgos, ratas, limos; ogro de miniboss).
+  - **Corte de muros:** los muros (`TerrainData.cutaway`) que tapan suelo del mapa desde la cámara se deshacen por encima de un murete bajo con un tramado pixelado, como en los tácticos clásicos; las antorchas y estandartes de esa parte se ocultan con ellos.
 **Apertura tipo Isaac:**
 
 - Al principio, las runs tienen límites: menos zonas disponibles, menos slots de habilidad, menos bendiciones posibles.
@@ -431,6 +442,18 @@ Fases: CAST → movimiento → ARRIVE → IMPACT (por golpe) → END, y al final
 - Vista isométrica con cámara libre (Space para volver al personaje activo).
 - **[v0.2] Implementado:** columnas 3D por casilla (1 nivel = 0,5 unidades), cuadrícula y damero sutil en la cara superior por shader, agua animada por shader, fondo navy. Cámara: Q/E rota 90º, rueda zoom, WASD/flechas o botón central para desplazar, Espacio vuelve a la unidad activa.
 
+**Escenarios HD-2D [Decidido v0.9]:** pixel art sobre 3D con luz moderna.
+
+- **Texturas pixel art** de 32 px por casilla, la misma densidad que los personajes, con filtro nearest y paleta por material: hierba, tierra con estratos y raíces, adoquín (con musgo), ladrillo, roca, arena, arenisca, losas de castillo, alfombra, madera, chapa con remaches, rejilla, chapa ondulada oxidada, hormigón y aceite. Se generan con `art/src/terrain_textures.py`. La hierba cuelga por el borde de los acantilados con perfil dentado, y cada canto tiene un píxel de luz.
+- **Props:** columnas (enteras y rotas), cajas, barriles, antorchas y braseros (fuego pixelado por shader, ascuas y luz que parpadea), estandartes, farolas, tuberías, trono, escombros. Los **árboles son sprites pixel art** (como el follaje del HD-2D) que reciben la luz. Se generan con `tools/build_scenery_props.py`.
+- **Ambientes de luz** (`LightingMood`, varios por zona, uno por batalla):
+  - **día:** el sol gira despacio durante el combate y las sombras se mueven;
+  - **atardecer:** sol bajo, sombras largas y rayos dorados;
+  - **noche:** luna con halo, estrellas que parpadean, luz fría con **rayos volumétricos** y antorchas más fuertes;
+  - **interiores:** gruta; castillo de noche o con luz de vitrales; fábrica al ocaso o de noche.
+- **Fondo de diorama:** cielo pintado en pantalla con degradado pixelado, estrellas, luna o sol y nubes.
+- **Post:** desenfoque de profundidad (tilt-shift del HD-2D), bloom, tonemap fílmico, contraste y saturación por ambiente; niebla volumétrica solo sobre el mapa.
+
 **Proyectiles y sensación de golpe [Decidido v0.8.2]:** pixel art mezclado con luz 3D.
 
 - Cada proyectil tiene un `ProjectileLook` (datos en `content/vfx/projectiles/`): flechas, balas, dardos, rocas, lanzas y hachas son **sprites pixel art** que giran hacia donde vuelan (la lanzada gira sobre sí misma); la magia es un **orbe/cometa pixelado** animado por shader con bandas de color (borde, medio, núcleo al rojo blanco), con el mismo tamaño de pixel que los personajes.
@@ -444,7 +467,7 @@ Fases: CAST → movimiento → ARRIVE → IMPACT (por golpe) → END, y al final
 
 - Barra pixel art sobre cada unidad (verde aliados, roja enemigos) con su número de PV al lado y marcas cada 25 PV. **Solo se ve cuando importa:** ratón encima (sobre el sprite o su casilla), turno activo, o un rato después de recibir daño o curación. **Alt** muestra todas.
 - Al recibir daño la barra cae al momento, el trozo perdido parpadea en blanco y queda un "fantasma" amarillo que se vacía tras una pausa; la barra tiembla más cuanto más grande es el golpe y el número baja rodando. Las curas rellenan primero en verde claro. Con poca vida la barra late en rojo.
-- Números de golpe: entran de golpe (grandes, en blanco), toman su color y salen en arco. Tamaño según el daño respecto a la vida máxima. **Críticos** dorados, más grandes, temblando y con «¡CRÍTICO!». Las habilidades de **varios golpes** muestran un número por golpe, escalonados, y la barra baja golpe a golpe.
+- Números de golpe: entran de golpe (grandes, en blanco), toman su color y salen en arco. Tamaño según el daño respecto a la vida máxima. **Críticos [v0.9]:** sin texto; el número sale mucho más grande, dorado con contorno rojo, parpadea y tiembla, con destello de pantalla, estrella grande, golpe de zoom y parón de impacto más largo. Las habilidades de **varios golpes** muestran un número por golpe, escalonados, y la barra baja golpe a golpe.
 
 **Personajes:**
 
@@ -559,7 +582,7 @@ Cada hito tiene un criterio de salida. No se pasa al siguiente sin cumplirlo.
 - **[v0.6] Compañeros:** ¿los controla la IA o el jugador? ¿Cuentan dentro del grupo de 4 o van aparte (máx. 3 aliados activos)? ¿Usarlos como aliados les da maestría (y cuánta)?
 - **Cuenta de energía o límite de partidas:** no definido. Probablemente no hace falta.
 - **Nombre del juego:** provisional "Greed Tactics" (nombre del repositorio). Confirmar.
-- **[v0.2] Línea de visión:** ¿los proyectiles se bloquean con bloques altos o unidades en medio? Hoy no hay línea de visión, solo alcance vertical.
+- ~~[v0.2] Línea de visión~~ → resuelto en v0.9 (§3): los bloques altos y los obstáculos tapan; las unidades no. ¿Deberían tapar las unidades grandes (jefes)?
 - ~~**[v0.2] Bonus de altura**~~ → resuelto en v0.3: +5% de daño por nivel de ventaja (configurable).
 - **[v0.2] Coste del ataque básico:** el GDD dice "sin coste o coste mínimo". Con 0 PA sería infinito; hoy cuesta 1 de 2 PA (dos ataques por turno). Validar en M1 con la duración de combate.
 - **[v0.2] Orientación al esperar:** hoy se elige a mano al terminar. ¿Automática hacia el enemigo más cercano para ir más rápido (pilar 1), con opción de cambiarla?
@@ -572,6 +595,7 @@ Cada hito tiene un criterio de salida. No se pasa al siguiente sin cumplirlo.
 
 ## Changelog
 
+- **v0.9 (Nov 6, 2026)** — Escenarios HD-2D (prueba para elegir): texturas pixel art, escaleras de verdad, ruinas con columnas y braseros, estrado del jefe con escalinata, zonas nuevas **Castillo** y **Fábrica abandonada**, árboles sprite, antorchas, estandartes, corte de muros. Ambientes de luz: día con sol que gira, atardecer, noche con luna, estrellas y rayos volumétricos, interiores; fondo de diorama, desenfoque de profundidad y corrección de color. **Línea de visión** para disparos directos y **alcance de las parábolas** según altura y obstáculos. Críticos sin texto y mucho más llamativos.
 - **v0.8.3 (Nov 6, 2026)** — Barras de vida pixel art que aparecen al pasar el ratón, en el turno activo, al recibir golpes o curas (Alt = todas), con fantasma que se vacía, parpadeo, temblor y número que rueda. Números de golpe con impacto, críticos dorados con «¡CRÍTICO!» y un número por golpe en habilidades de varios golpes. El nombre sobre la cabeza solo se ve con la barra.
 - **v0.8.2 (Nov 6, 2026)** — Proyectiles nuevos: sprites pixel art que giran con la trayectoria, orbes mágicos pixelados por shader, estelas, luces que iluminan el suelo, carga de la magia, fogonazo/humo/casquillo en las balas, flechas que se clavan, lluvia de flechas y perdigones a cada casilla, estrella de impacto pixelada, chispas con gravedad, humo, parón de impacto, sacudida y aberración. Las armas en la mano dan el tajo o retroceden al atacar. Muestra en vídeo con `tools/vfx_showcase.gd`.
 - **v0.8.1 (Nov 6, 2026)** — Las armas de la Armería entran en el juego: `WeaponData` con sprite, agarre y pose por vista; cada héroe lleva la suya en la mano (Nyx dos dagas, Grizka dos pistolas, Sigrid el hacha, Elara el mandoble, Pablo el arco; Kael, Lyra y Tohil sin arma dibujada). Armas dobles con la segunda en espejo. Armería: botón «Doble», segunda arma en la prueba y «Marcar 2ª mano». Grizka lleva las pistolas apuntando abajo de frente (cruzadas por la barriga se tapaban la una a la otra).

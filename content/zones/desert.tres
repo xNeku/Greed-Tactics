@@ -11,11 +11,20 @@
 [ext_resource type="Resource" path="res://content/terrains/water.tres" id="8_water"]
 [ext_resource type="Resource" path="res://content/units/enemies/scorpion.tres" id="9_scorpion"]
 [ext_resource type="Resource" path="res://content/units/enemies/trasgo_dagger.tres" id="10_trasgo_dagger"]
-[ext_resource type="Script" path="res://core/data/terrain_data.gd" id="10_v0n4p"]
 [ext_resource type="Resource" path="res://content/units/enemies/trasgo_archer.tres" id="11_trasgo_archer"]
 [ext_resource type="Resource" path="res://content/units/enemies/sand_troll.tres" id="12_sand_troll"]
 [ext_resource type="Resource" path="res://content/units/enemies/trasgo_warlock.tres" id="13_trasgo_warlock"]
 [ext_resource type="PackedScene" path="res://scenes/battle/atmosphere/desert_dust.tscn" id="71_particles"]
+[ext_resource type="Resource" path="res://content/terrains/sand_temple.tres" id="kit_0"]
+[ext_resource type="Resource" path="res://content/terrains/sand_stairs.tres" id="kit_1"]
+[ext_resource type="Resource" path="res://content/terrains/sand_wall.tres" id="kit_2"]
+[ext_resource type="Resource" path="res://content/terrains/sand_pillar.tres" id="kit_3"]
+[ext_resource type="Resource" path="res://content/terrains/sand_brazier.tres" id="kit_4"]
+[ext_resource type="Script" path="res://core/data/terrain_data.gd" id="kit_script"]
+[ext_resource type="Resource" path="res://content/lighting/day.tres" id="mood_0"]
+[ext_resource type="Resource" path="res://content/lighting/sunset.tres" id="mood_1"]
+[ext_resource type="Resource" path="res://content/lighting/night.tres" id="mood_2"]
+[ext_resource type="Script" path="res://core/data/lighting_mood.gd" id="mood_script"]
 
 [resource]
 script = ExtResource("1_script")
@@ -27,7 +36,14 @@ alt_floor_terrain = ExtResource("4_hard_sand")
 high_terrain = ExtResource("7_sandstone")
 liquid_terrain = ExtResource("8_water")
 shore_terrain = ExtResource("5_oasis_grass")
-obstacle_terrains = Array[ExtResource("10_v0n4p")]([ExtResource("2_cactus"), ExtResource("2_cactus"), ExtResource("3_desert_rock")])
+obstacle_terrains = Array[ExtResource("kit_script")]([ExtResource("2_cactus"), ExtResource("2_cactus"), ExtResource("3_desert_rock")])
+platform_terrain = ExtResource("kit_0")
+stairs_terrain = ExtResource("kit_1")
+structure_wall_terrain = ExtResource("kit_2")
+pillar_terrain = ExtResource("kit_3")
+clutter_terrains = Array[ExtResource("kit_script")]([ExtResource("kit_4")])
+dais_flank_terrain = ExtResource("kit_4")
+structure_count = Vector2i(1, 2)
 min_size = Vector2i(19, 14)
 max_height = 6
 height_frequency = 0.07
@@ -42,6 +58,7 @@ sun_rotation_degrees = Vector2(-64, -18)
 fog_color = Color(0.95, 0.8, 0.6, 1)
 fog_density = 0.01
 glow_intensity = 0.3
+moods = Array[ExtResource("mood_script")]([ExtResource("mood_0"), ExtResource("mood_1"), ExtResource("mood_2")])
 ambient_particles = ExtResource("71_particles")
 enemy_pool = Array[ExtResource("2_qoq3g")]([ExtResource("9_scorpion"), ExtResource("10_trasgo_dagger"), ExtResource("11_trasgo_archer"), ExtResource("13_trasgo_warlock")])
 miniboss_pool = Array[ExtResource("2_qoq3g")]([ExtResource("12_sand_troll")])

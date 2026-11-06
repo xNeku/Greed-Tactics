@@ -3,6 +3,8 @@
 [ext_resource type="Script" path="res://core/data/terrain_data.gd" id="1_script"]
 [ext_resource type="PackedScene" path="res://scenes/battle/props/decor/glow_mushrooms.tscn" id="70_0"]
 [ext_resource type="PackedScene" path="res://scenes/battle/props/decor/pebbles.tscn" id="70_1"]
+[ext_resource type="Texture2D" path="res://assets/textures/terrain/cave_wall_side.png" id="tx_side"]
+[ext_resource type="Texture2D" path="res://assets/textures/terrain/cave_floor_top.png" id="tx_top"]
 
 [resource]
 script = ExtResource("1_script")
@@ -10,6 +12,9 @@ id = &"cave_floor"
 display_name = "Suelo de cueva"
 symbol = "f"
 surface = 5
+top_texture = ExtResource("tx_top")
+side_texture = ExtResource("tx_side")
+texture_tint = Color(0.95, 0.85, 0.78, 1)
 top_color = Color(0.56, 0.56, 0.66, 1)
 side_color = Color(0.4, 0.4, 0.5, 1)
 decor_scenes = Array[PackedScene]([ExtResource("70_0"), ExtResource("70_1")])

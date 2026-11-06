@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="LightingMood" format=3]
+
+[ext_resource type="Script" path="res://core/data/lighting_mood.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"sunset"
+display_name = "Atardecer"
+sky_top = Color(0.13, 0.1, 0.28, 1)
+sky_middle = Color(0.78, 0.36, 0.32, 1)
+sky_bottom = Color(1, 0.72, 0.38, 1)
+disc = true
+disc_is_sun = true
+disc_color = Color(1, 0.75, 0.4, 1)
+disc_position = Vector2(0.78, 0.74)
+disc_size = 0.085
+halo_color = Color(1, 0.55, 0.3, 0.55)
+clouds = 0.7
+cloud_color = Color(0.96, 0.46, 0.36, 1)
+light_color = Color(1, 0.74, 0.52, 1)
+light_energy = 1.25
+light_rotation = Vector2(-17, -62)
+light_spin = 0.35
+shadow_opacity = 0.85
+light_volumetric = 2.6
+ambient_color = Color(0.46, 0.44, 0.68, 1)
+ambient_energy = 0.5
+volumetric_density = 0.02
+volumetric_albedo = Color(1, 0.75, 0.55, 1)
+glow = 0.7
+contrast = 1.08
+props_light = 0.9

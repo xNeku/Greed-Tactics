@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" path="res://core/data/terrain_data.gd" id="1_script"]
 [ext_resource type="PackedScene" path="res://scenes/battle/props/decor/glow_mushrooms.tscn" id="70_0"]
+[ext_resource type="Texture2D" path="res://assets/textures/terrain/cave_wall_side.png" id="tx_side"]
+[ext_resource type="Texture2D" path="res://assets/textures/terrain/cave_floor_top.png" id="tx_top"]
 
 [resource]
 script = ExtResource("1_script")
@@ -9,6 +11,9 @@ id = &"cave_floor_dark"
 display_name = "Roca húmeda"
 symbol = "x"
 surface = 5
+top_texture = ExtResource("tx_top")
+side_texture = ExtResource("tx_side")
+texture_tint = Color(0.7, 0.66, 0.66, 1)
 top_color = Color(0.46, 0.48, 0.6, 1)
 side_color = Color(0.34, 0.35, 0.45, 1)
 decor_scenes = Array[PackedScene]([ExtResource("70_0")])

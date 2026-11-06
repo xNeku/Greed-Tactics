@@ -35,6 +35,8 @@ var _dragging := false
 var _shake_strength := 0.0
 ## Skill choreographies zoom in by scaling the distance (1 = player's zoom).
 var _cinematic := 1.0
+## Short zoom-in kick on big hits (decays by itself).
+var _punch := 0.0
 
 
 func _ready() -> void:
@@ -52,6 +54,16 @@ func get_camera() -> Camera3D:
 ## Short screen shake (crits, explosions). Stronger calls override weaker ones.
 func shake(strength: float = 0.15) -> void:
 	_shake_strength = maxf(_shake_strength, strength)
+
+
+## Turns the view by [param radians] (showcase orbits, cinematics).
+func rotate_view(radians: float) -> void:
+	_target_yaw += radians
+
+
+## A quick zoom-in kick (criticals): [param amount] = share of the distance.
+func punch(amount: float = 0.08) -> void:
+	_punch = maxf(_punch, amount)
 
 
 ## Cinematic zoom for skills: [param factor] < 1 moves the camera closer.
@@ -117,7 +129,9 @@ func _apply_pitch_and_distance() -> void:
 	if _shake_strength > 0.001:
 		jitter = Vector3(randf_range(-1, 1), randf_range(-1, 1), 0.0) * _shake_strength
 		_shake_strength = lerpf(_shake_strength, 0.0, 0.18)
-	_camera.position = Vector3(0.0, 0.0, distance) + jitter
+	if _punch > 0.001:
+		_punch = lerpf(_punch, 0.0, 0.12)
+	_camera.position = Vector3(0.0, 0.0, distance * (1.0 - _punch)) + jitter
 
 
 func _clamp_to_bounds(world_position: Vector3) -> Vector3:

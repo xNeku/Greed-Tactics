@@ -5,18 +5,21 @@
 [ext_resource type="Shader" path="res://assets/shaders/water.gdshader" id="3_water"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_terrain"]
+resource_local_to_scene = true
 render_priority = 0
 shader = ExtResource("2_terrain")
-shader_parameter/checker_strength = null
-shader_parameter/grid_line_width = null
-shader_parameter/grid_line_darken = null
-shader_parameter/bevel_width = null
-shader_parameter/bevel_light = null
+shader_parameter/pixels_per_unit = null
+shader_parameter/grid_darken = null
 shader_parameter/cell_variation = null
 shader_parameter/side_ao = null
-shader_parameter/strata_strength = null
+shader_parameter/rim_light = null
+shader_parameter/map_min = null
+shader_parameter/map_max = null
+shader_parameter/floor_y = null
+shader_parameter/cut_height = null
 
 [sub_resource type="BoxMesh" id="BoxMesh_solid"]
+resource_local_to_scene = true
 material = SubResource("ShaderMaterial_terrain")
 
 [sub_resource type="MultiMesh" id="MultiMesh_solid"]

@@ -37,6 +37,7 @@ const HIT_SHAKE := 0.08
 @onready var _hud: BattleHud = %HUD
 @onready var _environment: WorldEnvironment = %WorldEnvironment
 @onready var _sun: DirectionalLight3D = %Sun
+@onready var _lighting: BattleLighting = %Lighting
 @onready var _arrows: FeedbackArrows = %FeedbackArrows
 @onready var _vfx: VfxPlayer = %VfxPlayer
 @onready var _screen_fx: ScreenFx = %ScreenFx
@@ -320,7 +321,7 @@ func _prepare_setup() -> bool:
 		setup = setup.duplicate()
 		var map_seed := setup.rng_seed if setup.rng_seed != 0 else randi()
 		setup.map = MapGenerator.generate(setup.zone, rules, map_seed,
-			setup.player_units.size(), setup.enemy_units.size())
+			setup.player_units.size(), setup.enemy_units.size(), 1.0, setup.is_boss_battle)
 	var errors := setup.map.validate()
 	for error in errors:
 		push_error("Map '%s': %s" % [setup.map.display_name, error])
@@ -370,18 +371,8 @@ func _ground(cell: Vector2i) -> Vector3:
 func _apply_zone_look(zone: ZoneData) -> void:
 	if zone == null:
 		return
-	var environment := _environment.environment
-	environment.background_color = zone.background_color
-	environment.ambient_light_color = zone.ambient_color
-	environment.ambient_light_energy = zone.ambient_energy
-	_sun.light_color = zone.sun_color
-	_sun.light_energy = zone.sun_energy
-	_sun.rotation_degrees = Vector3(zone.sun_rotation_degrees.x, zone.sun_rotation_degrees.y, 0.0)
-	environment.fog_enabled = zone.fog_density > 0.0
-	environment.fog_light_color = zone.fog_color
-	environment.fog_density = zone.fog_density
-	environment.glow_enabled = zone.glow_intensity > 0.0
-	environment.glow_intensity = zone.glow_intensity
+	_lighting.apply(zone, setup.lighting_mood, setup.rng_seed if setup.rng_seed != 0 else randi())
+	_lighting.fill_fog(_map_view.get_bounds())
 	if zone.ambient_particles != null:
 		var particles: AmbientParticles = zone.ambient_particles.instantiate()
 		add_child(particles)

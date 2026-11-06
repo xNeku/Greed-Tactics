@@ -1,0 +1,49 @@
+[gd_resource type="Resource" script_class="ZoneData" format=3]
+
+[ext_resource type="Script" path="res://core/data/zone_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://core/data/terrain_data.gd" id="kit_script"]
+[ext_resource type="Script" path="res://core/data/lighting_mood.gd" id="mood_script"]
+[ext_resource type="Resource" path="res://content/terrains/castle_floor.tres" id="r_0"]
+[ext_resource type="Resource" path="res://content/terrains/castle_carpet.tres" id="r_1"]
+[ext_resource type="Resource" path="res://content/terrains/castle_gallery.tres" id="r_2"]
+[ext_resource type="Resource" path="res://content/terrains/castle_wall.tres" id="r_3"]
+[ext_resource type="Resource" path="res://content/terrains/castle_stairs.tres" id="r_4"]
+[ext_resource type="Resource" path="res://content/terrains/castle_pillar.tres" id="r_5"]
+[ext_resource type="Resource" path="res://content/terrains/castle_crates.tres" id="r_6"]
+[ext_resource type="Resource" path="res://content/terrains/castle_brazier.tres" id="r_7"]
+[ext_resource type="Resource" path="res://content/terrains/castle_throne.tres" id="r_8"]
+[ext_resource type="Resource" path="res://content/lighting/castle_torches.tres" id="r_9"]
+[ext_resource type="Resource" path="res://content/lighting/castle_day.tres" id="r_10"]
+[ext_resource type="PackedScene" path="res://scenes/battle/atmosphere/cave_motes.tscn" id="r_11"]
+[ext_resource type="Resource" path="res://content/units/enemies/bandit.tres" id="r_12"]
+[ext_resource type="Resource" path="res://content/units/enemies/forest_fighter.tres" id="r_13"]
+[ext_resource type="Resource" path="res://content/units/enemies/forest_assassin.tres" id="r_14"]
+[ext_resource type="Resource" path="res://content/units/enemies/forest_healer.tres" id="r_15"]
+[ext_resource type="Resource" path="res://content/units/enemies/ogre.tres" id="r_16"]
+[ext_resource type="Script" path="res://core/data/unit_data.gd" id="unit_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"castle"
+display_name = "Castillo"
+layout = 3
+floor_terrain = ExtResource("r_0")
+alt_floor_terrain = ExtResource("r_1")
+high_terrain = ExtResource("r_2")
+obstacle_terrains = Array[ExtResource("kit_script")]([ExtResource("r_6")])
+wall_terrain = ExtResource("r_3")
+platform_terrain = ExtResource("r_2")
+stairs_terrain = ExtResource("r_4")
+structure_wall_terrain = ExtResource("r_3")
+pillar_terrain = ExtResource("r_5")
+clutter_terrains = Array[ExtResource("kit_script")]([ExtResource("r_6"), ExtResource("r_7")])
+dais_flank_terrain = ExtResource("r_7")
+throne_terrain = ExtResource("r_8")
+min_size = Vector2i(18, 13)
+max_size = Vector2i(22, 15)
+max_height = 0
+obstacle_density = 0.0
+moods = Array[ExtResource("mood_script")]([ExtResource("r_9"), ExtResource("r_10")])
+ambient_particles = ExtResource("r_11")
+enemy_pool = Array[ExtResource("unit_script")]([ExtResource("r_12"), ExtResource("r_13"), ExtResource("r_14"), ExtResource("r_15")])
+miniboss_pool = Array[ExtResource("unit_script")]([ExtResource("r_16")])

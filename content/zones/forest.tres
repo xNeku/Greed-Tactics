@@ -3,12 +3,9 @@
 [ext_resource type="Script" path="res://core/data/zone_data.gd" id="1_script"]
 [ext_resource type="Script" path="res://core/data/unit_data.gd" id="2_1gu88"]
 [ext_resource type="Resource" path="res://content/terrains/dirt.tres" id="2_dirt"]
-[ext_resource type="Resource" path="res://content/terrains/forest_rock.tres" id="3_forest_rock"]
 [ext_resource type="Resource" path="res://content/terrains/grass.tres" id="4_grass"]
 [ext_resource type="Resource" path="res://content/terrains/stone.tres" id="5_stone"]
-[ext_resource type="Resource" path="res://content/terrains/tree.tres" id="6_tree"]
 [ext_resource type="Resource" path="res://content/terrains/water.tres" id="7_water"]
-[ext_resource type="Script" path="res://core/data/terrain_data.gd" id="11_wt4x8"]
 [ext_resource type="Resource" path="res://content/units/enemies/treant.tres" id="12_treant"]
 [ext_resource type="Resource" path="res://content/units/enemies/forest_assassin.tres" id="70_forest_assassin"]
 [ext_resource type="Resource" path="res://content/units/enemies/forest_berserker.tres" id="70_forest_berserker"]
@@ -18,6 +15,18 @@
 [ext_resource type="Resource" path="res://content/units/enemies/rat_big.tres" id="70_rat_big"]
 [ext_resource type="Resource" path="res://content/units/enemies/rat_small.tres" id="70_rat_small"]
 [ext_resource type="PackedScene" path="res://scenes/battle/atmosphere/fireflies.tscn" id="71_particles"]
+[ext_resource type="Resource" path="res://content/terrains/ruin_floor.tres" id="kit_0"]
+[ext_resource type="Resource" path="res://content/terrains/ruin_stairs.tres" id="kit_1"]
+[ext_resource type="Resource" path="res://content/terrains/ruin_wall.tres" id="kit_2"]
+[ext_resource type="Resource" path="res://content/terrains/ruin_pillar.tres" id="kit_3"]
+[ext_resource type="Resource" path="res://content/terrains/ruin_brazier.tres" id="kit_4"]
+[ext_resource type="Resource" path="res://content/terrains/forest_trees.tres" id="kit_5"]
+[ext_resource type="Resource" path="res://content/terrains/forest_rock.tres" id="kit_6"]
+[ext_resource type="Script" path="res://core/data/terrain_data.gd" id="kit_script"]
+[ext_resource type="Resource" path="res://content/lighting/day.tres" id="mood_0"]
+[ext_resource type="Resource" path="res://content/lighting/sunset.tres" id="mood_1"]
+[ext_resource type="Resource" path="res://content/lighting/night.tres" id="mood_2"]
+[ext_resource type="Script" path="res://core/data/lighting_mood.gd" id="mood_script"]
 
 [resource]
 script = ExtResource("1_script")
@@ -28,9 +37,17 @@ alt_floor_terrain = ExtResource("2_dirt")
 high_terrain = ExtResource("5_stone")
 liquid_terrain = ExtResource("7_water")
 shore_terrain = ExtResource("4_grass")
-obstacle_terrains = Array[ExtResource("11_wt4x8")]([ExtResource("6_tree"), ExtResource("6_tree"), ExtResource("6_tree"), ExtResource("3_forest_rock")])
+obstacle_terrains = Array[ExtResource("kit_script")]([ExtResource("kit_5"), ExtResource("kit_6")])
+platform_terrain = ExtResource("kit_0")
+stairs_terrain = ExtResource("kit_1")
+structure_wall_terrain = ExtResource("kit_2")
+pillar_terrain = ExtResource("kit_3")
+clutter_terrains = Array[ExtResource("kit_script")]([ExtResource("kit_4")])
+dais_flank_terrain = ExtResource("kit_4")
+structure_count = Vector2i(1, 2)
 min_size = Vector2i(19, 14)
 height_frequency = 0.09
+obstacle_density = 0.17
 background_color = Color(0.09, 0.12, 0.13, 1)
 ambient_color = Color(0.85, 0.95, 0.9, 1)
 sun_color = Color(1, 0.92, 0.78, 1)
@@ -39,6 +56,7 @@ sun_rotation_degrees = Vector2(-40, -30)
 fog_color = Color(0.55, 0.7, 0.62, 1)
 fog_density = 0.012
 glow_intensity = 0.4
+moods = Array[ExtResource("mood_script")]([ExtResource("mood_0"), ExtResource("mood_1"), ExtResource("mood_2")])
 ambient_particles = ExtResource("71_particles")
 enemy_pool = Array[ExtResource("2_1gu88")]([ExtResource("70_forest_fighter"), ExtResource("70_forest_assassin"), ExtResource("70_forest_berserker"), ExtResource("70_forest_healer"), ExtResource("70_rat_small"), ExtResource("70_rat"), ExtResource("70_rat_big")])
 miniboss_pool = Array[ExtResource("2_1gu88")]([ExtResource("12_treant")])

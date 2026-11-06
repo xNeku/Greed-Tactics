@@ -1,0 +1,13 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/scenery/banner_blue.png" id="1_r"]
+
+[node name="BannerBlue" type="Node3D"]
+editor_description = "Banner hanging on a wall face."
+
+[node name="Cloth" type="Sprite3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.55, 0.02)
+pixel_size = 0.036
+alpha_cut = 1
+texture_filter = 0
+texture = ExtResource("1_r")

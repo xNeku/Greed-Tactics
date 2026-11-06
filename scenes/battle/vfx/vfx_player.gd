@@ -93,6 +93,13 @@ func play_bounce(to: Vector3, hit: SkillResult.Hit, views: Dictionary[UnitState,
 func hit(at: Vector3, skill: EffectiveSkill, critical: bool, explosion: bool) -> void:
 	var look := look_for(skill)
 	var strong := critical or explosion
+	if critical:
+		# Criticals: white flash, camera kick, a bigger star.
+		if screen_fx != null:
+			screen_fx.pulse(Color(1.0, 0.95, 0.8), 0.28, 0.0, Color.BLACK, 0.0, 0.18, false)
+		if camera_rig != null:
+			camera_rig.punch(0.07)
+		impact(at, Color(1.0, 0.85, 0.4), 1.8, 10, -4.0)
 	if look != null:
 		impact(at, look.impact_color, look.impact_size * (1.5 if strong else 1.0), look.impact_sparks * (2 if strong else 1),
 			look.impact_gravity, look.impact_smoke)

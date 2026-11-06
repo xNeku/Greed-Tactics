@@ -1,0 +1,79 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://assets/materials/pixel_wood.tres" id="1_r"]
+[ext_resource type="Material" path="res://assets/materials/pixel_metal.tres" id="2_r"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_1"]
+material = ExtResource("1_r")
+top_radius = 0.25
+bottom_radius = 0.25
+height = 0.72
+radial_segments = 10
+rings = 1
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_2"]
+material = ExtResource("2_r")
+top_radius = 0.265
+bottom_radius = 0.265
+height = 0.05
+radial_segments = 10
+rings = 1
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_3"]
+material = ExtResource("2_r")
+top_radius = 0.265
+bottom_radius = 0.265
+height = 0.05
+radial_segments = 10
+rings = 1
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_4"]
+material = ExtResource("1_r")
+top_radius = 0.25
+bottom_radius = 0.25
+height = 0.72
+radial_segments = 10
+rings = 1
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_5"]
+material = ExtResource("2_r")
+top_radius = 0.265
+bottom_radius = 0.265
+height = 0.05
+radial_segments = 10
+rings = 1
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_6"]
+material = ExtResource("2_r")
+top_radius = 0.265
+bottom_radius = 0.265
+height = 0.05
+radial_segments = 10
+rings = 1
+
+[node name="Barrels" type="Node3D"]
+editor_description = "Two barrels bound with iron."
+
+[node name="Barrel0" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.17, 0.36, 0.08)
+mesh = SubResource("CylinderMesh_1")
+
+[node name="Hoop0a" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.17, 0.18, 0.08)
+mesh = SubResource("CylinderMesh_2")
+
+[node name="Hoop0b" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.17, 0.56, 0.08)
+mesh = SubResource("CylinderMesh_3")
+
+[node name="Barrel1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0.36, -0.1)
+mesh = SubResource("CylinderMesh_4")
+
+[node name="Hoop1a" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0.18, -0.1)
+mesh = SubResource("CylinderMesh_5")
+
+[node name="Hoop1b" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0.56, -0.1)
+mesh = SubResource("CylinderMesh_6")

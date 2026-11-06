@@ -11,7 +11,7 @@ Leyenda: ✅ hecho · 🟡 en curso · ⬜ pendiente · 🔍 pendiente de valida
 | M1. Combate completo | 🔍 | 4 clases, ira/maná/enfriamientos, 25 modificadores, estados, IA táctica, flechas y efectos (v0.4). Falta validarlo jugando. |
 | M2. Run jugable | 🟡 | v0.7: protagonista + reclutas, mapa de etapa con bifurcaciones, objetivos opcionales, escalado por grupo. Faltan tienda, eventos, armas y pulido. |
 | M3. Meta y persistencia | ⬜ | Decidido: compañeros = héroes jugables con progresión bilateral (GDD §7). |
-| M4. Contenido | 🟡 | Adelantado: 3 zonas, 12 enemigos, 3 minibosses, 22 modificadores; armas iniciales de Neku dibujadas en la mano (faltan sus estadísticas y el martillo). |
+| M4. Contenido | 🟡 | Adelantado: 5 zonas (castillo y fábrica nuevas, con enemigos prestados), 12 enemigos, 3 minibosses, 22 modificadores; armas iniciales de Neku dibujadas en la mano (faltan sus estadísticas y el martillo). |
 | M5. Pulido y balance | ⬜ | |
 
 ---

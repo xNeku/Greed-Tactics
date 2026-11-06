@@ -7,6 +7,8 @@ enum Layout {
 	FOREST,  ## Rolling hills, a river across the map, clusters of trees, rocky outcrops.
 	DESERT,  ## Dunes, tall sandstone mesas with ramps, cacti, maybe an oasis.
 	CAVE,    ## Enclosed by rock walls, pillars from cellular automata, pools, stalagmites.
+	CASTLE,  ## Hall inside tall walls: carpet nave, pillar rows, raised side galleries, throne dais.
+	FACTORY, ## Abandoned factory: machines, catwalks with metal stairs, oil, crates, lamps.
 }
 
 @export var id: StringName = &""
@@ -28,6 +30,24 @@ enum Layout {
 @export var obstacle_terrains: Array[TerrainData] = []
 ## Unwalkable tall walls (caves). Optional.
 @export var wall_terrain: TerrainData
+
+@export_group("Structures")
+## Raised walkable ground of buildings and ruins (platforms, galleries, dais).
+@export var platform_terrain: TerrainData
+## Stair cells (TerrainData.stairs) leading up to platforms, one level per cell.
+@export var stairs_terrain: TerrainData
+## Unwalkable walls of structures (parapets, broken walls, hall walls).
+@export var structure_wall_terrain: TerrainData
+## Columns (obstacle with a prop) on corners and in rows.
+@export var pillar_terrain: TerrainData
+## Small obstacles scattered by structures (crates, barrels, braziers).
+@export var clutter_terrains: Array[TerrainData] = []
+## Flanks the stairs of the boss dais (braziers).
+@export var dais_flank_terrain: TerrainData
+## Behind the boss on its dais (a throne).
+@export var throne_terrain: TerrainData
+## Raised ruins with stairs per map (min, max) on the natural layouts.
+@export var structure_count: Vector2i = Vector2i.ZERO
 
 @export_group("Size and shape")
 @export var min_size: Vector2i = Vector2i(18, 14)
@@ -54,6 +74,8 @@ enum Layout {
 @export_range(0.0, 0.1) var fog_density: float = 0.0
 ## Bloom on bright and emissive things (crystals, VFX).
 @export_range(0.0, 2.0) var glow_intensity: float = 0.5
+## Times of day / lights it can roll (LightingMood). Empty = the fields above.
+@export var moods: Array[LightingMood] = []
 ## Particles floating over the map (fireflies, dust...). Sized to the map.
 @export var ambient_particles: PackedScene
 
@@ -64,10 +86,11 @@ enum Layout {
 
 func get_all_terrains() -> Array[TerrainData]:
 	var result: Array[TerrainData] = []
-	for terrain in [floor_terrain, alt_floor_terrain, high_terrain, liquid_terrain, shore_terrain, wall_terrain]:
+	for terrain in [floor_terrain, alt_floor_terrain, high_terrain, liquid_terrain, shore_terrain, wall_terrain,
+			platform_terrain, stairs_terrain, structure_wall_terrain, pillar_terrain, dais_flank_terrain, throne_terrain]:
 		if terrain != null and not result.has(terrain):
 			result.append(terrain)
-	for terrain in obstacle_terrains:
+	for terrain in obstacle_terrains + clutter_terrains:
 		if terrain != null and not result.has(terrain):
 			result.append(terrain)
 	return result

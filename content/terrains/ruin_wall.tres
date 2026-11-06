@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="TerrainData" format=3]
+
+[ext_resource type="Script" path="res://core/data/terrain_data.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/textures/terrain/stone_brick_moss_side.png" id="tx_side"]
+[ext_resource type="Texture2D" path="res://assets/textures/terrain/cobble_moss_top.png" id="tx_top"]
+[ext_resource type="PackedScene" path="res://scenes/battle/props/scenery/wall_torch.tscn" id="wall_1"]
+[ext_resource type="PackedScene" path="res://scenes/battle/props/scenery/banner_blue.tscn" id="wall_2"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"ruin_wall"
+display_name = "Muro en ruinas"
+symbol = "W"
+walkable = false
+top_texture = ExtResource("tx_top")
+side_texture = ExtResource("tx_side")
+cutaway = true
+top_color = Color(0.5, 0.5, 0.5, 1)
+side_color = Color(0.35, 0.35, 0.35, 1)
+wall_decor_scenes = Array[PackedScene]([ExtResource("wall_1"), ExtResource("wall_1"), ExtResource("wall_2")])
+wall_decor_density = 0.22

@@ -1,0 +1,17 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/scenery/tree_autumn.png" id="1_r"]
+
+[node name="TreeAutumn" type="Node3D"]
+editor_description = "Pixel-art tree billboard (HD-2D foliage)."
+
+[node name="Sprite" type="Sprite3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1.35, 0, 0, 0, 1, 0, 1.5066, 0)
+offset = Vector2(0, 0)
+centered = true
+pixel_size = 0.036
+billboard = 2
+shaded = true
+alpha_cut = 1
+texture_filter = 0
+texture = ExtResource("1_r")

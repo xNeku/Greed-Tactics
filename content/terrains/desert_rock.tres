@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" path="res://core/data/terrain_data.gd" id="1_script"]
 [ext_resource type="PackedScene" path="res://scenes/battle/props/rock.tscn" id="2_rock"]
+[ext_resource type="Texture2D" path="res://assets/textures/terrain/sandstone_side.png" id="tx_side"]
+[ext_resource type="Texture2D" path="res://assets/textures/terrain/rock_top.png" id="tx_top"]
 
 [resource]
 script = ExtResource("1_script")
@@ -11,6 +13,9 @@ symbol = "k"
 walkable = false
 sight_block = 2
 surface = 3
+top_texture = ExtResource("tx_top")
+side_texture = ExtResource("tx_side")
+texture_tint = Color(1, 0.85, 0.7, 1)
 top_color = Color(0.93, 0.8, 0.55, 1)
 side_color = Color(0.78, 0.62, 0.4, 1)
 prop_scene = ExtResource("2_rock")

@@ -4,17 +4,21 @@
 [ext_resource type="Resource" path="res://content/terrains/cave_floor.tres" id="2_cave_floor"]
 [ext_resource type="Script" path="res://core/data/unit_data.gd" id="2_dgpva"]
 [ext_resource type="Resource" path="res://content/terrains/cave_floor_dark.tres" id="3_cave_floor_dark"]
-[ext_resource type="Resource" path="res://content/terrains/cave_ledge.tres" id="4_cave_ledge"]
-[ext_resource type="Resource" path="res://content/terrains/cave_wall.tres" id="5_cave_wall"]
 [ext_resource type="Resource" path="res://content/terrains/crystal.tres" id="6_crystal"]
-[ext_resource type="Resource" path="res://content/terrains/stalagmite.tres" id="7_stalagmite"]
 [ext_resource type="Resource" path="res://content/terrains/water.tres" id="8_water"]
 [ext_resource type="Resource" path="res://content/units/enemies/goblin.tres" id="9_goblin"]
-[ext_resource type="Script" path="res://core/data/terrain_data.gd" id="10_0a6is"]
 [ext_resource type="Resource" path="res://content/units/enemies/bat.tres" id="10_bat"]
 [ext_resource type="Resource" path="res://content/units/enemies/slime.tres" id="11_slime"]
 [ext_resource type="Resource" path="res://content/units/enemies/ogre.tres" id="12_ogre"]
 [ext_resource type="PackedScene" path="res://scenes/battle/atmosphere/cave_motes.tscn" id="71_particles"]
+[ext_resource type="Resource" path="res://content/terrains/cave_ledge.tres" id="kit_0"]
+[ext_resource type="Resource" path="res://content/terrains/cave_stairs.tres" id="kit_1"]
+[ext_resource type="Resource" path="res://content/terrains/cave_wall.tres" id="kit_2"]
+[ext_resource type="Resource" path="res://content/terrains/stalagmite.tres" id="kit_3"]
+[ext_resource type="Resource" path="res://content/terrains/cave_brazier.tres" id="kit_4"]
+[ext_resource type="Script" path="res://core/data/terrain_data.gd" id="kit_script"]
+[ext_resource type="Resource" path="res://content/lighting/cave_glow.tres" id="mood_0"]
+[ext_resource type="Script" path="res://core/data/lighting_mood.gd" id="mood_script"]
 
 [resource]
 script = ExtResource("1_script")
@@ -23,11 +27,18 @@ display_name = "Cueva"
 layout = 2
 floor_terrain = ExtResource("2_cave_floor")
 alt_floor_terrain = ExtResource("3_cave_floor_dark")
-high_terrain = ExtResource("4_cave_ledge")
+high_terrain = ExtResource("kit_0")
 liquid_terrain = ExtResource("8_water")
 shore_terrain = ExtResource("2_cave_floor")
-obstacle_terrains = Array[ExtResource("10_0a6is")]([ExtResource("7_stalagmite"), ExtResource("7_stalagmite"), ExtResource("6_crystal")])
-wall_terrain = ExtResource("5_cave_wall")
+obstacle_terrains = Array[ExtResource("kit_script")]([ExtResource("kit_3"), ExtResource("kit_3"), ExtResource("6_crystal")])
+wall_terrain = ExtResource("kit_2")
+platform_terrain = ExtResource("kit_0")
+stairs_terrain = ExtResource("kit_1")
+structure_wall_terrain = ExtResource("kit_2")
+pillar_terrain = ExtResource("kit_3")
+clutter_terrains = Array[ExtResource("kit_script")]([ExtResource("kit_4")])
+dais_flank_terrain = ExtResource("kit_4")
+structure_count = Vector2i(0, 1)
 min_size = Vector2i(19, 14)
 max_size = Vector2i(23, 17)
 max_height = 3
@@ -43,6 +54,7 @@ sun_rotation_degrees = Vector2(-72, -40)
 fog_color = Color(0.1, 0.12, 0.24, 1)
 fog_density = 0.016
 glow_intensity = 0.9
+moods = Array[ExtResource("mood_script")]([ExtResource("mood_0")])
 ambient_particles = ExtResource("71_particles")
 enemy_pool = Array[ExtResource("2_dgpva")]([ExtResource("9_goblin"), ExtResource("10_bat"), ExtResource("11_slime")])
 miniboss_pool = Array[ExtResource("2_dgpva")]([ExtResource("12_ogre")])

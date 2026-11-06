@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="TerrainData" format=3]
 
 [ext_resource type="Script" path="res://core/data/terrain_data.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/textures/terrain/cave_wall_side.png" id="tx_side"]
 
 [resource]
 script = ExtResource("1_script")
@@ -9,5 +10,9 @@ display_name = "Pared de roca"
 symbol = "#"
 walkable = false
 surface = 2
+top_texture = ExtResource("tx_side")
+side_texture = ExtResource("tx_side")
+texture_tint = Color(0.8, 0.74, 0.72, 1)
+cutaway = true
 top_color = Color(0.36, 0.35, 0.44, 1)
 side_color = Color(0.27, 0.26, 0.34, 1)

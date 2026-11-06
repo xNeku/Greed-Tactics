@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="LightingMood" format=3]
+
+[ext_resource type="Script" path="res://core/data/lighting_mood.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"castle_torches"
+display_name = "Castillo de noche"
+indoor = true
+sky_top = Color(0.01, 0.008, 0.015, 1)
+sky_middle = Color(0.03, 0.02, 0.035, 1)
+sky_bottom = Color(0.06, 0.04, 0.06, 1)
+light_color = Color(0.5, 0.6, 1, 1)
+light_energy = 0.5
+light_rotation = Vector2(-35, -30)
+shadow_opacity = 0.95
+light_volumetric = 6.0
+ambient_color = Color(0.5, 0.36, 0.34, 1)
+ambient_energy = 0.34
+volumetric_density = 0.02
+volumetric_albedo = Color(0.75, 0.7, 0.8, 1)
+glow = 1.0
+exposure = 1.15
+contrast = 1.1
+props_light = 1.9

@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="TerrainData" format=3]
+
+[ext_resource type="Script" path="res://core/data/terrain_data.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/battle/props/scenery/tree_oak.tscn" id="prop_1"]
+[ext_resource type="PackedScene" path="res://scenes/battle/props/scenery/tree_oak_small.tscn" id="prop_2"]
+[ext_resource type="PackedScene" path="res://scenes/battle/props/scenery/tree_pine.tscn" id="prop_3"]
+[ext_resource type="PackedScene" path="res://scenes/battle/props/scenery/tree_autumn.tscn" id="prop_4"]
+[ext_resource type="Texture2D" path="res://assets/textures/terrain/dirt_side.png" id="tx_side"]
+[ext_resource type="Texture2D" path="res://assets/textures/terrain/grass_top.png" id="tx_top"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"forest_trees"
+display_name = "Bosque"
+symbol = "Y"
+walkable = false
+sight_block = 4
+top_texture = ExtResource("tx_top")
+side_texture = ExtResource("tx_side")
+side_lip = 5
+top_color = Color(0.5, 0.5, 0.5, 1)
+side_color = Color(0.35, 0.35, 0.35, 1)
+prop_variants = Array[PackedScene]([ExtResource("prop_1"), ExtResource("prop_1"), ExtResource("prop_2"), ExtResource("prop_3"), ExtResource("prop_4")])
+prop_min_scale = 0.9
+prop_max_scale = 1.1

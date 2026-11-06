@@ -1,0 +1,27 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://assets/materials/pixel_rust.tres" id="1_r"]
+[ext_resource type="Material" path="res://assets/materials/pixel_metal.tres" id="2_r"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_1"]
+material = ExtResource("1_r")
+top_radius = 0.3
+bottom_radius = 0.3
+height = 0.08
+radial_segments = 8
+rings = 1
+
+[sub_resource type="BoxMesh" id="BoxMesh_2"]
+material = ExtResource("2_r")
+size = Vector3(0.22, 0.4, 0.22)
+
+[node name="Machine" type="Node3D"]
+editor_description = "Rusty machinery block top: gears and a smoking vent."
+
+[node name="Gear" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15, 0.04, 0.1)
+mesh = SubResource("CylinderMesh_1")
+
+[node name="Vent" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.22, 0.2, -0.15)
+mesh = SubResource("BoxMesh_2")

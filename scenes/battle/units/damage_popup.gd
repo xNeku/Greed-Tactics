@@ -2,7 +2,7 @@ class_name DamagePopup
 extends Label3D
 ## Floating combat text. [method show_hit] pops a damage number: it punches in
 ## big, flashes white, flies off in a little arc and fades; criticals are
-## bigger, golden, shiver and carry a "¡CRÍTICO!" tag. Consecutive hits of a
+## much bigger, golden with a red rim, blink and shiver (no text needed). Consecutive hits of a
 ## multi-strike skill fan out so every number reads. [method show_text] is the
 ## plain rising text (statuses, misses, buffs).
 
@@ -32,7 +32,8 @@ func show_hit(amount: int, critical: bool, weight: float, index: int, color: Col
 	var final_color := CRIT_COLOR if critical else color
 	if critical:
 		outline_modulate = CRIT_OUTLINE
-	var size := (0.85 + clampf(weight, 0.0, 0.6) * 0.7) * (1.4 if critical else 1.0)
+		outline_size = 20
+	var size := (0.85 + clampf(weight, 0.0, 0.6) * 0.7) * (1.75 if critical else 1.0)
 	var side := (1.0 if index % 2 == 0 else -1.0) if index > 0 else (1.0 if randf() < 0.5 else -1.0)
 	var start := position + Vector3(side * 0.36 * signf(index), 0.24 * mini(index, 4), 0.0)
 	position = start
@@ -56,7 +57,7 @@ func show_hit(amount: int, critical: bool, weight: float, index: int, color: Col
 	fly.tween_property(self, "position:y", start.y + 0.32, hit_duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	if critical:
 		_shiver()
-		_tag("¡CRÍTICO!", CRIT_COLOR)
+		_blink(final_color)
 	get_tree().create_timer(hit_duration + 0.05).timeout.connect(queue_free)
 
 
@@ -66,6 +67,15 @@ func _shiver() -> void:
 	for i in 6:
 		tween.tween_property(self, "offset", Vector2(randf_range(-6, 6), randf_range(-4, 4)), 0.025)
 	tween.tween_property(self, "offset", Vector2.ZERO, 0.03)
+
+
+## Criticals blink white a couple of times as they land.
+func _blink(color: Color) -> void:
+	var tween := create_tween()
+	tween.tween_interval(0.14)
+	for i in 2:
+		tween.tween_property(self, "modulate", Color(2.0, 2.0, 2.0), 0.04)
+		tween.tween_property(self, "modulate", color, 0.06)
 
 
 ## Small label riding above the number.
