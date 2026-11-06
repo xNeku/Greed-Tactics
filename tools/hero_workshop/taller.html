@@ -161,6 +161,29 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
 @media (prefers-reduced-motion: no-preference) {
   .hero-btn, .tool, .tab { transition: background-color 120ms, border-color 120ms, color 120ms; }
 }
+
+/* Progression line (levels 1-10) */
+.prog { display: grid; gap: 10px; }
+.prog-intro { color: var(--muted); font-size: 13px; margin: 0 0 4px; max-width: 70ch; }
+.lvl { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 14px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel-2); }
+.lvl.wall { border-color: var(--gold); }
+.lvl-badge { display: grid; justify-items: center; align-content: start; gap: 2px; padding-top: 2px; }
+.lvl-badge b { font-family: var(--font-display); font-size: 30px; line-height: 1; color: var(--gold); }
+.lvl-badge span { font-size: 12px; color: var(--muted); font-family: var(--font-mono); }
+.lvl-badge em { font-style: normal; font-size: 11px; color: var(--gold); text-align: center; }
+.entry-list { display: grid; gap: 8px; align-content: start; }
+.entry { display: grid; gap: 6px; padding: 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+.entry[data-kind="skill"] { border-left: 3px solid #6fb6ff; }
+.entry[data-kind="passive"] { border-left: 3px solid #c78bff; }
+.entry[data-kind="stats"] { border-left: 3px solid var(--gold); }
+.entry-head { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.entry-head .grow { flex: 1 1 160px; min-width: 0; }
+.stats-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.stats-row label { display: grid; gap: 2px; font-size: 12px; color: var(--muted); }
+.stats-row input { width: 70px; }
+.adds { display: flex; gap: 6px; flex-wrap: wrap; }
+.lvl-empty { color: var(--muted); font-size: 13px; }
+@media (max-width: 640px) { .lvl { grid-template-columns: 1fr; } .lvl-badge { justify-items: start; grid-auto-flow: column; gap: 8px; align-items: baseline; } }
 </style>
 
 <div class="shell">
@@ -238,6 +261,7 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
     h.skills = h.skills || [];
     h.passives = h.passives || [];
     h.unlocks = h.unlocks || [];
+    h.progression = h.progression || [];
     h.swatches = h.swatches || [];
     h.weapon = h.weapon || { name: "", type: "Una mano", description: "", sprite: null };
     h._img = h._img || {};
@@ -303,7 +327,7 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
     const c = document.createElement("canvas");
     drawThumb(c, h._img.front);
     b.append(c, el("span", {}, el("b", { text: h.name || "Sin nombre" }), el("small", { text: subText })));
-    b.addEventListener("click", () => { state.current = entryKey(h); state.zoom = 0; state.view = "front"; if (state.tab === "weapon" || state.tab === "sheet") state.tab = "sprites"; render(); });
+    b.addEventListener("click", () => { state.current = entryKey(h); state.zoom = 0; state.view = "front"; if (state.tab === "weapon" || state.tab === "sheet" || (state.tab === "progression" && isEnemy(h))) state.tab = "sprites"; render(); });
     return b;
   }
   function renderRack() {
@@ -367,7 +391,7 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
       chips);
     if (isEnemy(h) && h.behaviour) head.append(el("div", { class: "sub", text: "Comportamiento: " + h.behaviour }));
     const tabs = el("div", { class: "tabs", role: "tablist" });
-    const tabList = isEnemy(h) ? [["sprites", "Sprites"], ["skills", "Habilidades"], ["sheet", "Ficha"]] : [["sprites", "Sprites"], ["skills", "Habilidades"], ["weapon", "Arma"]];
+    const tabList = isEnemy(h) ? [["sprites", "Sprites"], ["skills", "Habilidades"], ["sheet", "Ficha"]] : [["sprites", "Sprites"], ["skills", "Habilidades"], ["progression", "Progresión"], ["weapon", "Arma"]];
     for (const [key, label] of tabList) {
       tabs.append(el("button", { class: "tab", role: "tab", type: "button", id: "tab-" + key, "aria-selected": String(state.tab === key),
         text: label, onclick: () => { state.tab = key; render(); } }));
@@ -377,6 +401,7 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
     if (state.tab === "sprites") pane.append(spritePane(h));
     else if (state.tab === "skills") pane.append(isEnemy(h) ? enemySkillsPane(h) : skillsPane(h));
     else if (state.tab === "sheet") pane.append(sheetPane(h));
+    else if (state.tab === "progression") pane.append(progressionPane(h));
     else pane.append(weaponPane(h));
     sheet.append(head, pane);
     if (state.tab === "sprites" || state.tab === "weapon") mountEditor(h);
@@ -439,6 +464,78 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
         { name: "", requirement: "", description: "" }, [["name", "Nombre", "Ej. Doble aguijón ★"], ["requirement", "Cómo se desbloquea", "Ej. 50 de ira / nivel 5"], ["description", "Qué hace", "", true]], "Añadir desbloqueable"));
     return wrap;
   }
+  // ---------- progression line ----------
+  const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
+  const KINDS = [["skill", "Habilidad"], ["passive", "Pasiva"], ["stats", "Stats"]];
+  const PROG_STATS = [["hp", "PV"], ["attack", "Ataque"], ["defense", "Defensa"], ["crit", "Crítico %"], ["evasion", "Evasión %"], ["move", "PM"], ["speed", "Velocidad"], ["mp", "Maná"]];
+  const WALLS = { 5: "Muro: para pasar del 5 hay que vencer a un jefe", 10: "Muro: el 10 se supera venciendo a otro jefe (maestría)" };
+  function progressionPane(h) {
+    const wrap = el("div", { class: "prog" });
+    wrap.append(el("div", { class: "section-head" }, el("h3", { text: "Línea de progresión" }),
+      el("p", { text: "Lo que " + (h.name || "el personaje") + " desbloquea en cada nivel de cuenta (1 a 10), jugando runs como protagonista. Cada nivel puede dar habilidades, pasivas o stats a secas." })),
+      el("p", { class: "prog-intro", text: "Lo que pongas aquí lo paso al juego cuando me lo pidas: las pasivas como modificadores y los stats tal cual; las habilidades nuevas necesitan el equipamiento de habilidades (pendiente)." }));
+    for (let level = 1; level <= 10; level++) wrap.append(levelRow(h, level));
+    return wrap;
+  }
+  function levelRow(h, level) {
+    const row = el("div", { class: "lvl" + (WALLS[level] ? " wall" : ""), id: "level-" + level });
+    const badge = el("div", { class: "lvl-badge" }, el("b", { text: String(level) }), el("span", { text: "Nivel " + ROMAN[level - 1] }));
+    if (level === 1) badge.append(el("em", { text: "Inicio" }));
+    if (WALLS[level]) badge.append(el("em", { text: "Muro de jefe" }));
+    const list = el("div", { class: "entry-list" });
+    if (WALLS[level]) list.append(el("div", { class: "lvl-empty", text: WALLS[level] + "." }));
+    const entries = h.progression.filter(e => e.level === level);
+    if (!entries.length) list.append(el("div", { class: "lvl-empty", text: level === 1 ? "Con lo que empieza: déjalo vacío si no gana nada extra." : "Nada todavía en este nivel." }));
+    for (const entry of entries) list.append(entryCard(h, entry));
+    const adds = el("div", { class: "adds" });
+    for (const [kind, label] of KINDS) {
+      adds.append(el("button", { class: "tool add", type: "button", text: "+ " + label, id: `add-${level}-${kind}`,
+        onclick: () => {
+          const e = { level, kind, name: "", description: "" };
+          if (kind === "stats") e.stats = {};
+          h.progression.push(e); scheduleSave(h); render();
+          const target = document.getElementById("level-" + level);
+          if (target) target.scrollIntoView({ block: "nearest" });
+        } }));
+    }
+    list.append(adds);
+    row.append(badge, list);
+    return row;
+  }
+  function entryCard(h, entry) {
+    const card = el("div", { class: "entry", "data-kind": entry.kind });
+    const idx = h.progression.indexOf(entry);
+    const head = el("div", { class: "entry-head" });
+    for (const [kind, label] of KINDS) {
+      head.append(el("button", { class: "tool", type: "button", "aria-pressed": String(entry.kind === kind), text: label,
+        onclick: () => { entry.kind = kind; if (kind === "stats") entry.stats = entry.stats || {}; scheduleSave(h); render(); } }));
+    }
+    const name = textField(entry, "name", h, { id: `prog-${idx}-name`, placeholder: entry.kind === "stats" ? "Opcional: ej. Piel curtida" : entry.kind === "skill" ? "Ej. Tajo giratorio" : "Ej. Sangre fría" });
+    name.classList.add("grow");
+    const lvl = el("select", { id: `prog-${idx}-level`, "aria-label": "Nivel" });
+    for (let l = 1; l <= 10; l++) { const o = el("option", { text: "Nivel " + l }); o.value = String(l); lvl.append(o); }
+    lvl.value = String(entry.level);
+    lvl.addEventListener("change", () => { entry.level = Number(lvl.value); scheduleSave(h); render(); });
+    head.append(name, lvl, el("button", { class: "remove", type: "button", text: "Quitar",
+      onclick: () => { h.progression.splice(h.progression.indexOf(entry), 1); scheduleSave(h); render(); } }));
+    card.append(head);
+    if (entry.kind === "stats") {
+      entry.stats = entry.stats || {};
+      const stats = el("div", { class: "stats-row" });
+      for (const [key, label] of PROG_STATS) {
+        const input = el("input", { type: "number", id: `prog-${idx}-${key}`, step: "1" });
+        input.value = entry.stats[key] ?? "";
+        input.placeholder = "0";
+        input.addEventListener("input", () => { const v = Number(input.value); if (v) entry.stats[key] = v; else delete entry.stats[key]; scheduleSave(h); });
+        stats.append(el("label", {}, "+ " + label, input));
+      }
+      card.append(stats);
+    }
+    card.append(el("label", {}, entry.kind === "stats" ? "Nota (opcional)" : "Qué hace",
+      textField(entry, "description", h, { id: `prog-${idx}-desc`, multiline: true, placeholder: entry.kind === "skill" ? "Coste, alcance, área, efecto…" : "" })));
+    return card;
+  }
+
   function enemySkillsPane(h) {
     const wrap = el("div");
     wrap.append(

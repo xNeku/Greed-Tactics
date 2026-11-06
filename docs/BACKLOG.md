@@ -15,6 +15,7 @@ El estado por hito está en [`ROADMAP.md`](ROADMAP.md).
 | GT-251 | Animaciones de Pablo (y del resto cuando lleguen sus sprites) con `art/src` + `tools/build_sprite_frames.gd` | M4 | P1 | ⬜ |
 | GT-252 | Pablo sin arco visible en el sprite: decidir con Neku si lo lleva a la espalda o en la mano | M4 | P2 | ⬜ |
 | GT-260 | Importador del taller: los sprites ya se importan (`tools/hero_workshop/import_sheets.py`); falta pasar armas, pasivas y desbloqueables cuando existan en el juego | M4 | P1 | 🟡 |
+| GT-294 | Importar al juego la línea de progresión que Neku edite en el Taller (pasivas → modificadores, stats; habilidades nuevas cuando exista el equipamiento GT-280) | M3 | P1 | ⬜ |
 | GT-293 | Más allá del X (maestría): qué da; objetos y botín en el resumen de fin de run; más armas para todos | M3 | P1 | ⬜ |
 | GT-289 | Enemigos propios para Castillo y Fábrica (ahora reutilizan los de bosque y desierto); la cueva vuelve cuando tenga enemigos de Neku y decidir con Neku qué escenarios, props y ambientes se quedan | M4 | P1 | ⬜ |
 | GT-290 | Rendimiento de luces y niebla volumétrica en el Mac (sombras de braseros, número de luces); opción de calidad | M5 | P1 | ⬜ |
