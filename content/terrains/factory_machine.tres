@@ -15,7 +15,6 @@ symbol = "M"
 walkable = false
 top_texture = ExtResource("tx_top")
 side_texture = ExtResource("tx_side")
-cutaway = true
 top_color = Color(0.5, 0.5, 0.5, 1)
 side_color = Color(0.35, 0.35, 0.35, 1)
 prop_variants = Array[PackedScene]([ExtResource("prop_0"), ExtResource("prop_1")])
