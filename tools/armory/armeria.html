@@ -163,6 +163,12 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
   .hero-btn, .tool, .tab { transition: background-color 120ms, border-color 120ms, color 120ms; }
 }
 .rack-new { justify-self: start; margin-top: 12px; }
+.types { display: flex; gap: 6px; flex-wrap: wrap; }
+.type-tab { font: inherit; font-weight: 700; font-size: 13px; color: var(--muted); background: var(--panel); border: 1px solid var(--line);
+  border-radius: 999px; padding: 6px 12px; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; }
+.type-tab .count { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+.type-tab[aria-selected="true"] { color: var(--gold-ink); background: var(--gold); border-color: var(--gold); }
+.type-tab[aria-selected="true"] .count { color: var(--gold-ink); }
 .weapon-form.stats { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
 .hand-panel { margin-top: 22px; display: grid; gap: 10px; }
 .hand-stage { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 16px; overflow: auto; display: grid; place-items: center; }
@@ -175,8 +181,9 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
     <h1>Greed Tactics <span>· armería</span></h1>
     <div class="save-state" id="saveState" data-state="idle" aria-live="polite"><span class="dot"></span><span id="saveText">Conectando…</span></div>
   </header>
+  <div class="types" id="types" role="tablist" aria-label="Tipos de arma"></div>
   <div class="bench">
-    <nav class="rack" id="rack" aria-label="Armas"><p class="rack-title">Armas</p></nav>
+    <nav class="rack" id="rack" aria-label="Diseños"><p class="rack-title">Armas</p></nav>
     <main class="sheet" id="sheet">
       <div class="pane"><div class="notice" id="bootNotice"><b>Cargando la armería…</b> Si tarda, recarga la página.</div></div>
     </main>
@@ -187,10 +194,13 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
 (() => {
   "use strict";
   const SYMBOLS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  const WEAPON_TYPES = ["Puños", "Una mano", "Dos manos", "Distancia", "Foco mágico", "Doble arma"];
+  const WEAPON_TYPES = ["Puños", "Daga", "Espada", "Sable", "Mandoble", "Hacha", "Hacha a dos manos", "Martillo",
+    "Arco", "Pistola", "Bastón", "Varita", "Manos (magia)"];
+  // Types of the first version of the armory, mapped to the current ones.
+  const OLD_TYPES = { "Una mano": "Espada", "Dos manos": "Mandoble", "Distancia": "Arco", "Foco mágico": "Manos (magia)", "Doble arma": "Daga" };
   const RARITIES = ["Común", "Rara", "Épica", "Legendaria"];
   const RARITY_COLORS = { "Común": "#c9c3b8", "Rara": "#6fb6ff", "Épica": "#c78bff", "Legendaria": "#f2c14e" };
-  const SOURCES = ["Botín en la run", "Desbloqueo permanente", "Ambos"];
+  const SOURCES = ["Arma inicial", "Botín en la run", "Desbloqueo permanente", "Ambos"];
   const STAT_FIELDS = [["hp", "PV"], ["attack", "Ataque"], ["defense", "Defensa"], ["speed", "Velocidad"], ["move", "PM"], ["evasion", "Evasión %"], ["crit", "Crítico %"]];
   const SAVE_DELAY = 900;
   const PREVIEW_SCALE = 7;
@@ -199,7 +209,7 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
     db: null, downloads: null,
     weapons: [], heroes: [], hands: {}, current: null, tab: "draw",
     tool: "pencil", color: "#c9c3b8", mirror: false, grid: true, zoom: 0,
-    previewHero: null, previewView: "front",
+    previewHero: null, previewView: "front", type: "Puños",
   };
   const editors = {};
   const saveTimers = {};
@@ -243,7 +253,8 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
   function hero() { return state.weapons.find(w => w.id === state.current); }
   function imageFor(h) { return h._img.sprite; }
   function ensureWeapon(w) {
-    w.type = w.type || "Una mano";
+    w.type = OLD_TYPES[w.type] || w.type || "Espada";
+    if (!WEAPON_TYPES.includes(w.type)) WEAPON_TYPES.push(w.type);
     w.rarity = w.rarity || "Común";
     w.source = w.source || "Ambos";
     w.heroes = w.heroes || [];
@@ -310,25 +321,40 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
     }
   }
 
-  function renderRack() {
-    const rack = document.getElementById("rack");
-    rack.replaceChildren();
+  function renderTypes() {
+    const bar = document.getElementById("types");
+    bar.replaceChildren();
     for (const type of WEAPON_TYPES) {
-      const group = state.weapons.filter(w => w.type === type);
-      if (!group.length) continue;
-      rack.append(el("p", { class: "rack-title group", text: type + " · " + group.length }));
-      for (const w of group) {
-        const b = el("button", { class: "hero-btn", type: "button", id: "weapon-" + w.id, "aria-current": String(w.id === state.current) });
-        const c = document.createElement("canvas");
-        drawThumb(c, w._img.sprite);
-        const sub = el("small", { text: w.rarity });
-        sub.style.color = RARITY_COLORS[w.rarity] || "";
-        b.append(c, el("span", {}, el("b", { text: w.name || "Sin nombre" }), sub));
-        b.addEventListener("click", () => { state.current = w.id; state.zoom = 0; render(); });
-        rack.append(b);
-      }
+      const count = state.weapons.filter(w => w.type === type).length;
+      const tab = el("button", { class: "type-tab", type: "button", role: "tab", id: "type-" + type.replace(/[^a-z]/gi, ""),
+        "aria-selected": String(state.type === type) }, type, el("span", { class: "count", text: String(count) }));
+      tab.addEventListener("click", () => {
+        state.type = type;
+        const first = state.weapons.find(w => w.type === type);
+        state.current = first ? first.id : null;
+        state.zoom = 0;
+        render();
+      });
+      bar.append(tab);
     }
-    rack.append(el("button", { class: "tool rack-new", type: "button", id: "new-weapon", text: "+ Nueva arma", onclick: createWeapon }));
+  }
+  function renderRack() {
+    renderTypes();
+    const rack = document.getElementById("rack");
+    rack.replaceChildren(el("p", { class: "rack-title", text: "Diseños de " + state.type.toLowerCase() }));
+    const group = state.weapons.filter(w => w.type === state.type);
+    if (!group.length) rack.append(el("p", { class: "hint", text: "Ninguno todavía." }));
+    for (const w of group) {
+      const b = el("button", { class: "hero-btn", type: "button", id: "weapon-" + w.id, "aria-current": String(w.id === state.current) });
+      const c = document.createElement("canvas");
+      drawThumb(c, w._img.sprite);
+      const sub = el("small", { text: w.rarity + (w.source === "Arma inicial" ? " · inicial" : "") });
+      sub.style.color = RARITY_COLORS[w.rarity] || "";
+      b.append(c, el("span", {}, el("b", { text: w.name || "Sin nombre" }), sub));
+      b.addEventListener("click", () => { state.current = w.id; state.zoom = 0; render(); });
+      rack.append(b);
+    }
+    rack.append(el("button", { class: "tool rack-new", type: "button", id: "new-weapon", text: "+ Nuevo diseño", onclick: createWeapon }));
   }
   function refreshThumb(w) {
     const b = document.getElementById("weapon-" + w.id);
@@ -338,7 +364,7 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
     const current = hero();
     const w = ensureWeapon({
       id: "arma-" + Date.now().toString(36), order: state.weapons.length,
-      name: "Nueva arma", type: current ? current.type : "Una mano", description: "",
+      name: "Nueva " + state.type.toLowerCase(), type: state.type, description: "",
     });
     state.weapons.push(w);
     state.current = w.id; state.tab = "stats"; state.zoom = 0;
@@ -350,7 +376,8 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
     try {
       if (state.db) await state.db.doc(entryKey(w)).delete();
       state.weapons.splice(state.weapons.indexOf(w), 1);
-      state.current = state.weapons.length ? state.weapons[0].id : null;
+      const same = state.weapons.find(x => x.type === state.type);
+      state.current = same ? same.id : null;
       state.tab = "draw";
       setSaveState("saved", "Arma borrada");
       render();
@@ -386,7 +413,7 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
     const sheet = document.getElementById("sheet");
     sheet.replaceChildren();
     if (!w) {
-      sheet.append(el("div", { class: "pane" }, el("div", { class: "notice", text: "Todavía no hay armas. Usa «+ Nueva arma» para crear la primera." })));
+      sheet.append(el("div", { class: "pane" }, el("div", { class: "notice", text: "Todavía no hay diseños de " + state.type.toLowerCase() + ". Usa «+ Nuevo diseño» para crear el primero." })));
       return;
     }
     const rarity = el("span", { class: "chip res", text: w.rarity });
@@ -436,7 +463,7 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
     name.addEventListener("change", renderRack);
     general.append(
       el("label", {}, "Nombre", name),
-      el("label", {}, "Tipo", select("w-type", WEAPON_TYPES, w.type, v => { w.type = v; scheduleSave(w); render(); })),
+      el("label", {}, "Tipo", select("w-type", WEAPON_TYPES, w.type, v => { w.type = v; state.type = v; scheduleSave(w); render(); })),
       el("label", {}, "Rareza", select("w-rarity", RARITIES, w.rarity, v => { w.rarity = v; scheduleSave(w); render(); })),
       el("label", {}, "Cómo se consigue", select("w-source", SOURCES, w.source, v => { w.source = v; scheduleSave(w); render(); })),
       el("label", { style: "grid-column: 1 / -1" }, "Descripción", textField(w, "description", w, { id: "w-desc", multiline: true, placeholder: "Qué estilo de juego da, de dónde sale…" })));
@@ -500,6 +527,8 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
     }
     const layer = el("button", { class: "tool", type: "button", id: "layer-toggle", text: w.layer === "back" ? "Arma detrás del cuerpo" : "Arma delante del cuerpo" });
     layer.addEventListener("click", () => { w.layer = w.layer === "back" ? "front" : "back"; layer.textContent = w.layer === "back" ? "Arma detrás del cuerpo" : "Arma delante del cuerpo"; scheduleSave(w); drawHandPreview(); });
+    const flip = el("button", { class: "tool", type: "button", id: "flip-toggle", "aria-pressed": String(!!w.flip), text: "Voltear arma" });
+    flip.addEventListener("click", () => { w.flip = !w.flip; flip.setAttribute("aria-pressed", String(w.flip)); scheduleSave(w); drawHandPreview(); });
     const canvas = el("canvas", { id: "handCanvas", "aria-label": "Prueba del arma en la mano: haz clic en la mano del héroe" });
     const hint = el("p", { class: "hint", id: "handHint" });
     canvas.addEventListener("click", e => {
@@ -516,7 +545,7 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
     return el("div", { class: "hand-panel" },
       el("div", { class: "section-head" }, el("h3", { text: "Prueba en la mano" }),
         el("p", { text: "Haz clic en la mano del héroe para marcarla (una vez por héroe y vista). El arma se coloca con su punto de agarre ahí." })),
-      el("div", { class: "toolbar" }, heroSelect, views, layer),
+      el("div", { class: "toolbar" }, heroSelect, views, layer, flip),
       el("div", { class: "hand-stage" }, canvas), hint);
   }
   const HAND_MARGIN = 14;
@@ -526,7 +555,9 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
     const h = state.heroes.find(x => x.id === state.previewHero);
     if (!canvas || !w || !h) return;
     const body = h._img[state.previewView];
-    const weapon = w._img.sprite;
+    const raw = w._img.sprite;
+    // Flipped weapons are mirrored (and so is their grip) only in the preview and the game.
+    const weapon = w.flip ? { w: raw.w, h: raw.h, px: raw.px.map((_, i) => raw.px[Math.floor(i / raw.w) * raw.w + (raw.w - 1 - i % raw.w)]) } : raw;
     const cw = body.w + HAND_MARGIN * 2, ch = body.h + HAND_MARGIN * 2;
     canvas.width = cw * PREVIEW_SCALE; canvas.height = ch * PREVIEW_SCALE;
     canvas.style.width = canvas.width + "px"; canvas.style.height = canvas.height + "px";
@@ -540,7 +571,8 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
       }
     };
     const hand = (state.hands[h.id] || {})[state.previewView];
-    const grip = w.grip || { x: Math.floor(weapon.w / 2), y: Math.floor(weapon.h / 2) };
+    const baseGrip = w.grip || { x: Math.floor(weapon.w / 2), y: Math.floor(weapon.h / 2) };
+    const grip = w.flip ? { x: weapon.w - 1 - baseGrip.x, y: baseGrip.y } : baseGrip;
     const anchor = hand || { x: Math.floor(body.w / 2), y: Math.floor(body.h * 0.6) };
     const wx = HAND_MARGIN + anchor.x - grip.x, wy = HAND_MARGIN + anchor.y - grip.y;
     if (w.layer === "back") paint(weapon, wx, wy);
@@ -880,6 +912,7 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
       return;
     }
     setSaveState("saved", "Todo guardado");
+    state.type = state.weapons.length ? state.weapons[0].type : WEAPON_TYPES[0];
     state.current = state.weapons.length ? state.weapons[0].id : null;
     render();
   }
