@@ -155,6 +155,25 @@ resource_local_to_scene = true
 transform_format = 1
 mesh = SubResource("PlaneMesh_objective")
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_blocked"]
+render_priority = 2
+shader = ExtResource("2_shader")
+shader_parameter/tint = Color(0.62, 0.52, 0.72, 1)
+shader_parameter/fill_alpha = 0.06
+shader_parameter/border_alpha = 0.4
+shader_parameter/border_width = null
+shader_parameter/pulse_speed = null
+shader_parameter/pulse_amount = 0.0
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_blocked"]
+material = SubResource("ShaderMaterial_blocked")
+size = Vector2(0.7, 0.7)
+
+[sub_resource type="MultiMesh" id="MultiMesh_blocked"]
+resource_local_to_scene = true
+transform_format = 1
+mesh = SubResource("PlaneMesh_blocked")
+
 [node name="TileHighlighter" type="Node3D"]
 script = ExtResource("1_script")
 
@@ -189,3 +208,7 @@ multimesh = SubResource("MultiMesh_cursor")
 [node name="Objective" type="MultiMeshInstance3D" parent="."]
 cast_shadow = 0
 multimesh = SubResource("MultiMesh_objective")
+
+[node name="Blocked" type="MultiMeshInstance3D" parent="."]
+cast_shadow = 0
+multimesh = SubResource("MultiMesh_blocked")

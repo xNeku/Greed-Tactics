@@ -9,6 +9,7 @@ id = &"stalagmite"
 display_name = "Estalagmita"
 symbol = "^"
 walkable = false
+sight_block = 3
 surface = 5
 top_color = Color(0.56, 0.56, 0.66, 1)
 side_color = Color(0.4, 0.4, 0.5, 1)

@@ -291,13 +291,8 @@ func get_targetable_cells(user: UnitState, skill: SkillData, from_cell: Vector2i
 	if effective.target_rule == SkillData.TargetRule.SELF:
 		result.append(from_cell)
 		return result
-	var from_height := grid.get_height(from_cell)
-	for cell in AreaShape.get_ring(from_cell, effective.range_min, effective.range_max):
-		if not grid.is_inside(cell):
-			continue
-		if absi(grid.get_height(cell) - from_height) > effective.vertical_reach:
-			continue
-		if effective.requires_straight_line and cell.x != from_cell.x and cell.y != from_cell.y:
+	for cell in _candidate_cells(effective, from_cell):
+		if not is_in_reach(effective, from_cell, cell):
 			continue
 		if not _matches_target_rule(user, effective, cell):
 			continue
@@ -305,6 +300,68 @@ func get_targetable_cells(user: UnitState, skill: SkillData, from_cell: Vector2i
 			continue
 		result.append(cell)
 	return result
+
+
+## Cells the skill would reach by distance and height but a direct shot cannot
+## see (for the forecast: "something is in the way").
+func get_blocked_cells(user: UnitState, skill: SkillData, from_cell: Vector2i) -> Array[Vector2i]:
+	var effective := get_effective(user, skill)
+	var result: Array[Vector2i] = []
+	if effective.get_trajectory() != SkillData.Trajectory.DIRECT:
+		return result
+	for cell in _candidate_cells(effective, from_cell):
+		if _in_plain_reach(effective, from_cell, cell) and not has_line_of_sight(from_cell, cell):
+			result.append(cell)
+	return result
+
+
+## Distance, height, straight line and trajectory (line of sight / arc range).
+func is_in_reach(skill: EffectiveSkill, from_cell: Vector2i, cell: Vector2i) -> bool:
+	match skill.get_trajectory():
+		SkillData.Trajectory.DIRECT:
+			return _in_plain_reach(skill, from_cell, cell) and has_line_of_sight(from_cell, cell)
+		SkillData.Trajectory.ARC:
+			var distance := BattleGrid.manhattan(from_cell, cell)
+			return _in_shape_reach(skill, from_cell, cell) and distance >= skill.range_min \
+				and distance <= get_arc_range(skill, from_cell, cell)
+	return _in_plain_reach(skill, from_cell, cell)
+
+
+func has_line_of_sight(from_cell: Vector2i, to_cell: Vector2i) -> bool:
+	return LineOfSight.is_clear(grid, from_cell, to_cell, rules.sight_eye_height, rules.sight_target_height)
+
+
+## Max range of an arcing shot from [param from_cell] to [param cell]: longer
+## downhill, shorter uphill, and shorter the higher it must climb to clear
+## whatever stands in between.
+func get_arc_range(skill: EffectiveSkill, from_cell: Vector2i, cell: Vector2i) -> int:
+	var step := maxi(rules.arc_levels_per_range, 1)
+	var drop := grid.get_height(from_cell) - grid.get_height(cell)
+	var height_bonus := clampi(int(drop / float(step)), -rules.arc_max_height_range, rules.arc_max_height_range)
+	var climb := LineOfSight.get_clearance(grid, from_cell, cell, rules.sight_eye_height, rules.sight_target_height)
+	var climb_penalty := ceili(maxf(climb, 0.0) / step)
+	return skill.range_max + height_bonus - climb_penalty
+
+
+## Cells worth checking: the range ring, widened by what height can add to arcs.
+func _candidate_cells(skill: EffectiveSkill, from_cell: Vector2i) -> Array[Vector2i]:
+	var extra := rules.arc_max_height_range if skill.get_trajectory() == SkillData.Trajectory.ARC else 0
+	var result: Array[Vector2i] = []
+	for cell in AreaShape.get_ring(from_cell, skill.range_min, skill.range_max + extra):
+		if grid.is_inside(cell):
+			result.append(cell)
+	return result
+
+
+func _in_plain_reach(skill: EffectiveSkill, from_cell: Vector2i, cell: Vector2i) -> bool:
+	var distance := BattleGrid.manhattan(from_cell, cell)
+	return distance >= skill.range_min and distance <= skill.range_max and _in_shape_reach(skill, from_cell, cell)
+
+
+func _in_shape_reach(skill: EffectiveSkill, from_cell: Vector2i, cell: Vector2i) -> bool:
+	if absi(grid.get_height(cell) - grid.get_height(from_cell)) > skill.vertical_reach:
+		return false
+	return not (skill.requires_straight_line and cell.x != from_cell.x and cell.y != from_cell.y)
 
 
 ## Where the user ends up after using [param skill] on [param target_cell]

@@ -12,6 +12,9 @@ extends Resource
 @export var walkable: bool = true
 ## Base PM cost to enter a cell of this terrain (before height costs).
 @export_range(1, 9) var move_cost: int = 1
+## Levels above the cell top that block line of sight (trees, pillars...).
+## Walls block with their own height already.
+@export_range(0, 12) var sight_block: int = 0
 ## Liquids are rendered with the water material and sit slightly lower.
 @export var is_liquid: bool = false
 

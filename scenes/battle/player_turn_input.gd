@@ -34,6 +34,8 @@ var _reach: ReachMap
 var _skill: SkillData
 var _targetable: Array[Vector2i] = []
 var _hover := BattleMapView.INVALID_CELL
+## In range of the skill being aimed but out of sight (something in the way).
+var _blocked: Array[Vector2i] = []
 var _facing := GridDir.Dir.SOUTH
 var _move_preview := {}
 ## Cell forecast while nothing targetable is hovered (self skills, single target).
@@ -134,6 +136,8 @@ func _enter_target_mode(skill: SkillData) -> void:
 	_hud.show_skill_info(effective)
 	_targetable = _controller.combat.get_targetable_cells(_unit, skill, _unit.cell)
 	_highlighter.show_cells(TileHighlighter.Layer.TARGET, _targetable)
+	_blocked = _controller.combat.get_blocked_cells(_unit, skill, _unit.cell)
+	_highlighter.show_cells(TileHighlighter.Layer.BLOCKED, _blocked)
 	var rage := "  (ira desatada)" if effective.empowered else ""
 	if effective.target_rule == SkillData.TargetRule.SELF or _targetable.size() == 1:
 		_auto_target = _targetable[0] if not _targetable.is_empty() else BattleMapView.INVALID_CELL
@@ -164,6 +168,7 @@ func _set_mode(mode: Mode) -> void:
 	_skill = null
 	_auto_target = BattleMapView.INVALID_CELL
 	_targetable.clear()
+	_blocked.clear()
 	_move_preview = {}
 	_highlighter.clear_all()
 	_arrows.clear()
@@ -196,6 +201,8 @@ func _on_hover_changed() -> void:
 			Mode.TARGET:
 				if _targetable.has(_hover):
 					_show_skill_forecast(_hover)
+				elif _blocked.has(_hover):
+					_hud.set_message("Algo se interpone: no hay línea de tiro. Busca otra posición o un ataque en parábola.")
 				elif _auto_target != BattleMapView.INVALID_CELL:
 					_show_skill_forecast(_auto_target)
 			Mode.FACING:

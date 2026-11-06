@@ -9,6 +9,7 @@ id = &"desert_rock"
 display_name = "Roca"
 symbol = "k"
 walkable = false
+sight_block = 2
 surface = 3
 top_color = Color(0.93, 0.8, 0.55, 1)
 side_color = Color(0.78, 0.62, 0.4, 1)

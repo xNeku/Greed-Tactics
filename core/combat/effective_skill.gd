@@ -24,6 +24,7 @@ var range_min: int
 var range_max: int
 var vertical_reach: int
 var requires_straight_line: bool
+var trajectory: SkillData.Trajectory = SkillData.Trajectory.AUTO
 var area_shape: AreaShape.Shape
 var area_size: int
 
@@ -83,6 +84,7 @@ static func from_skill(base_skill: SkillData, used: SkillData) -> EffectiveSkill
 	e.range_max = used.range_max
 	e.vertical_reach = used.vertical_reach
 	e.requires_straight_line = used.requires_straight_line
+	e.trajectory = used.trajectory
 	e.area_shape = used.area_shape
 	e.area_size = used.area_size
 	e.power = used.power
@@ -125,6 +127,18 @@ func get_vfx_style() -> SkillData.VfxStyle:
 	if has_tag(&"proyectil"):
 		return SkillData.VfxStyle.PROJECTILE
 	return SkillData.VfxStyle.SLASH
+
+
+## How the attack travels, AUTO resolved from its look.
+func get_trajectory() -> SkillData.Trajectory:
+	if trajectory != SkillData.Trajectory.AUTO:
+		return trajectory
+	match get_vfx_style():
+		SkillData.VfxStyle.PROJECTILE:
+			return SkillData.Trajectory.DIRECT
+		SkillData.VfxStyle.LOB:
+			return SkillData.Trajectory.ARC
+	return SkillData.Trajectory.NONE
 
 
 func deals_damage() -> bool:

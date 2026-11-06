@@ -352,6 +352,9 @@ func _distance_to_attack_spots(combat: CombatState, unit: UnitState) -> Dictiona
 					continue
 				if effective.requires_straight_line and cell.x != target.cell.x and cell.y != target.cell.y:
 					continue
+				# Within direct range the shot itself must work (line of sight, arc range).
+				if BattleGrid.manhattan(cell, target.cell) <= effective.range_max and not combat.is_in_reach(effective, cell, target.cell):
+					continue
 				spots.append(cell)
 	if spots.is_empty():
 		return {}

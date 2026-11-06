@@ -2,11 +2,11 @@ class_name TileHighlighter
 extends Node3D
 ## Coloured overlays on top of cells (GDD §11): blue = movement, soft yellow =
 ## skill range, red = damage zone, green = landing / hovered cell, orange =
-## where a push leaves a target. Each layer is a child
+## where a push leaves a target, dim violet = in range but out of sight. Each layer is a child
 ## MultiMeshInstance3D with its own material, so colours are tuned in the scene.
 
 ## OBJECTIVE stays on screen (escape zone): clear_all() leaves it alone.
-enum Layer { MOVE, PATH, TARGET, AREA, LANDING, PUSH, CURSOR, OBJECTIVE }
+enum Layer { MOVE, PATH, TARGET, AREA, LANDING, PUSH, CURSOR, OBJECTIVE, BLOCKED }
 
 ## Height above the surface, to avoid z-fighting with the terrain.
 const SURFACE_OFFSET := 0.02
@@ -20,6 +20,7 @@ const SURFACE_OFFSET := 0.02
 	Layer.PUSH: $Push,
 	Layer.CURSOR: $Cursor,
 	Layer.OBJECTIVE: $Objective,
+	Layer.BLOCKED: $Blocked,
 }
 
 var _map: BattleMapView

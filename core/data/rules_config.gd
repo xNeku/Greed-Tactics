@@ -49,3 +49,15 @@ extends Resource
 @export_group("Modifiers")
 ## Cells a bounce can travel to find its next target.
 @export_range(1, 10) var bounce_search_radius: int = 3
+
+@export_group("Line of sight")
+## Height (in levels) of the shooter's eye and of the point aimed at on the
+## target, above their cells. Direct projectiles need a clear line between them.
+@export_range(0.0, 6.0) var sight_eye_height: float = 1.5
+@export_range(0.0, 6.0) var sight_target_height: float = 1.0
+## Arcing shots: every this many levels the arc must climb above the straight
+## line to clear obstacles costs 1 cell of range, and every this many levels
+## the target is above (below) the user costs (gives) 1 cell of range.
+@export_range(1, 10) var arc_levels_per_range: int = 2
+## Cap of the range an arcing shot gains or loses from height difference.
+@export_range(0, 5) var arc_max_height_range: int = 2

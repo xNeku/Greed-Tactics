@@ -28,6 +28,14 @@ enum VfxStyle {
 	NOVA,        ## Burst around the user.
 }
 
+## How the attack travels (line of sight rules, GDD §3).
+enum Trajectory {
+	AUTO,    ## From the look: PROJECTILE = DIRECT, LOB = ARC, anything else = NONE.
+	NONE,    ## Melee, spells that appear on the target: no line of sight needed.
+	DIRECT,  ## Needs a clear line of sight (arrows, bullets, bolts).
+	ARC,     ## Always possible, but range shrinks the higher the arc must climb.
+}
+
 ## How the user moves as part of the skill (movement skills, GDD §4).
 enum Motion {
 	NONE,           ## The user stays where it is.
@@ -66,6 +74,8 @@ enum Motion {
 @export_range(0, 35) var vertical_reach: int = 1
 ## Target must be on the same row or column as the user (charges, lines).
 @export var requires_straight_line: bool = false
+## Line of sight / arc rules. AUTO follows the visual style.
+@export var trajectory: Trajectory = Trajectory.AUTO
 
 @export_group("Area")
 ## Shape of the affected cells, centered on the target cell.
