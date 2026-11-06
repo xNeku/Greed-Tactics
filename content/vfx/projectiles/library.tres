@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="ProjectileLibrary" format=3]
+
+[ext_resource type="Script" path="res://scenes/battle/vfx/projectiles/projectile_library.gd" id="1_script"]
+[ext_resource type="Script" path="res://scenes/battle/vfx/projectiles/projectile_look.gd" id="2_look"]
+[ext_resource type="Resource" path="res://content/vfx/projectiles/arcane.tres" id="l_arcane"]
+[ext_resource type="Resource" path="res://content/vfx/projectiles/arrow.tres" id="l_arrow"]
+[ext_resource type="Resource" path="res://content/vfx/projectiles/axe.tres" id="l_axe"]
+[ext_resource type="Resource" path="res://content/vfx/projectiles/bullet.tres" id="l_bullet"]
+[ext_resource type="Resource" path="res://content/vfx/projectiles/dart.tres" id="l_dart"]
+[ext_resource type="Resource" path="res://content/vfx/projectiles/fire.tres" id="l_fire"]
+[ext_resource type="Resource" path="res://content/vfx/projectiles/ice.tres" id="l_ice"]
+[ext_resource type="Resource" path="res://content/vfx/projectiles/light.tres" id="l_light"]
+[ext_resource type="Resource" path="res://content/vfx/projectiles/rock.tres" id="l_rock"]
+
+[resource]
+script = ExtResource("1_script")
+by_tag = Dictionary[StringName, ExtResource("2_look")]({
+&"arcano": ExtResource("l_arcane"),
+&"flecha": ExtResource("l_arrow"),
+&"fuego": ExtResource("l_fire"),
+&"hacha": ExtResource("l_axe"),
+&"hielo": ExtResource("l_ice"),
+&"luz": ExtResource("l_light"),
+&"polvora": ExtResource("l_bullet"),
+&"puño": ExtResource("l_rock"),
+&"veneno": ExtResource("l_dart")
+})
+priority = Array[StringName]([&"fuego", &"hielo", &"luz", &"arcano", &"veneno", &"polvora", &"flecha", &"hacha", &"puño"])
+fallback = ExtResource("l_arcane")

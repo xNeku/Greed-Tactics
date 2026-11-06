@@ -3,6 +3,9 @@
 [ext_resource type="Script" path="res://scenes/battle/vfx/vfx_impact.gd" id="1_script"]
 [ext_resource type="Shader" path="res://assets/shaders/vfx_glow.gdshader" id="2_glow"]
 [ext_resource type="Shader" path="res://assets/shaders/disc.gdshader" id="3_disc"]
+[ext_resource type="Shader" path="res://assets/shaders/pixel_star.gdshader" id="4_star"]
+[ext_resource type="Shader" path="res://assets/shaders/pixel_particle.gdshader" id="5_particle"]
+[ext_resource type="Shader" path="res://assets/shaders/pixel_smoke.gdshader" id="6_smoke"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_glow"]
 render_priority = 12
@@ -16,6 +19,15 @@ height = 0.8
 radial_segments = 12
 rings = 6
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_star"]
+render_priority = 13
+shader = ExtResource("4_star")
+shader_parameter/pixels = null
+
+[sub_resource type="QuadMesh" id="QuadMesh_star"]
+material = SubResource("ShaderMaterial_star")
+size = Vector2(1.4, 1.4)
+
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_ring"]
 render_priority = 11
 shader = ExtResource("3_disc")
@@ -28,22 +40,35 @@ shader_parameter/center_alpha = 0.0
 material = SubResource("ShaderMaterial_ring")
 size = Vector2(1, 1)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_particle"]
-transparency = 1
-shading_mode = 0
-vertex_color_use_as_albedo = true
-billboard_mode = 3
-particles_anim_h_frames = 1
-particles_anim_v_frames = 1
-particles_anim_loop = false
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_particle"]
+render_priority = 12
+shader = ExtResource("5_particle")
+shader_parameter/energy = 1.35
 
 [sub_resource type="QuadMesh" id="QuadMesh_particle"]
-material = SubResource("StandardMaterial3D_particle")
-size = Vector2(0.12, 0.12)
+material = SubResource("ShaderMaterial_particle")
+size = Vector2(0.06, 0.06)
 
 [sub_resource type="Gradient" id="Gradient_fade"]
-offsets = PackedFloat32Array(0, 0.6, 1)
-colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.6, 1, 1, 1, 0)
+offsets = PackedFloat32Array(0, 0.75, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_smoke"]
+render_priority = 8
+shader = ExtResource("6_smoke")
+shader_parameter/pixels = null
+
+[sub_resource type="QuadMesh" id="QuadMesh_smoke"]
+material = SubResource("ShaderMaterial_smoke")
+size = Vector2(0.26, 0.26)
+
+[sub_resource type="Curve" id="Curve_grow"]
+_data = [Vector2(0, 0.5), 0.0, 1.0, 0, 0, Vector2(1, 1.4), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Gradient" id="Gradient_smoke"]
+offsets = PackedFloat32Array(0, 0.2, 1)
+colors = PackedColorArray(0.85, 0.82, 0.78, 0, 0.78, 0.75, 0.7, 0.45, 0.5, 0.48, 0.46, 0)
 
 [node name="VfxImpact" type="Node3D"]
 script = ExtResource("1_script")
@@ -51,6 +76,10 @@ script = ExtResource("1_script")
 [node name="Flash" type="MeshInstance3D" parent="."]
 cast_shadow = 0
 mesh = SubResource("SphereMesh_flash")
+
+[node name="Star" type="MeshInstance3D" parent="."]
+cast_shadow = 0
+mesh = SubResource("QuadMesh_star")
 
 [node name="Ring" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
@@ -60,18 +89,43 @@ mesh = SubResource("PlaneMesh_ring")
 [node name="Sparks" type="CPUParticles3D" parent="."]
 emitting = false
 amount = 28
-lifetime = 0.55
+lifetime = 0.6
 one_shot = true
 explosiveness = 1.0
+local_coords = false
 mesh = SubResource("QuadMesh_particle")
 direction = Vector3(0, 1, 0)
-spread = 75.0
+spread = 80.0
 gravity = Vector3(0, -7, 0)
 initial_velocity_min = 2.0
-initial_velocity_max = 4.5
-scale_amount_min = 0.6
-scale_amount_max = 1.4
+initial_velocity_max = 5.0
+damping_min = 1.0
+damping_max = 3.0
+scale_amount_min = 0.7
+scale_amount_max = 1.5
 color_ramp = SubResource("Gradient_fade")
+
+[node name="Smoke" type="CPUParticles3D" parent="."]
+emitting = false
+amount = 8
+lifetime = 0.9
+one_shot = true
+explosiveness = 0.85
+local_coords = false
+mesh = SubResource("QuadMesh_smoke")
+emission_shape = 1
+emission_sphere_radius = 0.15
+direction = Vector3(0, 1, 0)
+spread = 60.0
+gravity = Vector3(0, 0.6, 0)
+initial_velocity_min = 0.3
+initial_velocity_max = 0.9
+damping_min = 1.0
+damping_max = 2.0
+scale_amount_min = 0.6
+scale_amount_max = 1.1
+scale_amount_curve = SubResource("Curve_grow")
+color_ramp = SubResource("Gradient_smoke")
 
 [node name="Light" type="OmniLight3D" parent="."]
 light_energy = 3.0

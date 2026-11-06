@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://core/data/status_data.gd" id="1_dbuim"]
 [ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
 [ext_resource type="Resource" path="res://content/statuses/sand_sunk.tres" id="2_r"]
+[ext_resource type="Resource" path="res://content/vfx/projectiles/sand.tres" id="pl_look"]
 
 [resource]
 script = ExtResource("1_script")
@@ -18,3 +19,4 @@ status = ExtResource("2_r")
 status_chance = 70
 vfx_style = 3
 vfx_color = Color(0.9, 0.78, 0.5, 1)
+projectile_look = ExtResource("pl_look")

@@ -4,9 +4,13 @@
 [ext_resource type="PackedScene" path="res://scenes/battle/vfx/vfx_projectile.tscn" id="2_projectile"]
 [ext_resource type="PackedScene" path="res://scenes/battle/vfx/vfx_impact.tscn" id="3_impact"]
 [ext_resource type="PackedScene" path="res://scenes/battle/vfx/vfx_slash.tscn" id="4_slash"]
+[ext_resource type="PackedScene" path="res://scenes/battle/vfx/projectiles/pixel_projectile.tscn" id="5_pixel"]
+[ext_resource type="Resource" path="res://content/vfx/projectiles/library.tres" id="6_library"]
 
 [node name="VfxPlayer" type="Node3D"]
 script = ExtResource("1_player")
 projectile_scene = ExtResource("2_projectile")
 impact_scene = ExtResource("3_impact")
 slash_scene = ExtResource("4_slash")
+pixel_projectile_scene = ExtResource("5_pixel")
+projectile_library = ExtResource("6_library")

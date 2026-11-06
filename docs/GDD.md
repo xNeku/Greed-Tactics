@@ -431,6 +431,15 @@ Fases: CAST → movimiento → ARRIVE → IMPACT (por golpe) → END, y al final
 - Vista isométrica con cámara libre (Space para volver al personaje activo).
 - **[v0.2] Implementado:** columnas 3D por casilla (1 nivel = 0,5 unidades), cuadrícula y damero sutil en la cara superior por shader, agua animada por shader, fondo navy. Cámara: Q/E rota 90º, rueda zoom, WASD/flechas o botón central para desplazar, Espacio vuelve a la unidad activa.
 
+**Proyectiles y sensación de golpe [Decidido v0.8.2]:** pixel art mezclado con luz 3D.
+
+- Cada proyectil tiene un `ProjectileLook` (datos en `content/vfx/projectiles/`): flechas, balas, dardos, rocas, lanzas y hachas son **sprites pixel art** que giran hacia donde vuelan (la lanzada gira sobre sí misma); la magia es un **orbe/cometa pixelado** animado por shader con bandas de color (borde, medio, núcleo al rojo blanco), con el mismo tamaño de pixel que los personajes.
+- Al volar: estela en bandas pixeladas, chispas cuadradas (ascuas que suben, escarcha que cae) y una **luz que ilumina el suelo** por donde pasa.
+- Lanzamiento: la magia se **carga** en la mano (el orbe crece y las chispas se juntan); las armas de fuego hacen **fogonazo, humo y casquillo**; arcos y lanzamientos, un soplo de aire.
+- Impacto: estrella pixelada, chispas con gravedad, humo, pulso de luz, **parón de impacto** (hit-stop), sacudida y aberración cromática según el arma. Las flechas y dardos se quedan clavados un momento. El cuerpo a cuerpo también tiene parón de impacto.
+- Las habilidades eligen su proyectil por etiqueta (el elemento manda: fuego, hielo, luz, arcano, veneno, pólvora, flecha, hacha, puño) o con su propio `projectile_look`.
+- Las armas en la mano se mueven al atacar: tajo (preparar, golpe, vuelta) en cuerpo a cuerpo y retroceso en arcos y pistolas.
+
 **Personajes:**
 
 - Sprites pixel art como billboard que siempre miran a cámara.
@@ -557,6 +566,7 @@ Cada hito tiene un criterio de salida. No se pasa al siguiente sin cumplirlo.
 
 ## Changelog
 
+- **v0.8.2 (Nov 6, 2026)** — Proyectiles nuevos: sprites pixel art que giran con la trayectoria, orbes mágicos pixelados por shader, estelas, luces que iluminan el suelo, carga de la magia, fogonazo/humo/casquillo en las balas, flechas que se clavan, lluvia de flechas y perdigones a cada casilla, estrella de impacto pixelada, chispas con gravedad, humo, parón de impacto, sacudida y aberración. Las armas en la mano dan el tajo o retroceden al atacar. Muestra en vídeo con `tools/vfx_showcase.gd`.
 - **v0.8.1 (Nov 6, 2026)** — Las armas de la Armería entran en el juego: `WeaponData` con sprite, agarre y pose por vista; cada héroe lleva la suya en la mano (Nyx dos dagas, Grizka dos pistolas, Sigrid el hacha, Elara el mandoble, Pablo el arco; Kael, Lyra y Tohil sin arma dibujada). Armas dobles con la segunda en espejo. Armería: botón «Doble», segunda arma en la prueba y «Marcar 2ª mano». Grizka lleva las pistolas apuntando abajo de frente (cruzadas por la barriga se tapaban la una a la otra).
 - **v0.8 (Nov 6, 2026)** — Coreografías de habilidades: cielo, cámara, tiempo, luces dinámicas, partículas pixeladas, ondas, proyectiles con estela y efectos de pantalla, como datos. Muestra con 4 habilidades (2 cuerpo a cuerpo, 1 magia, 1 distancia).
 - **v0.7.1 (Nov 5, 2026)** — El protagonista pasa a tener +1 PM y +1 PA siempre (fuera el bonus de vida y daño). IA de combos (daño esperado con críticos, preparar estados que los aliados explotan) y prioridad a sanadores y al protagonista. Armería: artefacto para dibujar armas, marcar el agarre y la mano de cada héroe y definir sus cualidades.

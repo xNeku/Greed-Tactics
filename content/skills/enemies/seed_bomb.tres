@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://core/data/status_data.gd" id="1_p02an"]
 [ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
 [ext_resource type="Resource" path="res://content/statuses/rolling.tres" id="2_r"]
+[ext_resource type="Resource" path="res://content/vfx/projectiles/seed.tres" id="pl_look"]
 
 [resource]
 script = ExtResource("1_script")
@@ -20,3 +21,4 @@ area_size = 1
 power = 16
 vfx_style = 4
 vfx_color = Color(0.6, 0.95, 0.5, 1)
+projectile_look = ExtResource("pl_look")

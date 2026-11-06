@@ -91,6 +91,7 @@ El estado por hito está en [`ROADMAP.md`](ROADMAP.md).
 | GT-241 | Kael camorrista: kit a puños, sprites de frente/lado y animaciones (idle, andar, puñetazo, golpe) | M4 | 2026-11-03 |
 | GT-242 | Sprite de Pablo de Neku: más delgado, moño frontal, aros dorados pegados a la oreja (sin tribales, v0.5.1); frente + lado | M4 | 2026-11-03 |
 | GT-243 | Terrenos con textura procedural, decoración, niebla, sol, glow, partículas por zona, viñeta | M5 | 2026-11-03 |
+| GT-285 | Proyectiles con `ProjectileLook` (pixel art + orbes por shader, estela, luz, carga/fogonazo, impacto con parón y sacudida) y tajo/retroceso del arma en la mano | M5 | 2026-11-06 |
 | GT-284 | Armas de la Armería en el juego: `WeaponData` + pose por vista, dibujadas en la mano (shader que gira sin deformar), armas dobles en espejo, importador `tools/armory/import_weapons.py` | M4 | 2026-11-06 |
 | GT-283 | Armería por tipos de arma + 7 armas iniciales de Neku (sprites ajustados a escala, agarre estimado, voltear en la prueba); magos con «Manos (magia)» | M4 | 2026-11-06 |
 | GT-281 | v0.8: sistema de coreografías de efectos + 4 habilidades de muestra (Tiro certero, Lluvia de brasas, Salto aplastante, Paso sombrío) y grabador `tools/vfx_showcase.gd` | M5 | 2026-11-06 |

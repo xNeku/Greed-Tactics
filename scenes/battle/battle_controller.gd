@@ -61,6 +61,8 @@ func _ready() -> void:
 	_map_view.build(combat.grid)
 	_apply_zone_look(setup.zone)
 	_highlighter.setup(_map_view)
+	_vfx.camera_rig = _camera_rig
+	_vfx.screen_fx = _screen_fx
 	_camera_rig.set_bounds(_map_view.get_bounds())
 	_camera_rig.focus_on(_map_view.get_center(), true)
 	_spawn_views()
@@ -201,15 +203,15 @@ func _play_skill_result(result: SkillResult) -> void:
 		match hit.source:
 			SkillResult.HitSource.BOUNCE:
 				view.play_text("¡Rebote!", UnitView.CRIT_COLOR)
-				await _vfx.play_bounce(_views[hit.target].get_cast_position(), hit, _views, skill.vfx_color)
+				await _vfx.play_bounce(_views[hit.target].get_cast_position(), hit, _views, skill)
 			SkillResult.HitSource.EXPLOSION:
 				view.play_text("¡Boom!", UnitView.CRIT_COLOR)
 		if hit.landed:
 			if choreo != null and choreo.has_phase(VfxStep.Phase.IMPACT):
 				await choreo.play(VfxStep.Phase.IMPACT, ctx, view.global_position)
+				_camera_rig.shake(CRIT_SHAKE if hit.critical or hit.source == SkillResult.HitSource.EXPLOSION else HIT_SHAKE)
 			else:
-				_vfx.impact(view.get_cast_position(), skill.vfx_color, 1.4 if hit.critical else 0.8)
-			_camera_rig.shake(CRIT_SHAKE if hit.critical or hit.source == SkillResult.HitSource.EXPLOSION else HIT_SHAKE)
+				await _vfx.hit(view.get_cast_position(), skill, hit.critical, hit.source == SkillResult.HitSource.EXPLOSION)
 		await view.play_hit(hit)
 		if not hit.applied_statuses.is_empty():
 			view.play_statuses_applied(hit.applied_statuses)

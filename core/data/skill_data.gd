@@ -119,6 +119,8 @@ enum Motion {
 @export var vfx_color: Color = Color(1.0, 0.9, 0.6)
 ## Full show of the skill (SkillChoreography, presentation only). Empty = placeholder VFX.
 @export var choreography: Resource
+## Look of its projectile (a ProjectileLook, presentation only). Empty = by tag.
+@export var projectile_look: Resource
 
 @export_group("Rage mutation")
 @export var empowered_variant: SkillData

@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://core/data/status_data.gd" id="1_bmtj8"]
 [ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
 [ext_resource type="Resource" path="res://content/statuses/poison.tres" id="90_status"]
+[ext_resource type="Resource" path="res://content/vfx/projectiles/dart.tres" id="pl_look"]
 
 [resource]
 script = ExtResource("1_script")
@@ -18,3 +19,4 @@ vertical_reach = 2
 status = ExtResource("90_status")
 status_chance = 40
 vfx_color = Color(0.75, 1, 0.6, 1)
+projectile_look = ExtResource("pl_look")

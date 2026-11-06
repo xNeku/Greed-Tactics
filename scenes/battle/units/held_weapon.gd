@@ -11,6 +11,10 @@ var _weapon: WeaponData
 var _unit_data: UnitData
 var _off_hand := false
 var _material: ShaderMaterial
+## Animation offsets (UnitView tweens them): extra clockwise turn in degrees
+## and a shift of the hand in sprite pixels (x towards where the unit faces).
+var swing := 0.0
+var kick := Vector2.ZERO
 
 
 func setup(weapon: WeaponData, unit_data: UnitData, off_hand: bool) -> void:
@@ -35,9 +39,10 @@ func follow(body: SpriteBase3D, frame: Texture2D, side_view: bool, flipped: bool
 	if not visible:
 		return
 	var pose := _weapon.get_off_pose(side_view) if _off_hand else _weapon.get_pose(side_view)
+	var mirrored := _off_hand and not side_view
 	_material.set_shader_parameter(&"body_size", Vector2(size))
-	_material.set_shader_parameter(&"hand", Vector2(hand))
-	_material.set_shader_parameter(&"rotation", deg_to_rad(pose.rotation_degrees))
+	_material.set_shader_parameter(&"hand", Vector2(hand) + Vector2(-kick.x if mirrored else kick.x, kick.y))
+	_material.set_shader_parameter(&"rotation", deg_to_rad(pose.rotation_degrees + (-swing if mirrored else swing)))
 	_material.set_shader_parameter(&"weapon_scale", pose.scale)
 	_material.set_shader_parameter(&"flip", -1.0 if pose.flip else 1.0)
 	_material.set_shader_parameter(&"body_flip", -1.0 if flipped else 1.0)

@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="ProjectileLook" format=3]
+
+[ext_resource type="Script" path="res://scenes/battle/vfx/projectiles/projectile_look.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/sprites/vfx/sand_spike.png" id="2_sprite"]
+
+[resource]
+script = ExtResource("1_script")
+sprite = ExtResource("2_sprite")
+emission = 1.1
+speed = 16.0
+arc_per_unit = 0.03
+trail_color = Color(0.95, 0.8, 0.5, 1)
+trail_width = 0.08
+trail_emission = 0.9
+sparkle_amount = 24
+sparkle_color = Color(0.95, 0.82, 0.55, 1)
+sparkle_gravity = Vector3(0, -3, 0)
+launch = 3
+launch_color = Color(0.95, 0.85, 0.6, 1)
+impact_color = Color(0.95, 0.8, 0.5, 1)
+impact_sparks = 30
+impact_gravity = -8.0
+impact_smoke = true

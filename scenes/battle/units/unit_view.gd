@@ -201,6 +201,7 @@ func play_attack(target_cell: Vector2i) -> void:
 	direction.y = 0.0
 	var lunge := direction.normalized() * 0.3 if direction.length() > 0.01 else Vector3.ZERO
 	_play_state(&"attack")
+	_animate_weapons()
 	var tween := create_tween()
 	tween.tween_property(_body, "position", lunge, 0.08).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	tween.tween_property(_body, "position", Vector3.ZERO, 0.14).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
@@ -427,6 +428,25 @@ func _setup_weapon() -> void:
 		_sprite.add_child(held)
 		held.setup(weapon, unit.data, off_hand)
 		_held_weapons.append(held)
+
+
+## Melee weapons swing (wind-up, strike, back); bows and guns kick back.
+func _animate_weapons() -> void:
+	if _held_weapons.is_empty():
+		return
+	var kind := unit.data.weapon.kind
+	var ranged := kind == WeaponData.Kind.BOW or kind == WeaponData.Kind.PISTOL
+	for held in _held_weapons:
+		var tween := create_tween()
+		if ranged:
+			tween.tween_property(held, "kick", Vector2(-2.0, 0.0), 0.04)
+			tween.parallel().tween_property(held, "swing", -14.0, 0.04)
+			tween.tween_property(held, "kick", Vector2.ZERO, 0.18).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+			tween.parallel().tween_property(held, "swing", 0.0, 0.18)
+		else:
+			tween.tween_property(held, "swing", -55.0, 0.07).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+			tween.tween_property(held, "swing", 85.0, 0.07).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+			tween.tween_property(held, "swing", 0.0, 0.16).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
 func _update_weapons() -> void:

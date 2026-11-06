@@ -1,0 +1,80 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/battle/vfx/projectiles/pixel_projectile.gd" id="1_script"]
+[ext_resource type="Shader" path="res://assets/shaders/pixel_projectile.gdshader" id="2_body"]
+[ext_resource type="Shader" path="res://assets/shaders/pixel_trail.gdshader" id="3_trail"]
+[ext_resource type="Script" path="res://scenes/battle/vfx/projectiles/vfx_trail.gd" id="4_trail"]
+[ext_resource type="Shader" path="res://assets/shaders/pixel_particle.gdshader" id="5_particle"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_body"]
+render_priority = 10
+shader = ExtResource("2_body")
+shader_parameter/orb = null
+shader_parameter/quad_size = null
+shader_parameter/direction = null
+shader_parameter/spin = null
+shader_parameter/emission = null
+shader_parameter/tint = null
+shader_parameter/orb_pixels = null
+shader_parameter/core_color = null
+shader_parameter/mid_color = null
+shader_parameter/edge_color = null
+shader_parameter/tail = null
+shader_parameter/flicker_speed = null
+shader_parameter/seed = null
+
+[sub_resource type="QuadMesh" id="QuadMesh_body"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_trail"]
+render_priority = 9
+shader = ExtResource("3_trail")
+shader_parameter/color = null
+shader_parameter/emission = null
+shader_parameter/bands = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_particle"]
+render_priority = 9
+shader = ExtResource("5_particle")
+shader_parameter/energy = 1.35
+
+[sub_resource type="QuadMesh" id="QuadMesh_particle"]
+material = SubResource("ShaderMaterial_particle")
+size = Vector2(0.05, 0.05)
+
+[sub_resource type="Gradient" id="Gradient_fade"]
+offsets = PackedFloat32Array(0, 0.7, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0)
+
+[node name="PixelProjectile" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="Body" type="MeshInstance3D" parent="."]
+cast_shadow = 0
+extra_cull_margin = 4.0
+material_override = SubResource("ShaderMaterial_body")
+mesh = SubResource("QuadMesh_body")
+
+[node name="Trail" type="MeshInstance3D" parent="."]
+material_override = SubResource("ShaderMaterial_trail")
+script = ExtResource("4_trail")
+
+[node name="Sparkles" type="CPUParticles3D" parent="."]
+emitting = false
+amount = 30
+lifetime = 0.5
+local_coords = false
+mesh = SubResource("QuadMesh_particle")
+emission_shape = 1
+emission_sphere_radius = 0.08
+direction = Vector3(0, 1, 0)
+spread = 180.0
+initial_velocity_min = 0.2
+initial_velocity_max = 0.8
+scale_amount_min = 0.6
+scale_amount_max = 1.3
+color_ramp = SubResource("Gradient_fade")
+
+[node name="Light" type="OmniLight3D" parent="."]
+shadow_enabled = false
+light_energy = 2.0
+omni_range = 2.5

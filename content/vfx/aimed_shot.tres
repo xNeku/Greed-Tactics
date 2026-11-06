@@ -3,8 +3,7 @@
 [ext_resource type="Script" path="res://scenes/battle/vfx/choreo/skill_choreography.gd" id="1_script"]
 [ext_resource type="Script" path="res://scenes/battle/vfx/choreo/vfx_step.gd" id="2_step"]
 [ext_resource type="PackedScene" path="res://scenes/battle/vfx/effects/vfx_burst.tscn" id="6_y1y6n"]
-[ext_resource type="PackedScene" path="res://scenes/battle/vfx/effects/vfx_beam.tscn" id="10_4gdke"]
-[ext_resource type="Script" path="res://scenes/battle/vfx/choreo/beam_step.gd" id="10_beam_step"]
+[ext_resource type="PackedScene" path="res://scenes/battle/vfx/projectiles/pixel_projectile.tscn" id="11_4gdke"]
 [ext_resource type="Script" path="res://scenes/battle/vfx/choreo/camera_step.gd" id="11_camera_step"]
 [ext_resource type="Script" path="res://scenes/battle/vfx/choreo/light_step.gd" id="12_light_step"]
 [ext_resource type="Script" path="res://scenes/battle/vfx/choreo/particles_step.gd" id="13_particles_step"]
@@ -12,6 +11,8 @@
 [ext_resource type="Script" path="res://scenes/battle/vfx/choreo/sky_step.gd" id="15_sky_step"]
 [ext_resource type="Script" path="res://scenes/battle/vfx/choreo/time_step.gd" id="16_time_step"]
 [ext_resource type="Script" path="res://scenes/battle/vfx/choreo/unit_step.gd" id="17_unit_step"]
+[ext_resource type="Resource" path="res://content/vfx/projectiles/arrow_heavy.tres" id="pj_look"]
+[ext_resource type="Script" path="res://scenes/battle/vfx/choreo/projectile_step.gd" id="pj_step"]
 
 [sub_resource type="Resource" id="CameraStep_0"]
 script = ExtResource("11_camera_step")
@@ -63,11 +64,8 @@ glow = Color(1, 0.9, 0.6, 1)
 wait = true
 
 [sub_resource type="Resource" id="BeamStep_6"]
-script = ExtResource("10_beam_step")
-color = Color(1, 0.95, 0.75, 1)
-speed = 42.0
-thickness = 0.06
-arc_height = 0.1
+script = ExtResource("pj_step")
+look = ExtResource("pj_look")
 phase = 1
 wait = true
 
