@@ -39,6 +39,7 @@ const HIT_SHAKE := 0.08
 @onready var _sun: DirectionalLight3D = %Sun
 @onready var _arrows: FeedbackArrows = %FeedbackArrows
 @onready var _vfx: VfxPlayer = %VfxPlayer
+@onready var _screen_fx: ScreenFx = %ScreenFx
 
 var combat: CombatState
 
@@ -177,12 +178,24 @@ func _play_skill_result(result: SkillResult) -> void:
 	var skill := result.skill
 	var label := skill.display_name + (" (ira desatada)" if skill.empowered else "")
 	_hud.set_message("%s usa %s" % [result.user.display_name, label], result.user.team == UnitState.Team.ENEMY)
+	var choreo := _choreography_for(result)
+	var ctx: ChoreoContext = null
+	if choreo != null:
+		ctx = ChoreoContext.new(result, self, _environment.environment, _sun, _camera_rig, _screen_fx, _map_view, user_view)
+		if choreo.follow_camera:
+			_camera_rig.focus_on(user_view.global_position)
+		await choreo.play(VfxStep.Phase.CAST, ctx)
 	if result.user_moved():
 		await user_view.play_leap(result.user_to)
 		_camera_rig.home_position = _map_view.cell_to_world(result.user.cell)
+	if choreo != null:
+		if choreo.follow_camera:
+			_camera_rig.focus_on(ctx.anchor_position(VfxStep.Anchor.TARGET))
+		await choreo.play(VfxStep.Phase.ARRIVE, ctx)
 	if skill.deals_damage():
 		user_view.play_attack(result.target_cell)
-	await _vfx.play_cast(result, _map_view, user_view)
+	if choreo == null or not choreo.replaces_default_cast:
+		await _vfx.play_cast(result, _map_view, user_view)
 	for hit in result.hits:
 		var view := _views[hit.target]
 		match hit.source:
@@ -192,7 +205,10 @@ func _play_skill_result(result: SkillResult) -> void:
 			SkillResult.HitSource.EXPLOSION:
 				view.play_text("¡Boom!", UnitView.CRIT_COLOR)
 		if hit.landed:
-			_vfx.impact(view.get_cast_position(), skill.vfx_color, 1.4 if hit.critical else 0.8)
+			if choreo != null and choreo.has_phase(VfxStep.Phase.IMPACT):
+				await choreo.play(VfxStep.Phase.IMPACT, ctx, view.global_position)
+			else:
+				_vfx.impact(view.get_cast_position(), skill.vfx_color, 1.4 if hit.critical else 0.8)
 			_camera_rig.shake(CRIT_SHAKE if hit.critical or hit.source == SkillResult.HitSource.EXPLOSION else HIT_SHAKE)
 		await view.play_hit(hit)
 		if not hit.applied_statuses.is_empty():
@@ -221,7 +237,18 @@ func _play_skill_result(result: SkillResult) -> void:
 		await summoned_view.play_appear()
 	if result.refunded_ap > 0:
 		user_view.play_text("+%d PA" % result.refunded_ap, UnitView.HEAL_COLOR)
+	if choreo != null:
+		await choreo.play(VfxStep.Phase.END, ctx)
+		await ctx.finish()
 	user_view.refresh_info()
+
+## The skill's choreography: the variant used (rage mutation) or its base skill.
+func _choreography_for(result: SkillResult) -> SkillChoreography:
+	var used := result.skill.source.choreography as SkillChoreography
+	if used == null and result.skill.base != null:
+		used = result.skill.base.choreography as SkillChoreography
+	return used
+
 
 ## Summons that crumble because their summoner died.
 func _play_orphans(units: Array[UnitState]) -> void:

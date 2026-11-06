@@ -10,8 +10,6 @@
 
 [resource]
 script = ExtResource("1_script")
-attack = 9
-attack_per_level = 1
 id = &"forest_assassin"
 display_name = "Asesina del bosque"
 short_name = "ASE"
@@ -23,9 +21,11 @@ description = "Muy rápida y de poco daño, pero envenena; contra un objetivo ya
 max_hp = 42
 speed = 14
 move_points = 6
+attack = 9
 defense = 1
 evasion = 25
 hp_per_level = 5
+attack_per_level = 1
 skills = Array[ExtResource("4_r")]([ExtResource("6_r"), ExtResource("7_r")])
 ai_profile = ExtResource("5_r")
 xp_reward = 9

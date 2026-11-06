@@ -315,6 +315,18 @@ Enemigos de prototipo: Goblin (Saqueador, melee) y Limo (Bestia, melee lento y r
 - **Prepara combos:** aplicar un estado vale más si algún aliado puede explotarlo (crítico seguro contra ese tipo, vulnerabilidad, menos defensa) — `AiProfile.combo_weight`.
 - **Prioridad de objetivos:** sanadores y apoyos primero (`support_target_weight`), y el protagonista del jugador es un objetivo apetecible (`protagonist_target_weight`), sin dejar de valorar remates y amenazas.
 
+**[v0.8] Coreografías de habilidades (efectos):** cada habilidad puede tener una `SkillChoreography` (`SkillData.choreography`, datos en `content/vfx/`) hecha de pasos reutilizables (`scenes/battle/vfx/choreo/`):
+- `SkyStep` (oscurecer y teñir cielo, luz, niebla volumétrica y brillo);
+- `CameraStep` (foco, zoom cinematográfico y temblor);
+- `TimeStep` (congelado de impacto y cámara lenta);
+- `LightStep` (luz dinámica con sombras y parpadeo);
+- `ParticlesStep` (partículas cuadradas tipo píxel: estallido, esfera, lluvia sobre el área o concentración);
+- `ShockwaveStep`, `BeamStep` (proyectil con luz y estela) y `SlashStep`;
+- `ScreenStep` (destello, aberración de color y viñeta teñida);
+- `UnitStep` (desvanecer, reaparecer y cargar).
+
+Fases: CAST → movimiento → ARRIVE → IMPACT (por golpe) → END, y al final se restaura todo. Muestra: Tiro certero (Pablo), Lluvia de brasas (Tohil), Salto aplastante (Sigrid) y Paso sombrío (Nyx). Pensado para el Mac (Forward+: niebla volumetrica y luces); en Compatibility se degrada sin romperse. `tools/vfx_showcase.gd` graba cada habilidad con el modo vídeo de Godot.
+
 **[v0.7.1] Armería** (artefacto privado de Neku, fuente `tools/armory/armeria.html`): un documento por arma (`weapons/<id>`) con sprite pixel perfect, **punto de agarre**, delante/detrás del cuerpo, tipo, rareza, cómo se consigue, quién la puede llevar, ataque básico que da, pasiva y cambios de estadísticas. Cada héroe tiene marcada su **mano** de frente y de lado (`hands/<heroe>`), y la armería enseña el arma colocada en su mano. Empieza con las 8 armas iniciales (una por héroe).
 
 **[v0.6.3] Anti-bloqueo de la IA:** `CombatState.turns_without_damage` cuenta los turnos seguidos sin que nadie pierda vida; el miedo de la IA a las casillas amenazadas baja hasta 0 en `AiProfile.patience_turns` (8) turnos. Evita empates eternos de dos bandos esperando en el borde del alcance del otro.
@@ -540,6 +552,7 @@ Cada hito tiene un criterio de salida. No se pasa al siguiente sin cumplirlo.
 
 ## Changelog
 
+- **v0.8 (Nov 6, 2026)** — Coreografías de habilidades: cielo, cámara, tiempo, luces dinámicas, partículas pixeladas, ondas, proyectiles con estela y efectos de pantalla, como datos. Muestra con 4 habilidades (2 cuerpo a cuerpo, 1 magia, 1 distancia).
 - **v0.7.1 (Nov 5, 2026)** — El protagonista pasa a tener +1 PM y +1 PA siempre (fuera el bonus de vida y daño). IA de combos (daño esperado con críticos, preparar estados que los aliados explotan) y prioridad a sanadores y al protagonista. Armería: artefacto para dibujar armas, marcar el agarre y la mano de cada héroe y definir sus cualidades.
 - **v0.7 (Nov 5, 2026)** — Nuevo bucle de run (decisión de Neku): un protagonista, reclutas que controlas tú, mapa de etapa con bifurcaciones (combate, élite, reclutar, descanso, miniboss), objetivos opcionales (proteger la carreta, escapar), Lobo solitario, modificadores solo para el protagonista, mapas y enemigos según el tamaño del grupo. Pantallas nuevas: mapa de run con caminos, reclutar; menú de protagonista; panel de objetivo y estrella del protagonista en combate. Arreglado: la semilla de la run ya da siempre el mismo mapa.
 - **v0.6.4 (Nov 4, 2026)** — Bosque de Neku: luchador, asesina, berserker, viejo curandero, tres ratas y el **Ent** que rueda. Mecánicas: rodar, objetivo aliado, buffs, usos por turno, cargas que se gastan, crítico seguro por estado, prisa, vulnerabilidad. Arreglado: el troll podía invocar dos elementales por turno (ahora `max_uses_per_turn` = 1).

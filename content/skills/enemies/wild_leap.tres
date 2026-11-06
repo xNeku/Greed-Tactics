@@ -6,7 +6,6 @@
 
 [resource]
 script = ExtResource("1_script")
-status_chance = 50
 id = &"wild_leap"
 display_name = "Salto salvaje"
 description = "Salta a una casilla libre a 2-4 (ignora alturas), golpea a los adyacentes (50% de lanzarlos por los aires) y roba vida."
@@ -23,5 +22,6 @@ power = 8
 motion = 1
 lifesteal_percent = 20
 status = ExtResource("2_r")
+status_chance = 50
 vfx_style = 5
 vfx_color = Color(1, 0.5, 0.45, 1)

@@ -1,0 +1,10 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/battle/vfx/effects/vfx_burst.gd" id="1_script"]
+
+[node name="VfxBurst" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="Particles" type="GPUParticles3D" parent="."]
+emitting = false
+cast_shadow = 0

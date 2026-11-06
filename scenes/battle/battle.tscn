@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" path="res://scenes/battle/feedback/feedback_arrows.tscn" id="10_arrows"]
 [ext_resource type="PackedScene" path="res://scenes/battle/vfx/vfx_player.tscn" id="11_vfx"]
 [ext_resource type="Shader" path="res://scenes/battle/atmosphere/vignette.gdshader" id="12_vignette"]
+[ext_resource type="PackedScene" path="res://scenes/battle/vfx/screen_fx.tscn" id="13_screen_fx"]
 
 [sub_resource type="Environment" id="Environment_battle"]
 background_mode = 1
@@ -70,6 +71,9 @@ unique_name_in_owner = true
 [node name="PlayerTurnInput" type="Node" parent="."]
 unique_name_in_owner = true
 script = ExtResource("8_input")
+
+[node name="ScreenFx" parent="." instance=ExtResource("13_screen_fx")]
+unique_name_in_owner = true
 
 [node name="Vignette" type="CanvasLayer" parent="."]
 layer = -1

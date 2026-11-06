@@ -4,6 +4,7 @@
 [ext_resource type="Resource" path="res://content/statuses/knockup.tres" id="2_status"]
 [ext_resource type="Script" path="res://core/data/status_data.gd" id="2_xojdw"]
 [ext_resource type="Resource" path="res://content/skills/barbarian/sky_fall.tres" id="4_emp"]
+[ext_resource type="Resource" path="res://content/vfx/crushing_leap.tres" id="95_choreo"]
 
 [resource]
 script = ExtResource("1_script")
@@ -24,4 +25,5 @@ motion = 1
 status = ExtResource("2_status")
 vfx_style = 5
 vfx_color = Color(0.9, 0.92, 1, 1)
+choreography = ExtResource("95_choreo")
 empowered_variant = ExtResource("4_emp")

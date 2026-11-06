@@ -169,6 +169,28 @@ func play_text(text: String, color: Color = RAGE_COLOR) -> void:
 	_spawn_popup(text, color)
 
 
+## Fades the sprite (and its labels) to [param alpha]: shadow steps, burrowing.
+func fade_sprite(alpha: float, duration: float) -> void:
+	var tween := create_tween().set_parallel()
+	tween.tween_property(_sprite, "modulate:a", alpha, duration)
+	tween.tween_property(_info_label, "modulate:a", alpha, duration)
+	_status_icons.visible = alpha > 0.5
+	await tween.finished
+
+
+## Charging a skill: shivers and glows with [param glow].
+func play_charge(glow: Color, duration: float) -> void:
+	var tween := create_tween()
+	var steps := maxi(2, int(duration / 0.05))
+	for i in steps:
+		tween.tween_property(_body, "position", Vector3(randf_range(-0.04, 0.04), randf_range(0.0, 0.05), 0.0), 0.05)
+	tween.tween_property(_body, "position", Vector3.ZERO, 0.05)
+	var glow_tween := create_tween()
+	glow_tween.tween_property(_sprite, "modulate", Color(glow.r * 1.6, glow.g * 1.6, glow.b * 1.6, _sprite.modulate.a), duration * 0.6)
+	glow_tween.tween_property(_sprite, "modulate", Color(_base_modulate, _sprite.modulate.a), duration * 0.4)
+	await tween.finished
+
+
 func play_attack(target_cell: Vector2i) -> void:
 	var direction := (_map.cell_to_world(target_cell) - global_position)
 	direction.y = 0.0

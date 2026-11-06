@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://core/data/status_data.gd" id="1_ap5la"]
 [ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
 [ext_resource type="Resource" path="res://content/statuses/burn.tres" id="2_status"]
+[ext_resource type="Resource" path="res://content/vfx/ember_rain.tres" id="95_choreo"]
 
 [resource]
 script = ExtResource("1_script")
@@ -22,3 +23,4 @@ status = ExtResource("2_status")
 status_chance = 70
 vfx_style = 4
 vfx_color = Color(1, 0.5, 0.15, 1)
+choreography = ExtResource("95_choreo")

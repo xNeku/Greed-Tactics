@@ -1,0 +1,119 @@
+[gd_resource type="Resource" script_class="SkillChoreography" format=3]
+
+[ext_resource type="Script" path="res://scenes/battle/vfx/choreo/skill_choreography.gd" id="1_script"]
+[ext_resource type="Script" path="res://scenes/battle/vfx/choreo/vfx_step.gd" id="2_step"]
+[ext_resource type="PackedScene" path="res://scenes/battle/vfx/effects/vfx_burst.tscn" id="6_y1y6n"]
+[ext_resource type="PackedScene" path="res://scenes/battle/vfx/effects/vfx_beam.tscn" id="10_4gdke"]
+[ext_resource type="Script" path="res://scenes/battle/vfx/choreo/beam_step.gd" id="10_beam_step"]
+[ext_resource type="Script" path="res://scenes/battle/vfx/choreo/camera_step.gd" id="11_camera_step"]
+[ext_resource type="Script" path="res://scenes/battle/vfx/choreo/light_step.gd" id="12_light_step"]
+[ext_resource type="Script" path="res://scenes/battle/vfx/choreo/particles_step.gd" id="13_particles_step"]
+[ext_resource type="Script" path="res://scenes/battle/vfx/choreo/screen_step.gd" id="14_screen_step"]
+[ext_resource type="Script" path="res://scenes/battle/vfx/choreo/sky_step.gd" id="15_sky_step"]
+[ext_resource type="Script" path="res://scenes/battle/vfx/choreo/time_step.gd" id="16_time_step"]
+[ext_resource type="Script" path="res://scenes/battle/vfx/choreo/unit_step.gd" id="17_unit_step"]
+
+[sub_resource type="Resource" id="CameraStep_0"]
+script = ExtResource("11_camera_step")
+zoom = 0.6
+anchor = 0
+
+[sub_resource type="Resource" id="SkyStep_1"]
+script = ExtResource("15_sky_step")
+tint = Color(0.12, 0.18, 0.35, 1)
+darkness = 0.5
+volumetric_fog = 0.025
+fade_in = 0.3
+
+[sub_resource type="Resource" id="ScreenStep_2"]
+script = ExtResource("14_screen_step")
+tint_color = Color(0.02, 0.03, 0.08, 1)
+tint = 0.55
+hold_tint = true
+
+[sub_resource type="Resource" id="ParticlesStep_3"]
+script = ExtResource("13_particles_step")
+shape = 3
+color_start = Color(1, 0.9, 0.6, 1)
+color_end = Color(1, 0.7, 0.3, 0)
+amount = 60
+lifetime = 0.55
+speed = 3.0
+gravity = Vector3(0, 0, 0)
+size = 0.05
+radius = 1.1
+anchor = 0
+height = 0.55
+
+[sub_resource type="Resource" id="LightStep_4"]
+script = ExtResource("12_light_step")
+color = Color(1, 0.92, 0.7, 1)
+energy = 4.5
+light_range = 3.5
+fade_in = 0.5
+hold = 0.1
+fade_out = 0.2
+anchor = 0
+height = 0.6
+
+[sub_resource type="Resource" id="UnitStep_5"]
+script = ExtResource("17_unit_step")
+duration = 0.65
+glow = Color(1, 0.9, 0.6, 1)
+wait = true
+
+[sub_resource type="Resource" id="BeamStep_6"]
+script = ExtResource("10_beam_step")
+color = Color(1, 0.95, 0.75, 1)
+speed = 42.0
+thickness = 0.06
+arc_height = 0.1
+phase = 1
+wait = true
+
+[sub_resource type="Resource" id="TimeStep_7"]
+script = ExtResource("16_time_step")
+time_scale = 0.04
+duration = 0.13
+phase = 2
+
+[sub_resource type="Resource" id="ScreenStep_8"]
+script = ExtResource("14_screen_step")
+flash_color = Color(1, 1, 0.95, 1)
+flash = 0.55
+aberration = 1.6
+duration = 0.28
+phase = 2
+
+[sub_resource type="Resource" id="ParticlesStep_9"]
+script = ExtResource("13_particles_step")
+color_start = Color(1, 0.9, 0.6, 1)
+color_end = Color(1, 0.5, 0.2, 0)
+amount = 45
+lifetime = 0.45
+speed = 7.5
+size = 0.05
+phase = 2
+height = 0.5
+
+[sub_resource type="Resource" id="LightStep_10"]
+script = ExtResource("12_light_step")
+color = Color(1, 0.95, 0.8, 1)
+energy = 9.0
+light_range = 4.5
+fade_in = 0.02
+hold = 0.05
+fade_out = 0.35
+shadows = false
+phase = 2
+height = 0.6
+
+[sub_resource type="Resource" id="CameraStep_11"]
+script = ExtResource("11_camera_step")
+zoom = 0.7
+shake = 0.3
+phase = 2
+
+[resource]
+script = ExtResource("1_script")
+steps = Array[ExtResource("2_step")]([SubResource("CameraStep_0"), SubResource("SkyStep_1"), SubResource("ScreenStep_2"), SubResource("ParticlesStep_3"), SubResource("LightStep_4"), SubResource("UnitStep_5"), SubResource("BeamStep_6"), SubResource("TimeStep_7"), SubResource("ScreenStep_8"), SubResource("ParticlesStep_9"), SubResource("LightStep_10"), SubResource("CameraStep_11")])

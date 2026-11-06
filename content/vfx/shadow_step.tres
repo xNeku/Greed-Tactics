@@ -1,0 +1,131 @@
+[gd_resource type="Resource" script_class="SkillChoreography" format=3]
+
+[ext_resource type="Script" path="res://scenes/battle/vfx/choreo/skill_choreography.gd" id="1_script"]
+[ext_resource type="Script" path="res://scenes/battle/vfx/choreo/vfx_step.gd" id="2_step"]
+[ext_resource type="PackedScene" path="res://scenes/battle/vfx/effects/vfx_burst.tscn" id="6_fpnru"]
+[ext_resource type="PackedScene" path="res://scenes/battle/vfx/vfx_slash.tscn" id="10_bi3aj"]
+[ext_resource type="Script" path="res://scenes/battle/vfx/choreo/camera_step.gd" id="10_camera_step"]
+[ext_resource type="Script" path="res://scenes/battle/vfx/choreo/light_step.gd" id="11_light_step"]
+[ext_resource type="Script" path="res://scenes/battle/vfx/choreo/particles_step.gd" id="12_particles_step"]
+[ext_resource type="Script" path="res://scenes/battle/vfx/choreo/screen_step.gd" id="13_screen_step"]
+[ext_resource type="Script" path="res://scenes/battle/vfx/choreo/sky_step.gd" id="14_sky_step"]
+[ext_resource type="Script" path="res://scenes/battle/vfx/choreo/slash_step.gd" id="15_slash_step"]
+[ext_resource type="Script" path="res://scenes/battle/vfx/choreo/time_step.gd" id="16_time_step"]
+[ext_resource type="Script" path="res://scenes/battle/vfx/choreo/unit_step.gd" id="17_unit_step"]
+
+[sub_resource type="Resource" id="SkyStep_0"]
+script = ExtResource("14_sky_step")
+tint = Color(0.22, 0.04, 0.32, 1)
+darkness = 0.78
+volumetric_fog = 0.035
+glow_boost = 0.7
+fade_in = 0.2
+
+[sub_resource type="Resource" id="ScreenStep_1"]
+script = ExtResource("13_screen_step")
+tint_color = Color(0.1, 0, 0.16, 1)
+tint = 0.6
+duration = 0.25
+hold_tint = true
+
+[sub_resource type="Resource" id="CameraStep_2"]
+script = ExtResource("10_camera_step")
+zoom = 0.75
+anchor = 0
+
+[sub_resource type="Resource" id="ParticlesStep_3"]
+script = ExtResource("12_particles_step")
+shape = 1
+color_start = Color(0.62, 0.25, 0.95, 1)
+color_end = Color(0.12, 0, 0.25, 0)
+amount = 70
+speed = 1.6
+gravity = Vector3(0, 2, 0)
+size = 0.09
+radius = 0.35
+anchor = 0
+height = 0.5
+
+[sub_resource type="Resource" id="UnitStep_4"]
+script = ExtResource("17_unit_step")
+action = 0
+duration = 0.18
+wait = true
+
+[sub_resource type="Resource" id="ParticlesStep_5"]
+script = ExtResource("12_particles_step")
+shape = 1
+color_start = Color(0.62, 0.25, 0.95, 1)
+color_end = Color(0.12, 0, 0.25, 0)
+amount = 70
+lifetime = 0.55
+speed = 2.2
+gravity = Vector3(0, 1.5, 0)
+size = 0.09
+radius = 0.35
+phase = 1
+anchor = 0
+height = 0.5
+
+[sub_resource type="Resource" id="LightStep_6"]
+script = ExtResource("11_light_step")
+color = Color(0.7, 0.3, 1, 1)
+light_range = 3.5
+fade_in = 0.05
+hold = 0.3
+fade_out = 0.4
+phase = 1
+anchor = 0
+height = 0.6
+
+[sub_resource type="Resource" id="UnitStep_7"]
+script = ExtResource("17_unit_step")
+action = 1
+duration = 0.12
+phase = 1
+wait = true
+
+[sub_resource type="Resource" id="SlashStep_8"]
+script = ExtResource("15_slash_step")
+color = Color(0.85, 0.55, 1, 1)
+count = 2
+duration = 0.16
+size = 1.2
+phase = 2
+height = 0.5
+
+[sub_resource type="Resource" id="TimeStep_9"]
+script = ExtResource("16_time_step")
+duration = 0.11
+phase = 2
+delay = 0.06
+
+[sub_resource type="Resource" id="ScreenStep_10"]
+script = ExtResource("13_screen_step")
+flash_color = Color(0.85, 0.7, 1, 1)
+flash = 0.35
+aberration = 2.2
+phase = 2
+delay = 0.06
+
+[sub_resource type="Resource" id="ParticlesStep_11"]
+script = ExtResource("12_particles_step")
+color_start = Color(0.55, 1, 0.35, 1)
+color_end = Color(0.1, 0.5, 0.05, 0)
+amount = 30
+lifetime = 0.5
+speed = 5.0
+gravity = Vector3(0, -5, 0)
+size = 0.05
+phase = 2
+height = 0.5
+
+[sub_resource type="Resource" id="CameraStep_12"]
+script = ExtResource("10_camera_step")
+zoom = 0.7
+shake = 0.4
+phase = 2
+
+[resource]
+script = ExtResource("1_script")
+steps = Array[ExtResource("2_step")]([SubResource("SkyStep_0"), SubResource("ScreenStep_1"), SubResource("CameraStep_2"), SubResource("ParticlesStep_3"), SubResource("UnitStep_4"), SubResource("ParticlesStep_5"), SubResource("LightStep_6"), SubResource("UnitStep_7"), SubResource("SlashStep_8"), SubResource("TimeStep_9"), SubResource("ScreenStep_10"), SubResource("ParticlesStep_11"), SubResource("CameraStep_12")])

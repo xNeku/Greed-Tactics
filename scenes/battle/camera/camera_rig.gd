@@ -33,6 +33,8 @@ var _target_distance := 0.0
 var _bounds := AABB()
 var _dragging := false
 var _shake_strength := 0.0
+## Skill choreographies zoom in by scaling the distance (1 = player's zoom).
+var _cinematic := 1.0
 
 
 func _ready() -> void:
@@ -50,6 +52,12 @@ func get_camera() -> Camera3D:
 ## Short screen shake (crits, explosions). Stronger calls override weaker ones.
 func shake(strength: float = 0.15) -> void:
 	_shake_strength = maxf(_shake_strength, strength)
+
+
+## Cinematic zoom for skills: [param factor] < 1 moves the camera closer.
+## Back to the player's zoom with 1.
+func set_cinematic_zoom(factor: float) -> void:
+	_cinematic = factor
 
 
 ## Limits panning to [param bounds] (usually the map AABB).
@@ -89,7 +97,7 @@ func _process(delta: float) -> void:
 	var weight := 1.0 - exp(-smoothing * delta)
 	global_position = global_position.lerp(_target_position, weight)
 	_yaw.rotation.y = lerp_angle(_yaw.rotation.y, _target_yaw, weight)
-	distance = lerpf(distance, _target_distance, weight)
+	distance = lerpf(distance, _target_distance * _cinematic, weight)
 	_apply_pitch_and_distance()
 
 

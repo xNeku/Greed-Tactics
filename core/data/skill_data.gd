@@ -117,6 +117,8 @@ enum Motion {
 @export_group("Visual")
 @export var vfx_style: VfxStyle = VfxStyle.AUTO
 @export var vfx_color: Color = Color(1.0, 0.9, 0.6)
+## Full show of the skill (SkillChoreography, presentation only). Empty = placeholder VFX.
+@export var choreography: Resource
 
 @export_group("Rage mutation")
 @export var empowered_variant: SkillData

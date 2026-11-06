@@ -8,7 +8,6 @@ script = ExtResource("1_script")
 id = &"rolling"
 display_name = "Rodando"
 description = "Va rodando: cada carga (máx. 2) acerca sus bombitas, pero recibe el doble de daño y su defensa baja a la mitad."
-default_duration = 2
 max_stacks = 2
 defense_percent_bonus = -50
 damage_taken_percent_bonus = 100

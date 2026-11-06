@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://core/data/status_data.gd" id="1_8k0t3"]
 [ext_resource type="Script" path="res://core/data/skill_data.gd" id="1_script"]
 [ext_resource type="Resource" path="res://content/statuses/slow.tres" id="90_status"]
+[ext_resource type="Resource" path="res://content/vfx/aimed_shot.tres" id="95_choreo"]
 
 [resource]
 script = ExtResource("1_script")
@@ -20,3 +21,4 @@ crit_bonus = 15
 status = ExtResource("90_status")
 status_duration = 1
 vfx_color = Color(1, 0.95, 0.75, 1)
+choreography = ExtResource("95_choreo")
