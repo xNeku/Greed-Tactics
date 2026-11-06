@@ -560,7 +560,7 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
     });
     return el("div", { class: "hand-panel" },
       el("div", { class: "section-head" }, el("h3", { text: "Prueba en la mano" }),
-        el("p", { text: "Haz clic en la mano del héroe para marcarla (una vez por héroe y vista). El arma se coloca con su punto de agarre ahí; gírala y cámbiala de tamaño para cada vista. Se ve a la resolución real del juego." })),
+        el("p", { text: "Haz clic en la mano del héroe para marcarla (una vez por héroe y vista). El arma se coloca con su punto de agarre ahí; gírala y cámbiala de tamaño para cada vista. El arma se gira y escala entera, sin deformar su dibujo." })),
       el("div", { class: "toolbar" }, heroSelect, views), poseBar,
       el("div", { class: "hand-stage" }, canvas), hint);
   }
@@ -580,9 +580,8 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
     }
     return c;
   }
-  // Composes body + weapon at the game's real resolution (1 px = 1 game pixel,
-  // nearest sampling, so rotations look as pixelated as they will in game),
-  // then blows it up for the screen.
+  // The weapon is its own sprite: rotating or resizing it moves its pixels as
+  // whole squares (like a Sprite3D in game), never re-sampled into the hero's grid.
   function drawHandPreview() {
     const canvas = document.getElementById("handCanvas");
     const w = hero();
@@ -592,40 +591,32 @@ textarea { resize: vertical; min-height: 64px; width: 100%; }
     const pose = getPose(w, view);
     const body = h._img[view];
     const weapon = w._img.sprite;
+    const S = PREVIEW_SCALE;
     const cw = body.w + HAND_MARGIN * 2, ch = body.h + HAND_MARGIN * 2;
-    const small = document.createElement("canvas");
-    small.width = cw; small.height = ch;
-    const g = small.getContext("2d");
-    g.imageSmoothingEnabled = false;
-    const hand = (state.hands[h.id] || {})[view];
-    const grip = w.grip || { x: Math.floor(weapon.w / 2), y: Math.floor(weapon.h / 2) };
-    const anchor = hand || { x: Math.floor(body.w / 2), y: Math.floor(body.h * 0.6) };
-    const drawWeapon = () => {
-      g.save();
-      g.translate(HAND_MARGIN + anchor.x + 0.5, HAND_MARGIN + anchor.y + 0.5);
-      g.rotate(pose.rot * Math.PI / 180);
-      g.scale(pose.scale * (pose.flip ? -1 : 1), pose.scale);
-      g.drawImage(spriteCanvas(weapon), -grip.x - 0.5, -grip.y - 0.5);
-      g.restore();
-    };
-    if (pose.layer === "back") drawWeapon();
-    g.drawImage(spriteCanvas(body), HAND_MARGIN, HAND_MARGIN);
-    if (pose.layer !== "back") drawWeapon();
-    // Snap to whole pixels: keep only fully drawn pixels, like the game's nearest filter.
-    const data = g.getImageData(0, 0, cw, ch);
-    for (let i = 3; i < data.data.length; i += 4) data.data[i] = data.data[i] >= 128 ? 255 : 0;
-    g.putImageData(data, 0, 0);
-
-    canvas.width = cw * PREVIEW_SCALE; canvas.height = ch * PREVIEW_SCALE;
+    canvas.width = cw * S; canvas.height = ch * S;
     canvas.style.width = canvas.width + "px"; canvas.style.height = canvas.height + "px";
     const ctx = canvas.getContext("2d");
     ctx.imageSmoothingEnabled = false;
     ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--panel-2").trim();
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(small, 0, 0, canvas.width, canvas.height);
+    const hand = (state.hands[h.id] || {})[view];
+    const grip = w.grip || { x: Math.floor(weapon.w / 2), y: Math.floor(weapon.h / 2) };
+    const anchor = hand || { x: Math.floor(body.w / 2), y: Math.floor(body.h * 0.6) };
+    const weaponCanvas = spriteCanvas(weapon);
+    const drawWeapon = () => {
+      ctx.save();
+      ctx.translate((HAND_MARGIN + anchor.x + 0.5) * S, (HAND_MARGIN + anchor.y + 0.5) * S);
+      ctx.rotate(pose.rot * Math.PI / 180);
+      ctx.scale(S * pose.scale * (pose.flip ? -1 : 1), S * pose.scale);
+      ctx.drawImage(weaponCanvas, -grip.x - 0.5, -grip.y - 0.5);
+      ctx.restore();
+    };
+    if (pose.layer === "back") drawWeapon();
+    ctx.drawImage(spriteCanvas(body), HAND_MARGIN * S, HAND_MARGIN * S, body.w * S, body.h * S);
+    if (pose.layer !== "back") drawWeapon();
     if (hand) {
       ctx.strokeStyle = "#7fe0ff"; ctx.lineWidth = 2;
-      ctx.strokeRect((HAND_MARGIN + hand.x) * PREVIEW_SCALE, (HAND_MARGIN + hand.y) * PREVIEW_SCALE, PREVIEW_SCALE, PREVIEW_SCALE);
+      ctx.strokeRect((HAND_MARGIN + hand.x) * S, (HAND_MARGIN + hand.y) * S, S, S);
     }
     const readout = document.getElementById("poseReadout");
     if (readout) readout.textContent = "Giro " + pose.rot + "° · Tamaño ×" + pose.scale + (pose.flip ? " · volteada" : "") + " · " + (pose.layer === "back" ? "detrás" : "delante");
