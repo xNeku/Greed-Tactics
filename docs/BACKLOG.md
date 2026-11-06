@@ -15,6 +15,7 @@ El estado por hito está en [`ROADMAP.md`](ROADMAP.md).
 | GT-251 | Animaciones de Pablo (y del resto cuando lleguen sus sprites) con `art/src` + `tools/build_sprite_frames.gd` | M4 | P1 | ⬜ |
 | GT-252 | Pablo sin arco visible en el sprite: decidir con Neku si lo lleva a la espalda o en la mano | M4 | P2 | ⬜ |
 | GT-260 | Importador del taller: los sprites ya se importan (`tools/hero_workshop/import_sheets.py`); falta pasar armas, pasivas y desbloqueables cuando existan en el juego | M4 | P1 | 🟡 |
+| GT-293 | Más allá del X (maestría): qué da; objetos y botín en el resumen de fin de run; más armas para todos | M3 | P1 | ⬜ |
 | GT-289 | Enemigos propios para Castillo y Fábrica (ahora reutilizan los de bosque y desierto); la cueva vuelve cuando tenga enemigos de Neku y decidir con Neku qué escenarios, props y ambientes se quedan | M4 | P1 | ⬜ |
 | GT-290 | Rendimiento de luces y niebla volumétrica en el Mac (sombras de braseros, número de luces); opción de calidad | M5 | P1 | ⬜ |
 | GT-276 | Casillas de tienda y de evento en el mapa de run (gastar oro, decisiones con riesgo) | M2 | P1 | ⬜ |
@@ -93,6 +94,7 @@ El estado por hito está en [`ROADMAP.md`](ROADMAP.md).
 | GT-241 | Kael camorrista: kit a puños, sprites de frente/lado y animaciones (idle, andar, puñetazo, golpe) | M4 | 2026-11-03 |
 | GT-242 | Sprite de Pablo de Neku: más delgado, moño frontal, aros dorados pegados a la oreja (sin tribales, v0.5.1); frente + lado | M4 | 2026-11-03 |
 | GT-243 | Terrenos con textura procedural, decoración, niebla, sol, glow, partículas por zona, viñeta | M5 | 2026-11-03 |
+| GT-292 | v0.10: progresión de cuenta I-X con muros de jefe, líneas de progresión, XP por run, guardado; menú principal, Personajes, fin de run y mapa de run rehechos; tema nuevo | M3 | 2026-11-06 |
 | GT-291 | v0.9.1: auras de élite, jefe (fuego y rayos), furia (ojos rojos) y mejoras; jefes más grandes con modificadores y habilidad nueva; Rey berserker y Archibrujo trasgo; cinemáticas solo con furia / primera vez; fuera los provisionales | M5 | 2026-11-06 |
 | GT-288 | v0.9 escenarios HD-2D: texturas pixel art, escaleras, ruinas, estrado del jefe, zonas Castillo y Fábrica, props con luz, árboles sprite, corte de muros, ambientes de luz (día/atardecer/noche/interiores), fondo de diorama, DoF | M5 | 2026-11-06 |
 | GT-287 | Línea de visión (directos) y alcance de parábolas según altura y obstáculos; previsión de casillas tapadas | M1 | 2026-11-06 |

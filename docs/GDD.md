@@ -422,7 +422,22 @@ Fases: CAST → movimiento → ARRIVE → IMPACT (por golpe) → END, y al final
 
 **Planos:** 3 planos (subterráneo, suelo y superior). Se cambia de plano por escaleras, pozos o habilidades. Se introducen gradualmente, empezando por el suelo.
 
-## 10. Desbloqueos de razas y clases
+## 10. Progresión de cuenta y desbloqueos
+
+**[Decidido v0.10] Progresión real por personaje** (decisión de Neku):
+
+- Cada personaje tiene un **nivel de cuenta del I al X** (en números romanos). Sube con la **XP de las runs que juega como protagonista, ganes o pierdas** (y también si abandonas). La XP de cuenta es la de la run (fases y enemigos), más bonus por etapa superada (+50), jefe vencido (+75) y run completada (+150) (`ProgressionConfig`).
+- **Muros:** el **V** y el **X** solo se superan venciendo a un jefe con ese personaje. Para pasar del V hace falta el Ent o el Troll de arena; la barra se llena hasta el VI y espera. En el X, vencer al Rey berserker o al Archibrujo trasgo da la **Maestría ★**; lo que hay más allá del X está pendiente.
+- **Línea de progresión** (`ProgressionTrack`, una por personaje):
+  - II, IV, VII y IX: más PV, ataque, defensa o crítico;
+  - III, VI, VIII y X: un **modificador propio** con el que empieza cada run, elegido para su kit;
+  - V: arma nueva (Sigrid: hacha de leñador; Elara: espada corta) o +5% de crítico.
+- Los reclutas llegan con sus mejoras de stats y su arma, pero no con sus modificadores (esos son del protagonista).
+- **Pantalla de Personajes:** nivel, XP, la línea I-X con lo desbloqueado en dorado y los muros, la elección de arma y las estadísticas (runs, victorias, mejor etapa, combates, enemigos, turnos, jefes vencidos). El menú principal enseña lo mismo en resumen.
+- **Fin de run:** la XP ganada con su desglose, la barra llenándose nivel a nivel, los desbloqueos nuevos y el aviso de muro. En el futuro, también los objetos conseguidos.
+- **Guardado:** `user://profile.json` (`PlayerProfile` + `ProfileStore`). Los tests y las simulaciones sin pantalla nunca tocan la partida guardada.
+
+**Desbloqueos de razas y clases (propuesta v0.1, pendiente):**
 
 - Al vencer a un miniboss se ofrece **una elección**: quedarte con su raza o con su clase. Una sola.
 - La elección es **permanente en la cuenta**. Si el personaje muere, lo desbloqueado sigue disponible para crear o usar en cualquier personaje.
@@ -609,6 +624,7 @@ Cada hito tiene un criterio de salida. No se pasa al siguiente sin cumplirlo.
 
 ## Changelog
 
+- **v0.10 (Nov 6, 2026)** — Progresión real: nivel de cuenta I-X por personaje con muros de jefe en el V y en el X, línea de progresión (stats, modificadores propios, armas), XP al acabar cada run (también si pierdes), guardado en disco. Pantallas nuevas o rehechas: menú principal, Personajes y progreso, fin de run con la XP animada, mapa de run con medallones y panel de información. Tema visual nuevo (tinta y oro) y fondo animado en todos los menús.
 - **v0.9.2 (Nov 6, 2026)** — Castillo y fábrica nunca son la primera etapa (`ZoneData.min_stage`); enemigos +1 nivel por etapa en vez de +2 (runs simuladas: 4/12 ganadas).
 - **v0.9.1 (Nov 6, 2026)** — Auras: élites (violeta), jefes (fuego multicolor con rayos, más grandes, modificadores innatos y habilidad nueva), modo furia (aura roja y ojos rojos que brillan), mejoras (aura del color del estado). Jefes nuevos: Rey berserker (castillo) y Archibrujo trasgo (fábrica). Cinemáticas solo con furia o la primera vez por combate. Fuera los sprites provisionales y la cueva de la run. No se graba nada sin pedirlo.
 - **v0.9 (Nov 6, 2026)** — Escenarios HD-2D (prueba para elegir): texturas pixel art, escaleras de verdad, ruinas con columnas y braseros, estrado del jefe con escalinata, zonas nuevas **Castillo** y **Fábrica abandonada**, árboles sprite, antorchas, estandartes, corte de muros. Ambientes de luz: día con sol que gira, atardecer, noche con luna, estrellas y rayos volumétricos, interiores; fondo de diorama, desenfoque de profundidad y corrección de color. **Línea de visión** para disparos directos y **alcance de las parábolas** según altura y obstáculos. Críticos sin texto y mucho más llamativos.

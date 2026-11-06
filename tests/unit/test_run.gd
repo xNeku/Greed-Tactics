@@ -255,3 +255,21 @@ func test_late_zones_never_open_the_run() -> void:
 		var other := RunState.new(config, TestFixtures.rules(), s + 1)
 		assert_ne(other.zones[0], late, "seed %d" % (s + 1))
 		assert_eq(other.zones[1], late)
+
+
+func test_summary_counts_kills_bosses_and_xp() -> void:
+	run.choose_node(run.get_choices()[0])
+	var setup := run.start_battle()
+	var boss := TestFixtures.unit_data("Big")
+	boss.id = &"big"
+	boss.rank = UnitData.Rank.BOSS
+	var foes: Array[UnitData] = setup.enemy_units.duplicate()
+	foes.append(boss)
+	var hp: Array[int] = []
+	hp.assign(setup.player_hp)
+	run.complete_battle(true, hp, foes)
+	var summary := run.make_summary()
+	assert_eq(summary.enemies_defeated, foes.size())
+	assert_eq(summary.bosses_defeated, [&"big"] as Array[StringName])
+	assert_true(summary.run_xp > 0)
+	assert_eq(summary.hero_id, run.get_protagonist().data.id)

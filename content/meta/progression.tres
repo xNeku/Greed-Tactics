@@ -1,0 +1,444 @@
+[gd_resource type="Resource" script_class="ProgressionConfig" format=3]
+
+[ext_resource type="Script" path="res://core/meta/progression_config.gd" id="1_script"]
+[ext_resource type="Script" path="res://core/meta/progression_track.gd" id="2_track"]
+[ext_resource type="Script" path="res://core/meta/progression_reward.gd" id="3_reward"]
+[ext_resource type="Script" path="res://core/data/unit_data.gd" id="4_unit"]
+[ext_resource type="Resource" path="res://content/modifiers/iron_knuckles.tres" id="r_0"]
+[ext_resource type="Resource" path="res://content/modifiers/shove.tres" id="r_1"]
+[ext_resource type="Resource" path="res://content/modifiers/bloodthirst.tres" id="r_2"]
+[ext_resource type="Resource" path="res://content/modifiers/burning_rage.tres" id="r_3"]
+[ext_resource type="Resource" path="res://content/units/heroes/kael.tres" id="r_4"]
+[ext_resource type="Resource" path="res://content/modifiers/eagle_eye.tres" id="r_5"]
+[ext_resource type="Resource" path="res://content/modifiers/hawk_eye.tres" id="r_6"]
+[ext_resource type="Resource" path="res://content/modifiers/ricochet.tres" id="r_7"]
+[ext_resource type="Resource" path="res://content/modifiers/critical_burst.tres" id="r_8"]
+[ext_resource type="Resource" path="res://content/units/heroes/pablo.tres" id="r_9"]
+[ext_resource type="Resource" path="res://content/modifiers/gunpowder.tres" id="r_10"]
+[ext_resource type="Resource" path="res://content/modifiers/wide_area.tres" id="r_11"]
+[ext_resource type="Resource" path="res://content/modifiers/efficiency.tres" id="r_12"]
+[ext_resource type="Resource" path="res://content/modifiers/detonation.tres" id="r_13"]
+[ext_resource type="Resource" path="res://content/units/heroes/shaman.tres" id="r_14"]
+[ext_resource type="Resource" path="res://content/modifiers/poisoned_blades.tres" id="r_15"]
+[ext_resource type="Resource" path="res://content/modifiers/backstabber.tres" id="r_16"]
+[ext_resource type="Resource" path="res://content/modifiers/momentum.tres" id="r_17"]
+[ext_resource type="Resource" path="res://content/modifiers/finisher.tres" id="r_18"]
+[ext_resource type="Resource" path="res://content/units/heroes/nyx.tres" id="r_19"]
+[ext_resource type="Resource" path="res://content/modifiers/sharpened.tres" id="r_20"]
+[ext_resource type="Resource" path="res://content/weapons/hacha_pequena.tres" id="r_21"]
+[ext_resource type="Resource" path="res://content/modifiers/seismic_landing.tres" id="r_22"]
+[ext_resource type="Resource" path="res://content/modifiers/stunning_blow.tres" id="r_23"]
+[ext_resource type="Resource" path="res://content/units/heroes/barbarian.tres" id="r_24"]
+[ext_resource type="Resource" path="res://content/modifiers/drilled_basics.tres" id="r_25"]
+[ext_resource type="Resource" path="res://content/weapons/espada_corta.tres" id="r_26"]
+[ext_resource type="Resource" path="res://content/units/heroes/paladin.tres" id="r_27"]
+[ext_resource type="Resource" path="res://content/modifiers/incendiary.tres" id="r_28"]
+[ext_resource type="Resource" path="res://content/units/heroes/gunner.tres" id="r_29"]
+[ext_resource type="Resource" path="res://content/units/enemies/treant.tres" id="r_30"]
+[ext_resource type="Resource" path="res://content/units/enemies/sand_troll.tres" id="r_31"]
+[ext_resource type="Resource" path="res://content/units/enemies/berserker_king.tres" id="r_32"]
+[ext_resource type="Resource" path="res://content/units/enemies/trasgo_archwarlock.tres" id="r_33"]
+
+[sub_resource type="Resource" id="Sub_1"]
+script = ExtResource("3_reward")
+max_hp = 12
+
+[sub_resource type="Resource" id="Sub_2"]
+script = ExtResource("3_reward")
+level = 3
+kind = 1
+modifier = ExtResource("r_0")
+
+[sub_resource type="Resource" id="Sub_3"]
+script = ExtResource("3_reward")
+level = 4
+attack = 2
+
+[sub_resource type="Resource" id="Sub_4"]
+script = ExtResource("3_reward")
+level = 5
+crit_chance = 5
+
+[sub_resource type="Resource" id="Sub_5"]
+script = ExtResource("3_reward")
+level = 6
+kind = 1
+modifier = ExtResource("r_1")
+
+[sub_resource type="Resource" id="Sub_6"]
+script = ExtResource("3_reward")
+level = 7
+max_hp = 12
+defense = 1
+
+[sub_resource type="Resource" id="Sub_7"]
+script = ExtResource("3_reward")
+level = 8
+kind = 1
+modifier = ExtResource("r_2")
+
+[sub_resource type="Resource" id="Sub_8"]
+script = ExtResource("3_reward")
+level = 9
+max_hp = 6
+attack = 2
+
+[sub_resource type="Resource" id="Sub_9"]
+script = ExtResource("3_reward")
+level = 10
+kind = 1
+modifier = ExtResource("r_3")
+
+[sub_resource type="Resource" id="Sub_10"]
+script = ExtResource("2_track")
+hero = ExtResource("r_4")
+rewards = Array[ExtResource("3_reward")]([SubResource("Sub_1"), SubResource("Sub_2"), SubResource("Sub_3"), SubResource("Sub_4"), SubResource("Sub_5"), SubResource("Sub_6"), SubResource("Sub_7"), SubResource("Sub_8"), SubResource("Sub_9")])
+
+[sub_resource type="Resource" id="Sub_11"]
+script = ExtResource("3_reward")
+max_hp = 8
+
+[sub_resource type="Resource" id="Sub_12"]
+script = ExtResource("3_reward")
+level = 3
+kind = 1
+modifier = ExtResource("r_5")
+
+[sub_resource type="Resource" id="Sub_13"]
+script = ExtResource("3_reward")
+level = 4
+attack = 2
+
+[sub_resource type="Resource" id="Sub_14"]
+script = ExtResource("3_reward")
+level = 5
+crit_chance = 5
+
+[sub_resource type="Resource" id="Sub_15"]
+script = ExtResource("3_reward")
+level = 6
+kind = 1
+modifier = ExtResource("r_6")
+
+[sub_resource type="Resource" id="Sub_16"]
+script = ExtResource("3_reward")
+level = 7
+max_hp = 8
+defense = 1
+
+[sub_resource type="Resource" id="Sub_17"]
+script = ExtResource("3_reward")
+level = 8
+kind = 1
+modifier = ExtResource("r_7")
+
+[sub_resource type="Resource" id="Sub_18"]
+script = ExtResource("3_reward")
+level = 9
+max_hp = 4
+attack = 2
+
+[sub_resource type="Resource" id="Sub_19"]
+script = ExtResource("3_reward")
+level = 10
+kind = 1
+modifier = ExtResource("r_8")
+
+[sub_resource type="Resource" id="Sub_20"]
+script = ExtResource("2_track")
+hero = ExtResource("r_9")
+rewards = Array[ExtResource("3_reward")]([SubResource("Sub_11"), SubResource("Sub_12"), SubResource("Sub_13"), SubResource("Sub_14"), SubResource("Sub_15"), SubResource("Sub_16"), SubResource("Sub_17"), SubResource("Sub_18"), SubResource("Sub_19")])
+
+[sub_resource type="Resource" id="Sub_21"]
+script = ExtResource("3_reward")
+max_hp = 8
+
+[sub_resource type="Resource" id="Sub_22"]
+script = ExtResource("3_reward")
+level = 3
+kind = 1
+modifier = ExtResource("r_10")
+
+[sub_resource type="Resource" id="Sub_23"]
+script = ExtResource("3_reward")
+level = 4
+attack = 2
+
+[sub_resource type="Resource" id="Sub_24"]
+script = ExtResource("3_reward")
+level = 5
+crit_chance = 5
+
+[sub_resource type="Resource" id="Sub_25"]
+script = ExtResource("3_reward")
+level = 6
+kind = 1
+modifier = ExtResource("r_11")
+
+[sub_resource type="Resource" id="Sub_26"]
+script = ExtResource("3_reward")
+level = 7
+max_hp = 8
+defense = 1
+
+[sub_resource type="Resource" id="Sub_27"]
+script = ExtResource("3_reward")
+level = 8
+kind = 1
+modifier = ExtResource("r_12")
+
+[sub_resource type="Resource" id="Sub_28"]
+script = ExtResource("3_reward")
+level = 9
+max_hp = 4
+attack = 2
+
+[sub_resource type="Resource" id="Sub_29"]
+script = ExtResource("3_reward")
+level = 10
+kind = 1
+modifier = ExtResource("r_13")
+
+[sub_resource type="Resource" id="Sub_30"]
+script = ExtResource("2_track")
+hero = ExtResource("r_14")
+rewards = Array[ExtResource("3_reward")]([SubResource("Sub_21"), SubResource("Sub_22"), SubResource("Sub_23"), SubResource("Sub_24"), SubResource("Sub_25"), SubResource("Sub_26"), SubResource("Sub_27"), SubResource("Sub_28"), SubResource("Sub_29")])
+
+[sub_resource type="Resource" id="Sub_31"]
+script = ExtResource("3_reward")
+max_hp = 8
+
+[sub_resource type="Resource" id="Sub_32"]
+script = ExtResource("3_reward")
+level = 3
+kind = 1
+modifier = ExtResource("r_15")
+
+[sub_resource type="Resource" id="Sub_33"]
+script = ExtResource("3_reward")
+level = 4
+attack = 2
+
+[sub_resource type="Resource" id="Sub_34"]
+script = ExtResource("3_reward")
+level = 5
+crit_chance = 5
+
+[sub_resource type="Resource" id="Sub_35"]
+script = ExtResource("3_reward")
+level = 6
+kind = 1
+modifier = ExtResource("r_16")
+
+[sub_resource type="Resource" id="Sub_36"]
+script = ExtResource("3_reward")
+level = 7
+max_hp = 8
+defense = 1
+
+[sub_resource type="Resource" id="Sub_37"]
+script = ExtResource("3_reward")
+level = 8
+kind = 1
+modifier = ExtResource("r_17")
+
+[sub_resource type="Resource" id="Sub_38"]
+script = ExtResource("3_reward")
+level = 9
+max_hp = 4
+attack = 2
+
+[sub_resource type="Resource" id="Sub_39"]
+script = ExtResource("3_reward")
+level = 10
+kind = 1
+modifier = ExtResource("r_18")
+
+[sub_resource type="Resource" id="Sub_40"]
+script = ExtResource("2_track")
+hero = ExtResource("r_19")
+rewards = Array[ExtResource("3_reward")]([SubResource("Sub_31"), SubResource("Sub_32"), SubResource("Sub_33"), SubResource("Sub_34"), SubResource("Sub_35"), SubResource("Sub_36"), SubResource("Sub_37"), SubResource("Sub_38"), SubResource("Sub_39")])
+
+[sub_resource type="Resource" id="Sub_41"]
+script = ExtResource("3_reward")
+max_hp = 14
+
+[sub_resource type="Resource" id="Sub_42"]
+script = ExtResource("3_reward")
+level = 3
+kind = 1
+modifier = ExtResource("r_20")
+
+[sub_resource type="Resource" id="Sub_43"]
+script = ExtResource("3_reward")
+level = 4
+attack = 2
+
+[sub_resource type="Resource" id="Sub_44"]
+script = ExtResource("3_reward")
+level = 5
+kind = 2
+weapon = ExtResource("r_21")
+
+[sub_resource type="Resource" id="Sub_45"]
+script = ExtResource("3_reward")
+level = 5
+crit_chance = 5
+
+[sub_resource type="Resource" id="Sub_46"]
+script = ExtResource("3_reward")
+level = 6
+kind = 1
+modifier = ExtResource("r_22")
+
+[sub_resource type="Resource" id="Sub_47"]
+script = ExtResource("3_reward")
+level = 7
+max_hp = 14
+defense = 1
+
+[sub_resource type="Resource" id="Sub_48"]
+script = ExtResource("3_reward")
+level = 8
+kind = 1
+modifier = ExtResource("r_2")
+
+[sub_resource type="Resource" id="Sub_49"]
+script = ExtResource("3_reward")
+level = 9
+max_hp = 7
+attack = 2
+
+[sub_resource type="Resource" id="Sub_50"]
+script = ExtResource("3_reward")
+level = 10
+kind = 1
+modifier = ExtResource("r_23")
+
+[sub_resource type="Resource" id="Sub_51"]
+script = ExtResource("2_track")
+hero = ExtResource("r_24")
+rewards = Array[ExtResource("3_reward")]([SubResource("Sub_41"), SubResource("Sub_42"), SubResource("Sub_43"), SubResource("Sub_44"), SubResource("Sub_45"), SubResource("Sub_46"), SubResource("Sub_47"), SubResource("Sub_48"), SubResource("Sub_49"), SubResource("Sub_50")])
+
+[sub_resource type="Resource" id="Sub_52"]
+script = ExtResource("3_reward")
+max_hp = 14
+
+[sub_resource type="Resource" id="Sub_53"]
+script = ExtResource("3_reward")
+level = 3
+kind = 1
+modifier = ExtResource("r_25")
+
+[sub_resource type="Resource" id="Sub_54"]
+script = ExtResource("3_reward")
+level = 4
+attack = 1
+
+[sub_resource type="Resource" id="Sub_55"]
+script = ExtResource("3_reward")
+level = 5
+kind = 2
+weapon = ExtResource("r_26")
+
+[sub_resource type="Resource" id="Sub_56"]
+script = ExtResource("3_reward")
+level = 5
+crit_chance = 5
+
+[sub_resource type="Resource" id="Sub_57"]
+script = ExtResource("3_reward")
+level = 6
+kind = 1
+modifier = ExtResource("r_23")
+
+[sub_resource type="Resource" id="Sub_58"]
+script = ExtResource("3_reward")
+level = 7
+max_hp = 14
+defense = 1
+
+[sub_resource type="Resource" id="Sub_59"]
+script = ExtResource("3_reward")
+level = 8
+kind = 1
+modifier = ExtResource("r_11")
+
+[sub_resource type="Resource" id="Sub_60"]
+script = ExtResource("3_reward")
+level = 9
+max_hp = 7
+attack = 1
+
+[sub_resource type="Resource" id="Sub_61"]
+script = ExtResource("3_reward")
+level = 10
+kind = 1
+modifier = ExtResource("r_12")
+
+[sub_resource type="Resource" id="Sub_62"]
+script = ExtResource("2_track")
+hero = ExtResource("r_27")
+rewards = Array[ExtResource("3_reward")]([SubResource("Sub_52"), SubResource("Sub_53"), SubResource("Sub_54"), SubResource("Sub_55"), SubResource("Sub_56"), SubResource("Sub_57"), SubResource("Sub_58"), SubResource("Sub_59"), SubResource("Sub_60"), SubResource("Sub_61")])
+
+[sub_resource type="Resource" id="Sub_63"]
+script = ExtResource("3_reward")
+max_hp = 6
+
+[sub_resource type="Resource" id="Sub_64"]
+script = ExtResource("3_reward")
+level = 3
+kind = 1
+modifier = ExtResource("r_28")
+
+[sub_resource type="Resource" id="Sub_65"]
+script = ExtResource("3_reward")
+level = 4
+attack = 2
+
+[sub_resource type="Resource" id="Sub_66"]
+script = ExtResource("3_reward")
+level = 5
+crit_chance = 5
+
+[sub_resource type="Resource" id="Sub_67"]
+script = ExtResource("3_reward")
+level = 6
+kind = 1
+modifier = ExtResource("r_13")
+
+[sub_resource type="Resource" id="Sub_68"]
+script = ExtResource("3_reward")
+level = 7
+max_hp = 6
+defense = 1
+
+[sub_resource type="Resource" id="Sub_69"]
+script = ExtResource("3_reward")
+level = 8
+kind = 1
+modifier = ExtResource("r_8")
+
+[sub_resource type="Resource" id="Sub_70"]
+script = ExtResource("3_reward")
+level = 9
+max_hp = 3
+attack = 2
+
+[sub_resource type="Resource" id="Sub_71"]
+script = ExtResource("3_reward")
+level = 10
+kind = 1
+modifier = ExtResource("r_18")
+
+[sub_resource type="Resource" id="Sub_72"]
+script = ExtResource("2_track")
+hero = ExtResource("r_29")
+rewards = Array[ExtResource("3_reward")]([SubResource("Sub_63"), SubResource("Sub_64"), SubResource("Sub_65"), SubResource("Sub_66"), SubResource("Sub_67"), SubResource("Sub_68"), SubResource("Sub_69"), SubResource("Sub_70"), SubResource("Sub_71")])
+
+[resource]
+script = ExtResource("1_script")
+level_xp = PackedInt32Array(0, 150, 350, 650, 1000, 1450, 2000, 2650, 3400, 4300)
+gate_v_bosses = Array[ExtResource("4_unit")]([ExtResource("r_30"), ExtResource("r_31")])
+gate_x_bosses = Array[ExtResource("4_unit")]([ExtResource("r_32"), ExtResource("r_33")])
+tracks = Array[ExtResource("2_track")]([SubResource("Sub_10"), SubResource("Sub_20"), SubResource("Sub_30"), SubResource("Sub_40"), SubResource("Sub_51"), SubResource("Sub_62"), SubResource("Sub_72")])

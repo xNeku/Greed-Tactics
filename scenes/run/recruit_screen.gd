@@ -19,7 +19,7 @@ func _ready() -> void:
 		_game.go_to_main_menu()
 		return
 	_title_label.text = "Alguien quiere unirse a %s" % run.get_protagonist().data.display_name
-	_subtitle_label.text = "Elige un compañero (grupo %d/%d). Llega a nivel %d con la vida llena; lo controlas tú." % [
+	_subtitle_label.text = "Elige un compañero (grupo %d/%d). Llega a nivel %d con la vida llena y sus mejoras de cuenta; lo controlas tú." % [
 		run.heroes.size(), run.config.party_size, run.level]
 	for data in run.recruit_offer:
 		var card: HeroCard = hero_card_scene.instantiate()
@@ -28,5 +28,6 @@ func _ready() -> void:
 		card.custom_minimum_size = Vector2(300, 0)
 		_offer.add_child(card)
 		card.show_hero(data, run.level)
+		card.show_progress(_game.profile, _game.progression, data.id)
 		card.pressed.connect(_game.recruit.bind(data))
 	_skip_button.pressed.connect(_game.skip_recruit)

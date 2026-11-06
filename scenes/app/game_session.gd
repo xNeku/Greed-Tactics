@@ -13,30 +13,68 @@ const REWARD := "res://scenes/run/reward_screen.tscn"
 const RECRUIT := "res://scenes/run/recruit_screen.tscn"
 const RUN_END := "res://scenes/run/run_end_screen.tscn"
 const BATTLE := "res://scenes/battle/battle.tscn"
+const CHARACTERS := "res://scenes/meta/characters_screen.tscn"
 
 @export var run_config: RunConfig = preload("res://content/run/default_run.tres")
 @export var rules: RulesConfig = preload("res://content/rules/default_rules.tres")
+@export var progression: ProgressionConfig = preload("res://content/meta/progression.tres")
 ## Party level used by quick battles.
 @export var quick_battle_level := 3
 ## Debug/balance: battles launched by the game play themselves (AI on both sides).
 @export var autoplay_battles := false
 
 var run: RunState
+## The saved account (levels, unlocks, stats). Loaded at start.
+var profile: PlayerProfile
+## What the last finished run gave (end screen).
+var last_report: RunReport
 
 var _pending_battle: BattleSetup
 var _battle_owned := false
 var _quick_battle := false
+var _run_booked := false
+
+
+func _ready() -> void:
+	profile = ProfileStore.load_profile() if _can_save() else PlayerProfile.new()
+
+
+## Headless runs (tests, simulations) never touch the player's save.
+func _can_save() -> bool:
+	return DisplayServer.get_name() != "headless"
+
+
+func save_profile() -> void:
+	if _can_save():
+		ProfileStore.save_profile(profile)
 
 
 #region Run
 
 ## [param protagonist] = the hero the run starts with (null = default).
+## The protagonist carries its account unlocks (stats, weapon, modifiers).
 func new_run(run_seed: int = 0, protagonist: UnitData = null) -> void:
-	var party: Array[UnitData] = []
-	if protagonist != null:
-		party.append(protagonist)
+	if protagonist == null:
+		protagonist = run_config.heroes[0]
+	var party: Array[UnitData] = [profile.build_hero(progression, protagonist)]
 	run = RunState.new(run_config, rules, run_seed, party)
+	run.modifiers.append_array(profile.get_modifiers(progression, protagonist.id))
+	_run_booked = false
+	last_report = null
 	_change_scene(RUN_MAP)
+
+
+## Books the finished (or abandoned) run on the protagonist's account, once.
+func _book_run() -> void:
+	if run == null or _run_booked:
+		return
+	_run_booked = true
+	last_report = profile.apply_run(progression, run.make_summary())
+	save_profile()
+
+
+func open_characters() -> void:
+	_change_scene(CHARACTERS)
 
 
 func is_in_run() -> bool:
@@ -58,8 +96,13 @@ func continue_after_reward() -> void:
 	_go_to_run_screen()
 
 
+## Recruits come with their own account stats and weapon (not modifiers:
+## those are the protagonist's).
 func recruit(data: UnitData) -> void:
 	if run.choose_recruit(data):
+		var hero := run.heroes[-1]
+		hero.data = profile.build_hero(progression, data)
+		hero.hp = hero.get_max_hp(run.level)
 		_go_to_run_screen()
 
 
@@ -71,6 +114,7 @@ func skip_recruit() -> void:
 func _go_to_run_screen() -> void:
 	match run.status:
 		RunState.Status.WON, RunState.Status.LOST:
+			_book_run()
 			_change_scene(RUN_END)
 		RunState.Status.RECRUIT:
 			_change_scene(RECRUIT)
@@ -78,7 +122,11 @@ func _go_to_run_screen() -> void:
 			_change_scene(RUN_MAP)
 
 
+## Leaves the run: XP earned so far still counts (booked as a defeat).
 func abandon_run() -> void:
+	if is_in_run():
+		run.status = RunState.Status.LOST
+	_book_run()
 	run = null
 	_change_scene(MAIN_MENU)
 
@@ -145,7 +193,9 @@ func finish_battle(victory: bool, combat: CombatState) -> void:
 		elif unit.summoner == null:
 			enemies.append(unit.data)
 	run.complete_battle(victory, hp, enemies, combat.turn_count, combat.is_objective_met())
-	_change_scene(REWARD if victory else RUN_END)
+	if run.status == RunState.Status.LOST:
+		_book_run()
+	_change_scene(REWARD if run.status == RunState.Status.REWARD else RUN_END)
 
 #endregion
 

@@ -4,6 +4,7 @@
 
 [node name="ModifierCard" type="PanelContainer"]
 custom_minimum_size = Vector2(280, 230)
+theme_type_variation = &"Card"
 script = ExtResource("1_card")
 
 [node name="Layout" type="VBoxContainer" parent="."]

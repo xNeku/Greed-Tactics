@@ -51,6 +51,11 @@ var last_reward: Reward
 var last_event: String = ""
 var battles_won: int = 0
 var total_turns: int = 0
+## For the account (RunSummary): what the run achieved.
+var enemies_defeated: int = 0
+var bosses_defeated: Array[StringName] = []
+var stages_cleared: int = 0
+var xp_earned: int = 0
 
 var _rng := RandomNumberGenerator.new()
 var _recruit_after_reward := false
@@ -78,6 +83,22 @@ func _init(p_config: RunConfig, p_rules: RulesConfig, p_seed: int = 0, party: Ar
 		pool.erase(zone)
 		zones.append(zone)
 		maps.append(RunMap.generate(config.phases_per_stage, config, _rng, config.recruits_per_stage))
+
+
+## What the run leaves for the account (call when it is WON or LOST).
+func make_summary() -> RunSummary:
+	var summary := RunSummary.new()
+	summary.hero_id = get_protagonist().data.id
+	summary.won = status == Status.WON
+	summary.stage_reached = stage + 1
+	summary.stages_cleared = stages_cleared
+	summary.battles_won = battles_won
+	summary.enemies_defeated = enemies_defeated
+	summary.bosses_defeated = bosses_defeated.duplicate()
+	summary.turns = total_turns
+	summary.run_xp = xp_earned
+	summary.gold = gold
+	return summary
 
 
 #region Queries
@@ -186,8 +207,9 @@ func skip_recruit() -> void:
 
 func _roll_recruits() -> void:
 	recruit_offer.clear()
-	var taken := heroes.map(func(h: HeroState) -> UnitData: return h.data)
-	var pool := config.roster.filter(func(d: UnitData) -> bool: return not taken.has(d))
+	# By id: the protagonist may be a copy with its account bonuses.
+	var taken := heroes.map(func(h: HeroState) -> StringName: return h.data.id)
+	var pool := config.roster.filter(func(d: UnitData) -> bool: return not taken.has(d.id))
 	while recruit_offer.size() < config.recruit_offer_size and not pool.is_empty():
 		recruit_offer.append(pool.pop_at(_rng.randi_range(0, pool.size() - 1)))
 
@@ -195,6 +217,7 @@ func _roll_recruits() -> void:
 ## The node is done: back to the map, or on to the next stage after a miniboss.
 func _after_node() -> void:
 	if current_node != null and current_node.kind == RunMap.Kind.MINIBOSS:
+		stages_cleared += 1
 		stage += 1
 		current_node = null
 		if stage >= config.stage_count:
@@ -257,6 +280,10 @@ func complete_battle(victory: bool, survivors_hp: Array[int], enemies: Array[Uni
 		return null
 
 	battles_won += 1
+	enemies_defeated += enemies.size()
+	for enemy in enemies:
+		if enemy.is_boss():
+			bosses_defeated.append(enemy.id)
 	for hero in heroes:
 		if not hero.is_alive():
 			hero.hp = maxi(1, roundi(hero.get_max_hp(level) * config.revive_hp_percent / 100.0))
@@ -280,6 +307,7 @@ func complete_battle(victory: bool, survivors_hp: Array[int], enemies: Array[Uni
 		reward.offers_modifier = true
 		reward.gold += config.objective_gold
 	gold += reward.gold
+	xp_earned += reward.xp
 	reward.levels_gained = add_xp(reward.xp)
 	last_reward = reward
 	_recruit_after_reward = reward.kind == RunMap.Kind.MINIBOSS and not is_party_full() and stage + 1 < config.stage_count

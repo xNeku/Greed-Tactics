@@ -23,6 +23,7 @@ godot --headless --script res://tests/integration/autoplay_battle.gd   # termina
 godot --headless --script res://tests/integration/autoplay_run.gd -- 5 # runs simuladas sin errores
 godot --headless --script res://tests/integration/autoplay_ui_run.gd   # recorrido de pantallas sin errores
 godot --headless --script res://tests/integration/player_input_smoke.gd # input del jugador sin errores
+godot --headless --script res://tests/integration/menus_smoke.gd       # menús y progresión sin errores
 godot --headless --quit-after 300                              # la escena principal arranca sin errores
 ```
 

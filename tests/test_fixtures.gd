@@ -59,6 +59,7 @@ static func skill(power: int = 10, range_min: int = 1, range_max: int = 1) -> Sk
 
 static func unit_data(name: String = "Unit", speed: int = 10) -> UnitData:
 	var data := UnitData.new()
+	data.id = StringName(name.to_snake_case())
 	data.display_name = name
 	data.speed = speed
 	data.max_hp = 100
